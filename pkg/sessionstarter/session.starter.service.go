@@ -1,4 +1,4 @@
-package scraping
+package sessionstarter
 
 import (
 	"carscraper/pkg/adsdb"
@@ -43,7 +43,7 @@ func WithCriteriaSQLRepository(cfg config.IConfig) CrawlinglInitiatorServiceConf
 
 func WithSimpleMessageQueueRepository(cfg config.IConfig) CrawlinglInitiatorServiceConfiguration {
 	smqBaseURL := cfg.GetString(config.SMQURL)
-	smqPort := cfg.GetString(config.SMQPort)
+	smqPort := cfg.GetString(config.SMQHTTPPort)
 	smqURL := fmt.Sprintf("http://%s:%s", smqBaseURL, smqPort)
 
 	smqr := repos.NewSimpleMessageQueueRepository(smqURL)
@@ -65,7 +65,7 @@ func (sss SessionStarterService) Start() {
 	// create and push jobs to queue
 	session := sss.newSession()
 	sss.pushSessionJobs(session.Jobs)
-	log.Println("DONE")
+	log.Printf("Puhsed session %+v", session.SessionID)
 
 }
 
@@ -113,6 +113,7 @@ func (sss SessionStarterService) newJobsFromCriteriaMarkets(criteria adsdb.Crite
 				Name: market.Name,
 				URL:  market.URL,
 			},
+			PageNumber: 1,
 		}
 		rsjs = append(rsjs, rsj)
 	}

@@ -10,14 +10,18 @@ import (
 )
 
 const (
-	AppBaseURL         = "app.baseurl"
-	AppDBUser          = "app.db.user"
-	AppDBPass          = "app.db.pass"
-	AppDBName          = "app.db.name"
-	AppDBHost          = "app.db.host"
-	SMQPort            = "smq.port"
-	SMQURL             = "smq.url"
-	SessionStarterPort = "3223"
+	SessionStarterHTTPPort = "service.sessionstarter.http.port"
+
+	AppBaseURL  = "app.baseurl"
+	AppDBUser   = "app.db.user"
+	AppDBPass   = "app.db.pass"
+	AppDBName   = "app.db.name"
+	AppDBHost   = "app.db.host"
+	SMQHTTPPort = "smq.http.port"
+	SMQURL      = "smq.url"
+
+	SMQJobsTopicName    = "smq.jobs.topic.name"
+	SMQResultsTopicName = "smq.results.topic.name"
 )
 
 type IConfig interface {
@@ -67,12 +71,29 @@ func createViperConfig() (IConfig, error) {
 	viper.AddConfigPath(*path)
 	viper.AddConfigPath(".")
 
+	//SessionStarterHTTPPort = "sessionstarter.http.port"
+	//AppBaseURL             = "app.baseurl"
+	//AppDBUser              = "app.db.user"
+	//AppDBPass              = "app.db.pass"
+	//AppDBName              = "app.db.name"
+	//AppDBHost              = "app.db.host"
+	//SMQHTTPPort            = "smq.http.port"
+	//SMQURL                 = "smq.url"
+
 	// ----- Env bindings -----
+	_ = viper.BindEnv(SessionStarterHTTPPort, "SESSIONSTARTER_HTTP_PORT")
+
 	_ = viper.BindEnv(AppBaseURL, "APP_BASE_URL")
+
 	_ = viper.BindEnv(AppDBUser, "APP_DB_USER")
 	_ = viper.BindEnv(AppDBPass, "APP_DB_PASS")
 	_ = viper.BindEnv(AppDBName, "APP_DB_NAME")
-	_ = viper.BindEnv(SMQPort, "MQ_PORT")
+	_ = viper.BindEnv(AppDBHost, "APP_DB_HOST")
+
+	_ = viper.BindEnv(SMQHTTPPort, "SMQ_HTTP_PORT")
+	_ = viper.BindEnv(SMQURL, "SMQ_URL")
+	_ = viper.BindEnv(SMQJobsTopicName, "SMQ_JOBS_TOPIC_NAME")
+	_ = viper.BindEnv(SMQResultsTopicName, "SMQ_RESULTS_TOPIC_NAME")
 
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()

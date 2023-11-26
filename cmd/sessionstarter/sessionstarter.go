@@ -3,7 +3,7 @@ package main
 import (
 	"carscraper/pkg/config"
 	"carscraper/pkg/errorshandler"
-	"carscraper/pkg/scraping"
+	"carscraper/pkg/sessionstarter"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,9 +18,9 @@ func main() {
 	cfg, err := config.NewViperConfig()
 	errorshandler.HandleErr(err)
 
-	sessionService := scraping.NewSessionStarterService(
-		scraping.WithSimpleMessageQueueRepository(cfg),
-		scraping.WithCriteriaSQLRepository(cfg),
+	sessionService := sessionstarter.NewSessionStarterService(
+		sessionstarter.WithSimpleMessageQueueRepository(cfg),
+		sessionstarter.WithCriteriaSQLRepository(cfg),
 	)
 
 	log.Println("sessionstarter service init...")
@@ -28,13 +28,13 @@ func main() {
 
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")
 
-	appPort := cfg.GetString(config.SessionStarterPort)
+	appPort := cfg.GetString(config.SessionStarterHTTPPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", appPort), r)
 	errorshandler.HandleErr(err)
 	log.Printf("HTTP listening on port %s\n", appPort)
 }
 
-func start(s *scraping.SessionStarterService) http.HandlerFunc {
+func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.Start()
 		w.Write([]byte("started scraping session starter"))

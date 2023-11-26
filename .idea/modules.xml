@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/cars-scraper.iml" filepath="$PROJECT_DIR$/cars-scraper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../smq/smq.iml" filepath="$PROJECT_DIR$/../smq/smq.iml" />
     </modules>
   </component>
 </project>
