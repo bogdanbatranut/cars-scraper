@@ -1,4 +1,5 @@
 app:
+  port: "3223"
   baseurl: "dev.auto-mall.ro"
   db:
     user: "dev"
