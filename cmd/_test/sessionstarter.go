@@ -3,7 +3,7 @@ package main
 import (
 	"carscraper/pkg/config"
 	"carscraper/pkg/errorshandler"
-	"carscraper/pkg/scraping"
+	"carscraper/pkg/sessionstarter"
 	"log"
 )
 
@@ -13,9 +13,9 @@ func main() {
 	cfg, err := config.NewViperConfig()
 	errorshandler.HandleErr(err)
 
-	sessionService := scraping.NewSessionStarterService(
-		scraping.WithSimpleMessageQueueRepository(cfg),
-		scraping.WithCriteriaSQLRepository(cfg),
+	sessionService := sessionstarter.NewSessionStarterService(
+		sessionstarter.WithSimpleMessageQueueRepository(cfg),
+		sessionstarter.WithCriteriaSQLRepository(cfg),
 	)
 	sessionService.Start()
 }

@@ -1,9 +1,19 @@
 package main
 
-import "carscraper/pkg/scraping"
+import (
+	"carscraper/pkg/config"
+	"carscraper/pkg/errorshandler"
+	"carscraper/pkg/scraping/scraper"
+	"log"
+)
 
 func main() {
 
-	sjc := scraping.NewPageScrapingService(scraping.WithSimpleMessageQueueRepository1())
+	log.Println("starting page scraping service...")
+
+	cfg, err := config.NewViperConfig()
+	errorshandler.HandleErr(err)
+
+	sjc := scraper.NewPageScrapingService(cfg, scraper.WithSimpleMessageQueueRepository(cfg))
 	sjc.Start()
 }

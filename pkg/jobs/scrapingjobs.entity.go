@@ -33,6 +33,7 @@ type SessionJob struct {
 	MarketID   uint
 	Criteria   Criteria
 	Market     Market
+	PageNumber int
 }
 
 type ScrapeResult struct {
