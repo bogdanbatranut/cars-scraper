@@ -1,0 +1,17 @@
+services:
+  sessionstarter:
+    build:
+      context: ./
+      dockerfile: cmd/sessionstarter/Dockerfile
+    ports:
+      - "3223:3223"
+    environment:
+      - APP_PORT=3223
+      - SMQ_URL=dev.auto-mall.ro
+      - SMQ_PORT=3113
+#  sessionmanager:
+#    build:
+#      dockerfile: cmd/sessionmanager/Dockerfile
+#      context: ./
+#    ports:
+#      - "3336:3336"

@@ -1,0 +1,10 @@
+app:
+  baseurl: "dev.auto-mall.ro"
+  db:
+    user: "dev"
+    pass: "siana1316"
+    name: "automall"
+    host: "dev.auto-mall.ro"
+smq:
+  port: "3113"
+  url: "dev.auto-mall.ro"
