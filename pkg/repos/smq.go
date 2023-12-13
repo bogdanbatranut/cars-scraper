@@ -72,7 +72,7 @@ func (s SimpleMessageQueueRepository) PutMessage(topic string, message []byte) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Push Message, ", res.StatusCode)
+	log.Printf("Push Message to topic: %s response code: %d", topic, res.StatusCode)
 }
 
 type MessageQueueConfig struct {
