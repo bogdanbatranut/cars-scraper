@@ -2,7 +2,7 @@ package sessionstarter
 
 import (
 	"carscraper/pkg/adsdb"
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/repos"
 	"carscraper/pkg/url"
@@ -35,15 +35,15 @@ func NewSessionStarterService(cfgs ...CrawlinglInitiatorServiceConfiguration) *S
 	return mqs
 }
 
-func WithCriteriaSQLRepository(cfg config.IConfig) CrawlinglInitiatorServiceConfiguration {
+func WithCriteriaSQLRepository(cfg amconfig.IConfig) CrawlinglInitiatorServiceConfiguration {
 	return func(mqs *SessionStarterService) {
 		mqs.criteriasRepository = repos.NewSQLCriteriaRepository(cfg)
 	}
 }
 
-func WithSimpleMessageQueueRepository(cfg config.IConfig) CrawlinglInitiatorServiceConfiguration {
-	smqBaseURL := cfg.GetString(config.SMQURL)
-	smqPort := cfg.GetString(config.SMQHTTPPort)
+func WithSimpleMessageQueueRepository(cfg amconfig.IConfig) CrawlinglInitiatorServiceConfiguration {
+	smqBaseURL := cfg.GetString(amconfig.SMQURL)
+	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
 	smqURL := fmt.Sprintf("http://%s:%s", smqBaseURL, smqPort)
 
 	smqr := repos.NewSimpleMessageQueueRepository(smqURL)
@@ -65,7 +65,7 @@ func (sss SessionStarterService) Start() {
 	// create and push jobs to queue
 	session := sss.newSession()
 	sss.pushSessionJobs(session.Jobs)
-	log.Printf("Puhsed session %+v", session.SessionID)
+	log.Printf("Pushed session %+v", session.SessionID)
 
 }
 
@@ -81,11 +81,18 @@ func (sss SessionStarterService) newSession() jobs.Session {
 }
 
 func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.SessionJob {
-	var sessionJobs []jobs.SessionJob
+	sessionJobs := []jobs.SessionJob{}
 	dbCriterias := *sss.criteriasRepository.GetAll()
 	for _, criteria := range dbCriterias {
+
+		if !criteria.AllowProcess {
+			continue
+		}
+		log.Println("Criteria : ", criteria.CarModel)
 		criteriaMarketsJobs := sss.newJobsFromCriteriaMarkets(criteria, sessionID)
-		sessionJobs = append(sessionJobs, criteriaMarketsJobs...)
+		if criteriaMarketsJobs != nil {
+			sessionJobs = append(sessionJobs, criteriaMarketsJobs...)
+		}
 	}
 	return sessionJobs
 }
@@ -94,6 +101,10 @@ func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.S
 func (sss SessionStarterService) newJobsFromCriteriaMarkets(criteria adsdb.Criteria, sessionID uuid.UUID) []jobs.SessionJob {
 	var rsjs []jobs.SessionJob
 	for _, market := range *criteria.Markets {
+		if !market.AllowProcess {
+			continue
+		}
+		log.Println("Market :", market.Name)
 		//url := sss.urlComposerImplementations.GetComposerImplementation(market.Name).Create(criteria)
 		rsj := jobs.SessionJob{
 			SessionID:  sessionID,
@@ -110,10 +121,9 @@ func (sss SessionStarterService) newJobsFromCriteriaMarkets(criteria adsdb.Crite
 				KmTo:     criteria.KmTo,
 			},
 			Market: jobs.Market{
-				Name: market.Name,
-				URL:  market.URL,
+				Name:       market.Name,
+				PageNumber: 1,
 			},
-			PageNumber: 1,
 		}
 		rsjs = append(rsjs, rsj)
 	}
@@ -130,6 +140,7 @@ func (sss SessionStarterService) pushSessionJobs(jobs []jobs.SessionJob) {
 		if err != nil {
 			panic(err)
 		}
+		log.Printf("Pushing job: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
 		sss.messagesQueue.PutMessage(sss.criteriasTopicName, jobBytes)
 
 	}

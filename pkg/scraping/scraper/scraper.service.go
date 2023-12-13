@@ -1,10 +1,10 @@
 package scraper
 
 import (
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/repos"
-	"carscraper/pkg/scraping/strategies"
+	"carscraper/pkg/scraping/markets"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -31,16 +30,16 @@ type PageScrapingService struct {
 
 type PageScrapingServiceConfiguration func(sjc *PageScrapingService)
 
-func NewPageScrapingService(cfg config.IConfig, cfgs ...PageScrapingServiceConfiguration) *PageScrapingService {
-	jobsTopicName := cfg.GetString(config.SMQJobsTopicName)
+func NewPageScrapingService(cfg amconfig.IConfig, cfgs ...PageScrapingServiceConfiguration) *PageScrapingService {
+	jobsTopicName := cfg.GetString(amconfig.SMQJobsTopicName)
 	service := &PageScrapingService{
 		jobChannel:            make(chan jobs.SessionJob),
 		resultsChannel:        make(chan jobs.AdsPageJobResult),
 		additionalJobsChannel: make(chan jobs.SessionJob),
 		//messageChannel: make(chan []byte),
 		pagesToScrapeTopicName: jobsTopicName,
-		resultsTopicName:       cfg.GetString(config.SMQResultsTopicName),
-		jobsTopicName:          cfg.GetString(config.SMQJobsTopicName),
+		resultsTopicName:       cfg.GetString(amconfig.SMQResultsTopicName),
+		jobsTopicName:          cfg.GetString(amconfig.SMQJobsTopicName),
 	}
 	for _, cfg := range cfgs {
 		cfg(service)
@@ -48,9 +47,9 @@ func NewPageScrapingService(cfg config.IConfig, cfgs ...PageScrapingServiceConfi
 	return service
 }
 
-func WithSimpleMessageQueueRepository(cfg config.IConfig) PageScrapingServiceConfiguration {
-	smqHost := cfg.GetString(config.SMQURL)
-	smqPort := cfg.GetString(config.SMQHTTPPort)
+func WithSimpleMessageQueueRepository(cfg amconfig.IConfig) PageScrapingServiceConfiguration {
+	smqHost := cfg.GetString(amconfig.SMQURL)
+	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
 	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
 	return WithMessageQueueRepository(smqr)
 }
@@ -74,7 +73,6 @@ func (sjc PageScrapingService) Start() {
 	go func() {
 		for {
 			sjc.getJobFromMQ()
-			time.Sleep(2 * time.Second)
 		}
 	}()
 
@@ -120,36 +118,32 @@ func (sjc PageScrapingService) getJobFromMQ() {
 			sjc.messageQueue.PutMessage(sjc.pagesToScrapeTopicName, *message)
 			panic(err)
 		}
-		log.Println("pushing job to jobChannel")
-		log.Println(scrapeJob)
-		sjc.jobChannel <- scrapeJob
-		//sjc.messageChannel <- *message
-	}
+		//log.Println("pushing job to jobChannel")
+		//log.Printf("Scraping service GOT job: criteria: %d, market: %d, pageNumber: %d", scrapeJob.CriteriaID, scrapeJob.MarketID, scrapeJob.Market.PageNumber)
 
-	//return scrapeJob, message
+		sjc.jobChannel <- scrapeJob
+	}
 }
 
 func (sjc PageScrapingService) processJob() {
 	// crawl the page
 	job := <-sjc.jobChannel
-
 	marketName := job.Market.Name
 
-	availableImplementations := strategies.NewImplemetationStrategies()
+	availableImplementations := markets.NewImplemetationStrategies()
 	implementation := availableImplementations.GetImplementation(marketName)
 
-	pageResults, err := implementation.Execute(job.Market.URL)
+	pageResults, isLastPage, err := implementation.Execute(job)
 
 	jobResult := jobs.AdsPageJobResult{
 		RequestedScrapingJob: job,
-		IsLastPage:           false,
+		IsLastPage:           isLastPage,
 		Success:              true,
 		Data:                 &pageResults,
+		PageNumber:           job.Market.PageNumber,
 	}
 
-	if job.PageNumber == 3 {
-		jobResult.IsLastPage = true
-	}
+	// TODO if we have an error while scraping we need to see what happens...
 
 	if err != nil {
 		// push message back in the queue
@@ -157,8 +151,6 @@ func (sjc PageScrapingService) processJob() {
 		//sjc.messageQueue.PutMessage("requestedJobs", message)
 		panic(err)
 	}
-	log.Println("Sending results to channel")
-	log.Println(">>>> ", pageResults)
 	sjc.resultsChannel <- jobResult
 
 	// determine here if a new scrapejob should be created and create it
@@ -166,12 +158,16 @@ func (sjc PageScrapingService) processJob() {
 		return
 	}
 	sjc.createNewSessionJob(job)
-	//return pageResults
 }
 
 func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {
-	pageNuber := oldJob.PageNumber
-	pageNuber++
+	pageNumber := oldJob.Market.PageNumber
+	pageNumber++
+
+	newMarket := jobs.Market{
+		Name:       oldJob.Market.Name,
+		PageNumber: pageNumber,
+	}
 
 	additionalJob := jobs.SessionJob{
 		SessionID:  oldJob.SessionID,
@@ -179,8 +175,7 @@ func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {
 		CriteriaID: oldJob.CriteriaID,
 		MarketID:   oldJob.MarketID,
 		Criteria:   oldJob.Criteria,
-		Market:     oldJob.Market,
-		PageNumber: pageNuber,
+		Market:     newMarket,
 	}
 	sjc.additionalJobsChannel <- additionalJob
 }
@@ -188,15 +183,20 @@ func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {
 func (sjc PageScrapingService) sendResults() {
 	// all fine til here so push the results
 	jobResult := <-sjc.resultsChannel
+	//log.Printf("Scraping service RESULTS: criteria: %d, market: %d, pageNumber: %d", jobResult.RequestedScrapingJob.CriteriaID, jobResult.RequestedScrapingJob.MarketID, jobResult.RequestedScrapingJob.Market.PageNumber)
+
 	resBytes, err := json.Marshal(&jobResult)
 	if err != nil {
 		panic(err)
 	}
 	sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
+	//sjc.messageQueue.PutMessage(jobResult.GetTopic(), resBytes)
 }
 
 func (sjc PageScrapingService) pushAdditionalSessionJob() {
 	job := <-sjc.additionalJobsChannel
+	log.Printf("Scraping service ADDITIONAL: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
+
 	jobBytes, err := json.Marshal(&job)
 	if err != nil {
 		panic(err)

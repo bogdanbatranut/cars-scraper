@@ -9,7 +9,6 @@ type Seller struct {
 	OwnURL       string
 	Ads          []Ad
 	Markets      []Market `gorm:"many2many:seller_markets;"`
-	Prices       []Price
 }
 
 type SellerMarkets struct {

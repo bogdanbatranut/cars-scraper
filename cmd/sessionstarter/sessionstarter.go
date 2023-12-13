@@ -1,7 +1,7 @@
 package main
 
 import (
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/sessionstarter"
 	"fmt"
@@ -15,7 +15,7 @@ func main() {
 
 	log.Println("starting sessionstarter service...")
 
-	cfg, err := config.NewViperConfig()
+	cfg, err := amconfig.NewViperConfig()
 	errorshandler.HandleErr(err)
 
 	sessionService := sessionstarter.NewSessionStarterService(
@@ -28,7 +28,7 @@ func main() {
 
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")
 
-	appPort := cfg.GetString(config.SessionStarterHTTPPort)
+	appPort := cfg.GetString(amconfig.SessionStarterHTTPPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", appPort), r)
 	errorshandler.HandleErr(err)
 	log.Printf("HTTP listening on port %s\n", appPort)

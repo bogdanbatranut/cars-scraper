@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/repos"
 	"encoding/json"
 	"log"
@@ -34,9 +35,9 @@ func WithSimpleMessageQueueRepository() MessageQueueServiceConfiguration {
 	return WithMessageQueueRepository(smqr)
 }
 
-func WithCriteriaSQLRepository() MessageQueueServiceConfiguration {
+func WithCriteriaSQLRepository(cfg amconfig.IConfig) MessageQueueServiceConfiguration {
 	return func(mqs *MessageQueueService) {
-		mqs.criteriasRepository = repos.NewSQLCriteriaRepository()
+		mqs.criteriasRepository = repos.NewSQLCriteriaRepository(cfg)
 	}
 }
 

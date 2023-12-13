@@ -2,7 +2,7 @@ package repos
 
 import (
 	"carscraper/pkg/adsdb"
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -17,11 +17,11 @@ type MigrationRepository struct {
 	db *gorm.DB
 }
 
-func NewMigrationRepository(cfg config.IConfig) *MigrationRepository {
-	dbUser := cfg.GetString(config.AppDBUser)
-	dbPass := cfg.GetString(config.AppDBPass)
-	dbHost := cfg.GetString(config.AppBaseURL)
-	dbName := cfg.GetString(config.AppDBName)
+func NewMigrationRepository(cfg amconfig.IConfig) *MigrationRepository {
+	dbUser := cfg.GetString(amconfig.AppDBUser)
+	dbPass := cfg.GetString(amconfig.AppDBPass)
+	dbHost := cfg.GetString(amconfig.AppBaseURL)
+	dbName := cfg.GetString(amconfig.AppDBName)
 
 	//dsn := fmt.Sprintf("root:rootpass@tcp(host.docker.internal:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", databaseName)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbName)

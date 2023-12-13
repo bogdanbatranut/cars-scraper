@@ -1,31 +1,60 @@
 services:
-  sessionstarter:
+#  sessionstarter:
+#    build:
+#      context: ./
+#      dockerfile: cmd/sessionstarter/Dockerfile
+#    ports:
+#      - "3223:3223"
+#    environment:
+#      - SESSIONSTARTER_HTTP_PORT=3223
+#      - APP_BASE_URL=dev.auto-mall.ro
+#      - APP_DB_USER=dev
+#      - APP_DB_PASS=siana1316
+#      - APP_DB_NAME=
+#      - APP_DB_HOST
+#      - SMQ_URL=dev.auto-mall.ro
+#      - SMQ_HTTP_PORT=3113
+#      - SMQ_JOBS_TOPIC_NAME="jobs"
+#  pagescraper:
+#    build:
+#      context: ./
+#      dockerfile: cmd/pagescraper/Dockerfile
+#    ports:
+#      - "3993:3993"
+#    environment:
+#      - SMQ_URL=dev.auto-mall.ro
+#      - SMQ_HTTP_PORT=3113
+#      - SMQ_JOBS_TOPIC_NAME="jobs"
+#      - SMQ_RESULTS_TOPIC_NAME="results"
+#  mock:
+#    build:
+#      context: ./
+#      dockerfile: cmd/mock/Dockerfile
+#    ports:
+#      - "4114:4114"
+#    environment:
+#      - MOCK_HTTP_PORT=4114
+#      - SMQ_URL=dev.auto-mall.ro
+#      - SMQ_HTTP_PORT=3113
+#      - SMQ_JOBS_TOPIC_NAME="jobs"
+#      - SMQ_RESULTS_TOPIC_NAME="results"
+  resultsconsumer:
     build:
       context: ./
-      dockerfile: cmd/sessionstarter/Dockerfile
+      dockerfile: cmd/resultsconsumer/Dockerfile
     ports:
-      - "3223:3223"
+      - "4224:4224"
     environment:
-      - SESSIONSTARTER_HTTP_PORT=3223
       - APP_BASE_URL=dev.auto-mall.ro
       - APP_DB_USER=dev
       - APP_DB_PASS=siana1316
-      - APP_DB_NAME=
-      - APP_DB_HOST
+      - APP_DB_NAME=automall
+      - APP_DB_HOST=dev.auto-mall.ro
       - SMQ_URL=dev.auto-mall.ro
       - SMQ_HTTP_PORT=3113
-      - SMQ_JOBS_TOPIC_NAME="jobs"
-  pagescraper:
-    build:
-      context: ./
-      dockerfile: cmd/pagescraper/Dockerfile
-    ports:
-      - "3993:3993"
-    environment:
-      - SMQ_URL=dev.auto-mall.ro
-      - SMQ_HTTP_PORT=3113
-      - SMQ_JOBS_TOPIC_NAME="jobs"
-      - SMQ_RESULTS_TOPIC_NAME="results"
+      - SMQ_JOBS_TOPIC_NAME=jobs
+      - SMQ_RESULTS_TOPIC_NAME=results
+
 #  sessionmanager:
 #    build:
 #      dockerfile: cmd/sessionmanager/Dockerfile

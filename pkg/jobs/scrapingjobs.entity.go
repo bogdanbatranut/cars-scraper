@@ -17,8 +17,8 @@ type Criteria struct {
 }
 
 type Market struct {
-	Name string
-	URL  string
+	Name       string
+	PageNumber int
 }
 
 type Session struct {
@@ -33,7 +33,6 @@ type SessionJob struct {
 	MarketID   uint
 	Criteria   Criteria
 	Market     Market
-	PageNumber int
 }
 
 type ScrapeResult struct {

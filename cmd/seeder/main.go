@@ -2,7 +2,7 @@ package main
 
 import (
 	"carscraper/pkg/adsdb"
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/repos"
 )
@@ -11,7 +11,7 @@ func main() {
 	m := getMarkets()
 	c := getGriterias()
 
-	cfg, err := config.NewViperConfig()
+	cfg, err := amconfig.NewViperConfig()
 	errorshandler.HandleErr(err)
 	migrator := repos.NewMigrationRepository(cfg)
 	markets := migrator.WriteMarkets(*m)

@@ -1,0 +1,1394 @@
+{
+    "data": [
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 240 kW (326 CP), 2.993 cm\u00b3, Negru, Metalizat, Negru, Interior par\u0163ial piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 53896.500629999995,
+            "id": 12883958,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 857.3052955014056,
+            "meta": {
+                "title": "Bmw X4 M40 d M SPORT |AHK|PANO|21\"|HUD|H\/K|360\u00b0CAM, 2019, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, M40 d M SPORT |AHK|PANO|21\"|HUD|H\/K|360\u00b0CAM, pre\u0163: \u20ac 46.539 , 2019, Diesel, 326 CP, 39.891 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-m40-d-m-sport-ahk-pano-21-hud-h-k-3600cam-2019-diesel-transmisie-automata-76YuVrjpbP9"
+            },
+            "mileage": "39.891 km",
+            "price": 45291.176999999996,
+            "displayPriceValue": 45291.176999999996,
+            "registeredOn": "04\/2019",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/800x600.webp",
+                "original": {
+                    "id": 551380451,
+                    "vehicle_id": 12883958,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/f64c1a5a-2632-4249-a6b7-bd1ef488fd59_2a29b1be-ab74-4be0-a941-f69234b0a8f5.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-27 08:18:25",
+                    "updated_at": "2023-11-27 08:18:25",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 M40 d M SPORT |AHK|PANO|21\"|HUD|H\/K|360\u00b0CAM",
+            "uniqueId": "76YuVrjpbP9",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.webp",
+                        "uuid": "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7101\/emi-lahodni.webp",
+                        "order": 2,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 16298
+                    }
+                },
+                "image": {
+                    "621e5b00-8928-4462-92aa-e3cdc0617ac7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.png",
+                        "uuid": "621e5b00-8928-4462-92aa-e3cdc0617ac7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7100\/emi-lahodni.png",
+                        "order": 1,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 80090
+                    }
+                },
+                "name": "Emi Lahodni",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 501 086",
+                    "additional": "+40 364 431 112"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 140 kW (190 CP), 1.995 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 49624.74810999999,
+            "id": 12883347,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 700.1101060996735,
+            "meta": {
+                "title": "Bmw X4 xDRIVE20d M SPORT ACC PANO M SITZE ELEKTRISCH, 2020, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDRIVE20d M SPORT ACC PANO M SITZE ELEKTRISCH, pre\u0163: \u20ac 42.949 , 2020, Diesel, 190 CP, 69.899 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive20d-m-sport-acc-pano-m-sitze-elektrisch-2020-diesel-transmisie-automata-75lkg6eK385"
+            },
+            "mileage": "69.899 km",
+            "price": 41701.469,
+            "displayPriceValue": 41701.469,
+            "registeredOn": "02\/2020",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/800x600.webp",
+                "original": {
+                    "id": 551303553,
+                    "vehicle_id": 12883347,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/5d9946e0-80bb-4ef0-85ba-ff24b6ce2b1b_569366f6-a177-4125-9d38-a480349237b8.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-27 01:53:32",
+                    "updated_at": "2023-11-27 01:53:32",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDRIVE20d M SPORT ACC PANO M SITZE ELEKTRISCH",
+            "uniqueId": "75lkg6eK385",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "27dc3896-18fb-49ca-b91f-917af18acc17": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.webp",
+                        "uuid": "27dc3896-18fb-49ca-b91f-917af18acc17",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7083\/paul-todeanca.webp",
+                        "order": 1337,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 43634
+                    }
+                },
+                "image": {
+                    "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.png",
+                        "uuid": "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7082\/paul-todeanca.png",
+                        "order": 1336,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Paul Todeanc\u0103",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 375",
+                    "additional": "+40 364 431 115"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 195 kW (265 CP), 2.993 cm\u00b3, Argintiu, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 46346.996640000005,
+            "id": 12881945,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 682.3566326251015,
+            "meta": {
+                "title": "Bmw X4 xDr30d M SPORT LEDER+STNDH+HUD+ACC+ALED+AHK+20, 2019, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDr30d M SPORT LEDER+STNDH+HUD+ACC+ALED+AHK+20, pre\u0163: \u20ac 40.195 , 2019, Diesel, 265 CP, 55.301 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdr30d-m-sport-leder-stndh-hud-acc-aled-ahk-20-2019-diesel-transmisie-automata-4Mm7lol4Qjf"
+            },
+            "mileage": "55.301 km",
+            "price": 38947.056000000004,
+            "displayPriceValue": 38947.056000000004,
+            "registeredOn": "09\/2019",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/800x600.webp",
+                "original": {
+                    "id": 551097971,
+                    "vehicle_id": 12881945,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b9869b9d-4245-463a-bf3c-a5c0af1d2464_121553a4-3a51-47e3-acd0-2b62d9497f7f.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-26 02:18:20",
+                    "updated_at": "2023-11-26 02:18:20",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDr30d M SPORT LEDER+STNDH+HUD+ACC+ALED+AHK+20",
+            "uniqueId": "4Mm7lol4Qjf",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "7db84d01-8796-4b84-b4ef-46685f0ba4ba": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.webp",
+                        "uuid": "7db84d01-8796-4b84-b4ef-46685f0ba4ba",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7093\/radu-zmolea.webp",
+                        "order": 1341,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 38928
+                    }
+                },
+                "image": {
+                    "5ab5799c-9d3a-410f-81e5-90883e089552": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.png",
+                        "uuid": "5ab5799c-9d3a-410f-81e5-90883e089552",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7092\/radu-zmolea.png",
+                        "order": 1340,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Radu Zmolea",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 001 978",
+                    "additional": "+40 364 431 116"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 140 kW (190 CP), 1.995 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 55924.752100000005,
+            "id": 12881375,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 788.9910904845287,
+            "meta": {
+                "title": "Bmw X4 xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac, pre\u0163: \u20ac 48.244 , 2023, Diesel, 190 CP, 25.074 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-20-d-laser-stop-go-panorama-upe74-130-2023-diesel-transmisie-automata-4NZIbQEj2No"
+            },
+            "mileage": "25.074 km",
+            "price": 46995.590000000004,
+            "displayPriceValue": 46995.590000000004,
+            "registeredOn": "02\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/800x600.webp",
+                "original": {
+                    "id": 551079839,
+                    "vehicle_id": 12881375,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/8da40351-e3f8-479c-9d93-783b715fd464_f4794dba-4417-4c2d-bc65-8bff4ad3677d.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-26 01:39:06",
+                    "updated_at": "2023-11-26 01:39:06",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac",
+            "uniqueId": "4NZIbQEj2No",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.webp",
+                        "uuid": "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7101\/emi-lahodni.webp",
+                        "order": 2,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 16298
+                    }
+                },
+                "image": {
+                    "621e5b00-8928-4462-92aa-e3cdc0617ac7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.png",
+                        "uuid": "621e5b00-8928-4462-92aa-e3cdc0617ac7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7100\/emi-lahodni.png",
+                        "order": 1,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 80090
+                    }
+                },
+                "name": "Emi Lahodni",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 501 086",
+                    "additional": "+40 364 431 112"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 210 kW (286 CP), 2.993 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 56899.49895,
+            "id": 12881376,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 802.74290075188,
+            "meta": {
+                "title": "Bmw X4 xDrive 30 d R.Kam\/Stop&Go\/UPE 79.760\u20ac, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 30 d R.Kam\/Stop&Go\/UPE 79.760\u20ac, pre\u0163: \u20ac 49.063 , 2023, Diesel, 286 CP, 25.026 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-30-d-r-kam-stop-go-upe-79-760-2023-diesel-transmisie-automata-4NZIbQEj2Nr"
+            },
+            "mileage": "25.026 km",
+            "price": 47814.705,
+            "displayPriceValue": 47814.705,
+            "registeredOn": "01\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/800x600.webp",
+                "original": {
+                    "id": 551079854,
+                    "vehicle_id": 12881376,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/fa42447c-6a76-42c4-bfbd-b02dbf65a950_245fb103-0a3e-4216-a3b5-1f694faded39.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-26 01:39:06",
+                    "updated_at": "2023-11-26 01:39:06",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 30 d R.Kam\/Stop&Go\/UPE 79.760\u20ac",
+            "uniqueId": "4NZIbQEj2Nr",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "27dc3896-18fb-49ca-b91f-917af18acc17": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.webp",
+                        "uuid": "27dc3896-18fb-49ca-b91f-917af18acc17",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7083\/paul-todeanca.webp",
+                        "order": 1337,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 43634
+                    }
+                },
+                "image": {
+                    "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.png",
+                        "uuid": "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7082\/paul-todeanca.png",
+                        "order": 1336,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Paul Todeanc\u0103",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 375",
+                    "additional": "+40 364 431 115"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 210 kW (286 CP), 2.993 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 58054.499265,
+            "id": 12881377,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 819.0377420130866,
+            "meta": {
+                "title": "Bmw X4 xDrive 30 d Panoram\/Laser\/Stop&Go\/UPE 81.360\u20ac, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 30 d Panoram\/Laser\/Stop&Go\/UPE 81.360\u20ac, pre\u0163: \u20ac 50.033 , 2023, Diesel, 286 CP, 26.870 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-30-d-panoram-laser-stop-go-upe-81-360-2023-diesel-transmisie-automata-4NZIbQEj2Nq"
+            },
+            "mileage": "26.870 km",
+            "price": 48785.2935,
+            "displayPriceValue": 48785.2935,
+            "registeredOn": "02\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/800x600.webp",
+                "original": {
+                    "id": 551079869,
+                    "vehicle_id": 12881377,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/cf583821-253a-4257-8e3a-e2d798720678_7220fec5-26dd-429f-b345-8feb8e5c09c2.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-26 01:39:06",
+                    "updated_at": "2023-11-26 01:39:06",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 30 d Panoram\/Laser\/Stop&Go\/UPE 81.360\u20ac",
+            "uniqueId": "4NZIbQEj2Nq",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "7db84d01-8796-4b84-b4ef-46685f0ba4ba": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.webp",
+                        "uuid": "7db84d01-8796-4b84-b4ef-46685f0ba4ba",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7093\/radu-zmolea.webp",
+                        "order": 1341,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 38928
+                    }
+                },
+                "image": {
+                    "5ab5799c-9d3a-410f-81e5-90883e089552": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.png",
+                        "uuid": "5ab5799c-9d3a-410f-81e5-90883e089552",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7092\/radu-zmolea.png",
+                        "order": 1340,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Radu Zmolea",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 001 978",
+                    "additional": "+40 364 431 116"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 210 kW (286 CP), 2.993 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 61099.505775,
+            "id": 12881379,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 861.9969491019524,
+            "meta": {
+                "title": "Bmw X4 xDrive 30 d Pano\/Anh\u00e4ng\/Stop&Go\/UPE82.010\u20ac, 2022, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 30 d Pano\/Anh\u00e4ng\/Stop&Go\/UPE82.010\u20ac, pre\u0163: \u20ac 52.592 , 2022, Diesel, 286 CP, 8.807 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-30-d-pano-anhaeng-stop-go-upe82-010-2022-diesel-transmisie-automata-4NZIbQEj2Nk"
+            },
+            "mileage": "8.807 km",
+            "price": 51344.1225,
+            "displayPriceValue": 51344.1225,
+            "registeredOn": "11\/2022",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/800x600.webp",
+                "original": {
+                    "id": 551079884,
+                    "vehicle_id": 12881379,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/11e0c0c0-6340-45fd-ae6d-a65ffb7b949f_37c5d8e3-00a7-4898-9b40-229109c29608.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-26 01:39:06",
+                    "updated_at": "2023-11-26 01:39:06",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 30 d Pano\/Anh\u00e4ng\/Stop&Go\/UPE82.010\u20ac",
+            "uniqueId": "4NZIbQEj2Nk",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "02d0cdd1-fc0c-49cb-87f6-200b3840294b": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.webp",
+                        "uuid": "02d0cdd1-fc0c-49cb-87f6-200b3840294b",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7085\/sorin-deac.webp",
+                        "order": 1339,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 41466
+                    }
+                },
+                "image": {
+                    "b463a4dc-ee55-4753-9c7f-3a2b74c695fa": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.png",
+                        "uuid": "b463a4dc-ee55-4753-9c7f-3a2b74c695fa",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7084\/sorin-deac.png",
+                        "order": 1338,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Sorin Adrian Deac",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 380",
+                    "additional": "+40 364 431 410"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 240 kW (326 CP), 2.993 cm\u00b3, Gri, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat automat, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 51691.495485,
+            "id": 12879609,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 729.2679513099931,
+            "meta": {
+                "title": "Bmw X4 xDrive M40d Navi,HUD,Pano,PDC,SHZ, 2020, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive M40d Navi,HUD,Pano,PDC,SHZ, pre\u0163: \u20ac 44.686 , 2020, Diesel, 326 CP, 59.016 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-m40d-navi-hud-pano-pdc-shz-2020-diesel-transmisie-automata-dXc1q0ivc9H"
+            },
+            "mileage": "59.016 km",
+            "price": 43438.2315,
+            "displayPriceValue": 43438.2315,
+            "registeredOn": "09\/2020",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/800x600.webp",
+                "original": {
+                    "id": 550877929,
+                    "vehicle_id": 12879609,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/684db423-8ef1-42a3-a2da-405d7d51ad54_7b1497ca-0efa-4e7e-8129-2da31d821eac.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-25 16:46:18",
+                    "updated_at": "2023-11-25 16:46:18",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive M40d Navi,HUD,Pano,PDC,SHZ",
+            "uniqueId": "dXc1q0ivc9H",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "02d0cdd1-fc0c-49cb-87f6-200b3840294b": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.webp",
+                        "uuid": "02d0cdd1-fc0c-49cb-87f6-200b3840294b",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7085\/sorin-deac.webp",
+                        "order": 1339,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 41466
+                    }
+                },
+                "image": {
+                    "b463a4dc-ee55-4753-9c7f-3a2b74c695fa": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.png",
+                        "uuid": "b463a4dc-ee55-4753-9c7f-3a2b74c695fa",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7084\/sorin-deac.png",
+                        "order": 1338,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Sorin Adrian Deac",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 380",
+                    "additional": "+40 364 431 410"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "Ma\u015fin\u0103 sport \/ Coupe, Transmisie automat\u0103, 210 kW (286 CP), 2.993 cm\u00b3, Negru, Metalizat, Ro\u015fu, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat automat, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 81846.0978055,
+            "id": 12877644,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 1154.6916085384814,
+            "meta": {
+                "title": "Bmw X4 xDrive30d M Sportpaket Head Up HK HiFi DAB, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive30d M Sportpaket Head Up HK HiFi DAB, pre\u0163: \u20ac 70.026 , 2023, Diesel, 286 CP, 2.500 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive30d-m-sportpaket-head-up-hk-hifi-dab-2023-diesel-transmisie-automata-P4ln6od2V6m"
+            },
+            "mileage": "2.500 km",
+            "price": 68778.23345,
+            "displayPriceValue": 68778.23345,
+            "registeredOn": "10\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/800x600.webp",
+                "original": {
+                    "id": 550670774,
+                    "vehicle_id": 12877644,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/1306ba12-189c-495b-b64b-2c15c0c0cc2d_ee93a8f3-6c3b-48c2-9361-20c932c18963.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-25 04:52:48",
+                    "updated_at": "2023-11-25 04:52:48",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive30d M Sportpaket Head Up HK HiFi DAB",
+            "uniqueId": "P4ln6od2V6m",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "7db84d01-8796-4b84-b4ef-46685f0ba4ba": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.webp",
+                        "uuid": "7db84d01-8796-4b84-b4ef-46685f0ba4ba",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7093\/radu-zmolea.webp",
+                        "order": 1341,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 38928
+                    }
+                },
+                "image": {
+                    "5ab5799c-9d3a-410f-81e5-90883e089552": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.png",
+                        "uuid": "5ab5799c-9d3a-410f-81e5-90883e089552",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7092\/radu-zmolea.png",
+                        "order": 1340,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Radu Zmolea",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 001 978",
+                    "additional": "+40 364 431 116"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 250 kW (340 CP), 2.993 cm\u00b3, Gri, Metalizat, Altele, Textil, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 52750.946534999995,
+            "id": 12877569,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 744.2147755312217,
+            "meta": {
+                "title": "Bmw X4 d Allrad Sportpaket AHK klappbar AHK El. Panodach, 2020, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, d Allrad Sportpaket AHK klappbar AHK El. Panodach, pre\u0163: \u20ac 45.577 , 2020, Diesel, 340 CP, 79.328 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-d-allrad-sportpaket-ahk-klappbar-ahk-el-panodach-2020-diesel-transmisie-automata-P5BvpCsqM4a"
+            },
+            "mileage": "79.328 km",
+            "price": 44328.5265,
+            "displayPriceValue": 44328.5265,
+            "registeredOn": "10\/2020",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/800x600.webp",
+                "original": {
+                    "id": 551508311,
+                    "vehicle_id": 12877569,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/122893d0-31a5-431c-839f-0257e4ca41de_8ff5cde7-9fdc-484e-8af6-01111ecf83e6.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-27 14:15:35",
+                    "updated_at": "2023-11-27 14:15:35",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 d Allrad Sportpaket AHK klappbar AHK El. Panodach",
+            "uniqueId": "P5BvpCsqM4a",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "27dc3896-18fb-49ca-b91f-917af18acc17": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.webp",
+                        "uuid": "27dc3896-18fb-49ca-b91f-917af18acc17",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7083\/paul-todeanca.webp",
+                        "order": 1337,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 43634
+                    }
+                },
+                "image": {
+                    "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac": {
+                        "name": "paul-todeanca",
+                        "file_name": "paul-todeanca.png",
+                        "uuid": "3f4ec85b-cd7a-4386-9edf-6c76cbba33ac",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7082\/paul-todeanca.png",
+                        "order": 1336,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Paul Todeanc\u0103",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 375",
+                    "additional": "+40 364 431 115"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 140 kW (190 CP), 1.995 cm\u00b3, Gri, Metalizat, Maro, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6c",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 38913.696744999994,
+            "id": 12877080,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 556.6979969058311,
+            "meta": {
+                "title": "Bmw X4 xDrive20d X Line,AHK,DrAss,ParkAss,19\"LM, 2019, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive20d X Line,AHK,DrAss,ParkAss,19\"LM, pre\u0163: \u20ac 33.949 , 2019, Diesel, 190 CP, 111.958 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive20d-x-line-ahk-drass-parkass-19-lm-2019-diesel-transmisie-automata-P5XofJcGNve"
+            },
+            "mileage": "111.958 km",
+            "price": 32700.585499999997,
+            "displayPriceValue": 32700.585499999997,
+            "registeredOn": "11\/2019",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/800x600.webp",
+                "original": {
+                    "id": 552020544,
+                    "vehicle_id": 12877080,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/d930ce87-8154-465f-9d3d-d392ef64962f_5c2b8566-93c1-4a40-b51f-af0879f78e79.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-28 15:50:26",
+                    "updated_at": "2023-11-28 15:50:26",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive20d X Line,AHK,DrAss,ParkAss,19\"LM",
+            "uniqueId": "P5XofJcGNve",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "02d0cdd1-fc0c-49cb-87f6-200b3840294b": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.webp",
+                        "uuid": "02d0cdd1-fc0c-49cb-87f6-200b3840294b",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7085\/sorin-deac.webp",
+                        "order": 1339,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 41466
+                    }
+                },
+                "image": {
+                    "b463a4dc-ee55-4753-9c7f-3a2b74c695fa": {
+                        "name": "sorin-deac",
+                        "file_name": "sorin-deac.png",
+                        "uuid": "b463a4dc-ee55-4753-9c7f-3a2b74c695fa",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7084\/sorin-deac.png",
+                        "order": 1338,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Sorin Adrian Deac",
+                "title": "Senior Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 380",
+                    "additional": "+40 364 431 410"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 195 kW (265 CP), 2.993 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d-TEMP",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 52783.496009999995,
+            "id": 12876491,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 744.6739862529614,
+            "meta": {
+                "title": "Bmw X4 xDrive30d M Sport Innovationspaket M Sportsit, 2020, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive30d M Sport Innovationspaket M Sportsit, pre\u0163: \u20ac 45.604 , 2020, Diesel, 265 CP, 49.712 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive30d-m-sport-innovationspaket-m-sportsit-2020-diesel-transmisie-automata-QaFS237CRLj"
+            },
+            "mileage": "49.712 km",
+            "price": 44355.879,
+            "displayPriceValue": 44355.879,
+            "registeredOn": "09\/2020",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/800x600.webp",
+                "original": {
+                    "id": 550633974,
+                    "vehicle_id": 12876491,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/487ca795-6d6e-4914-8a97-f58c3819156a_d05aa494-2190-456f-84a3-b20feae211d7.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-25 01:56:27",
+                    "updated_at": "2023-11-25 01:56:27",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive30d M Sport Innovationspaket M Sportsit",
+            "uniqueId": "QaFS237CRLj",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "7db84d01-8796-4b84-b4ef-46685f0ba4ba": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.webp",
+                        "uuid": "7db84d01-8796-4b84-b4ef-46685f0ba4ba",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7093\/radu-zmolea.webp",
+                        "order": 1341,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 38928
+                    }
+                },
+                "image": {
+                    "5ab5799c-9d3a-410f-81e5-90883e089552": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.png",
+                        "uuid": "5ab5799c-9d3a-410f-81e5-90883e089552",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7092\/radu-zmolea.png",
+                        "order": 1340,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Radu Zmolea",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 001 978",
+                    "additional": "+40 364 431 116"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 140 kW (190 CP), 1.995 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 55819.74412,
+            "id": 12875907,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 787.5096291004598,
+            "meta": {
+                "title": "Bmw X4 xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac, pre\u0163: \u20ac 48.155 , 2023, Diesel, 190 CP, 25.544 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-20-d-laser-stop-go-panorama-upe74-130-2023-diesel-transmisie-automata-MKrXbaNCsAg"
+            },
+            "mileage": "25.544 km",
+            "price": 46907.348000000005,
+            "displayPriceValue": 46907.348000000005,
+            "registeredOn": "02\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/800x600.webp",
+                "original": {
+                    "id": 550621833,
+                    "vehicle_id": 12875907,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/85e229d7-8536-4a85-b36e-acdf45515c5d_9d80f9de-5ab6-4ab3-b029-5158b8781df6.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-25 01:39:24",
+                    "updated_at": "2023-11-25 01:39:24",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 20 d Laser\/Stop&Go\/Panorama\/UPE74.130\u20ac",
+            "uniqueId": "MKrXbaNCsAg",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "66f9661e-b5fe-4512-9a40-1ac1059b5044": {
+                        "name": "marton-toth",
+                        "file_name": "marton-toth.webp",
+                        "uuid": "66f9661e-b5fe-4512-9a40-1ac1059b5044",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7095\/marton-toth.webp",
+                        "order": 1343,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 34832
+                    }
+                },
+                "image": {
+                    "d6e8848d-fb7b-494e-a4f2-b7549a20dbf6": {
+                        "name": "marton-toth",
+                        "file_name": "marton-toth.png",
+                        "uuid": "d6e8848d-fb7b-494e-a4f2-b7549a20dbf6",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7094\/marton-toth.png",
+                        "order": 1342,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "M\u00e1rton Toth",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 775 314 358",
+                    "additional": "+40 364 431 118"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 210 kW (286 CP), 2.993 cm\u00b3, Alb, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 54673.5,
+            "id": 12871190,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 771.3383209722958,
+            "meta": {
+                "title": "Bmw X4 xDr 30dA ACC LiveCockpit Laser DAB, 2022, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDr 30dA ACC LiveCockpit Laser DAB, pre\u0163: \u20ac 47.192 , 2022, Diesel, 286 CP, 21.200 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdr-30da-acc-livecockpit-laser-dab-2022-diesel-transmisie-automata-S819Z0FXsGg"
+            },
+            "mileage": "21.200 km",
+            "price": 45944.117647058825,
+            "displayPriceValue": 45944.117647058825,
+            "registeredOn": "12\/2022",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/800x600.webp",
+                "original": {
+                    "id": 550337502,
+                    "vehicle_id": 12871190,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b661407f-ea7f-4032-9c05-9cedd4f24c09_b73cdcd8-01ff-4915-96a9-1614371e4791.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-24 13:27:15",
+                    "updated_at": "2023-11-24 13:27:15",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDr 30dA ACC LiveCockpit Laser DAB",
+            "uniqueId": "S819Z0FXsGg",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "7db84d01-8796-4b84-b4ef-46685f0ba4ba": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.webp",
+                        "uuid": "7db84d01-8796-4b84-b4ef-46685f0ba4ba",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7093\/radu-zmolea.webp",
+                        "order": 1341,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 38928
+                    }
+                },
+                "image": {
+                    "5ab5799c-9d3a-410f-81e5-90883e089552": {
+                        "name": "radu-zmolea",
+                        "file_name": "radu-zmolea.png",
+                        "uuid": "5ab5799c-9d3a-410f-81e5-90883e089552",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7092\/radu-zmolea.png",
+                        "order": 1340,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 925004
+                    }
+                },
+                "name": "Radu Zmolea",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 001 978",
+                    "additional": "+40 364 431 116"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        },
+        {
+            "description": "SUV\/Off-road\/Camionet\u0103, Transmisie automat\u0103, 140 kW (190 CP), 1.995 cm\u00b3, Negru, Metalizat, Negru, Interior complet din piele, 5, 4\/5, Aer condi\u021bionat manual, Euro 6d",
+            "displayVisitedBadge": true,
+            "fuel": "Diesel",
+            "fuelIcon": "icons-fuel-diesel",
+            "grossPrice": 57604.75482999999,
+            "id": 12869526,
+            "isEligible": true,
+            "isDeleted": false,
+            "isVatReclaimable": true,
+            "isVisited": false,
+            "leasingValue": 812.6927098245575,
+            "meta": {
+                "title": "Bmw X4 xDrive 20d *LASER*ACC*PANO*LEDER*elektr.SITZE*, 2023, Diesel, Transmisie automat\u0103",
+                "description": "Alege un Bmw X4, xDrive 20d *LASER*ACC*PANO*LEDER*elektr.SITZE*, pre\u0163: \u20ac 49.655 , 2023, Diesel, 190 CP, 25.950 km, Transmisie automat\u0103, ma\u015fin\u0103 rulat\u0103 de la WEBCAR \u0219i beneficiezi de servicii complete de achizi\u0163ionare auto: consultan\u0163\u0103, evaluare auto, transport \u0219i siguran\u021ba tranzac\u021biei.",
+                "link": "\/ro-ro\/masina\/bmw-x4-xdrive-20d-laser-acc-pano-leder-elektr-sitze-2023-diesel-transmisie-automata-CJ53USVM8A8"
+            },
+            "mileage": "25.950 km",
+            "price": 48407.356999999996,
+            "displayPriceValue": 48407.356999999996,
+            "registeredOn": "02\/2023",
+            "thumbnails": {
+                "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/250x188.webp",
+                "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/640x480.webp",
+                "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/800x600.webp",
+                "original": {
+                    "id": 550241453,
+                    "vehicle_id": 12869526,
+                    "large": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/800x600.webp",
+                    "medium": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/640x480.webp",
+                    "small": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/250x188.webp",
+                    "original": "https:\/\/prod.pictures.autoscout24.net\/listing-images\/b1af4505-15fa-4783-bf27-cda526cdf685_482df8fe-9311-434c-b8f3-5cb92e5806e9.jpg\/2560x1920.webp",
+                    "created_at": "2023-11-24 10:21:23",
+                    "updated_at": "2023-11-24 10:21:23",
+                    "sort_order": 1
+                }
+            },
+            "title": "Bmw X4 xDrive 20d *LASER*ACC*PANO*LEDER*elektr.SITZE*",
+            "uniqueId": "CJ53USVM8A8",
+            "userCanDelete": false,
+            "userCanEdit": false,
+            "userCanEditOwn": false,
+            "userCanViewHiddenDetails": false,
+            "vendor": "autoscout_24",
+            "salesman": {
+                "webp": {
+                    "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.webp",
+                        "uuid": "87ea0982-0a20-4e5e-9c8c-8fa037d4f0b7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7101\/emi-lahodni.webp",
+                        "order": 2,
+                        "custom_properties": [],
+                        "extension": "webp",
+                        "size": 16298
+                    }
+                },
+                "image": {
+                    "621e5b00-8928-4462-92aa-e3cdc0617ac7": {
+                        "name": "emi-lahodni",
+                        "file_name": "emi-lahodni.png",
+                        "uuid": "621e5b00-8928-4462-92aa-e3cdc0617ac7",
+                        "preview_url": "",
+                        "original_url": "https:\/\/www.webcar.eu\/storage\/7100\/emi-lahodni.png",
+                        "order": 1,
+                        "custom_properties": [],
+                        "extension": "png",
+                        "size": 80090
+                    }
+                },
+                "name": "Emi Lahodni",
+                "title": "Sales Consultant",
+                "phone": {
+                    "main": "+40 771 501 086",
+                    "additional": "+40 364 431 112"
+                }
+            },
+            "sellerDetails": {
+                "companyName": null,
+                "contactName": null,
+                "profileName": null,
+                "isAgreed": "",
+                "isIndependent": "",
+                "dealerType": {
+                    "value": "disabled",
+                    "label": "Disabled",
+                    "badge": ""
+                }
+            }
+        }
+    ],
+    "meta": {
+        "count": 289,
+        "filter": {
+            "fuel": [
+                "diesel"
+            ],
+            "gearbox": [
+                "automatic_gear"
+            ],
+            "make": {
+                "1": "15"
+            },
+            "model": {
+                "1": "290"
+            },
+            "registered_on": {
+                "from": "2019"
+            },
+            "mileage": {
+                "to": "125000"
+            }
+        },
+        "next_url": "https:\/\/www.webcar.eu\/ro-ro\/bff\/search\/paginate?sort=created_at-desc&filter%5Bfuel%5D%5B0%5D=diesel&filter%5Bgearbox%5D%5B0%5D=automatic_gear&filter%5Bmake%5D%5B1%5D=15&filter%5Bmodel%5D%5B1%5D=290&filter%5Bregistered_on%5D%5Bfrom%5D=2019&filter%5Bmileage%5D%5Bto%5D=125000&page=3",
+        "page": 2
+    }
+}

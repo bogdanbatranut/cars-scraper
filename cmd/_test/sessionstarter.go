@@ -1,16 +1,17 @@
 package main
 
 import (
-	"carscraper/pkg/config"
+	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
+	"carscraper/pkg/scraping/scraper"
 	"carscraper/pkg/sessionstarter"
 	"log"
 )
 
 func main() {
-	log.Println("starting sessionstarter service...")
+	log.Println("starting  test sessionstarter service...")
 
-	cfg, err := config.NewViperConfig()
+	cfg, err := amconfig.NewViperConfig()
 	errorshandler.HandleErr(err)
 
 	sessionService := sessionstarter.NewSessionStarterService(
@@ -18,4 +19,7 @@ func main() {
 		sessionstarter.WithCriteriaSQLRepository(cfg),
 	)
 	sessionService.Start()
+
+	sjc := scraper.NewPageScrapingService(cfg, scraper.WithSimpleMessageQueueRepository(cfg))
+	sjc.Start()
 }
