@@ -116,9 +116,17 @@ func (rcs ResultsConsumerService) processResults() {
 		//rcs.scrapeResults.Print()
 		complete := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
 		if complete {
-			log.Println("WE HAVE A COMPLETE CRITERIA IN THE MARKET")
+			brand := result.RequestedScrapingJob.Criteria.Brand
+			model := result.RequestedScrapingJob.Criteria.CarModel
+			market := result.RequestedScrapingJob.Market.Name
+
 			marketSrapintResults := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID]
 			ads := marketSrapintResults.getAds()
+			totalAds := len(ads)
+			if ads == nil {
+				continue
+			}
+			log.Printf("WE HAVE A COMPLETE CRITERIA IN THE MARKET -> Brand: %s Model: %s Market: %s Total Ads: %d", brand, model, market, totalAds)
 			// transform them to db writeable results
 			err := rcs.resultsWriter.WriteAds(ads, result.RequestedScrapingJob.MarketID)
 			if err != nil {

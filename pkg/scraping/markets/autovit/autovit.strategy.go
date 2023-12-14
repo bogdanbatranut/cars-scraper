@@ -40,7 +40,7 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 	if totalCount-offSet < autovitResults.Data.AdvertSearch.PageInfo.PageSize {
 		isLastPage = true
 	}
-
+	//isLastPage = true
 	return ads, isLastPage, nil
 }
 

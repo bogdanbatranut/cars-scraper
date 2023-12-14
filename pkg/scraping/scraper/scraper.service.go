@@ -133,31 +133,34 @@ func (sjc PageScrapingService) processJob() {
 	availableImplementations := markets.NewImplemetationStrategies()
 	implementation := availableImplementations.GetImplementation(marketName)
 
-	pageResults, isLastPage, err := implementation.Execute(job)
+	if implementation != nil {
+		pageResults, isLastPage, err := implementation.Execute(job)
 
-	jobResult := jobs.AdsPageJobResult{
-		RequestedScrapingJob: job,
-		IsLastPage:           isLastPage,
-		Success:              true,
-		Data:                 &pageResults,
-		PageNumber:           job.Market.PageNumber,
+		jobResult := jobs.AdsPageJobResult{
+			RequestedScrapingJob: job,
+			IsLastPage:           isLastPage,
+			Success:              true,
+			Data:                 &pageResults,
+			PageNumber:           job.Market.PageNumber,
+		}
+
+		// TODO if we have an error while scraping we need to see what happens...
+
+		if err != nil {
+			// push message back in the queue
+			//message := <-sjc.messageChannel
+			//sjc.messageQueue.PutMessage("requestedJobs", message)
+			panic(err)
+		}
+		sjc.resultsChannel <- jobResult
+
+		// determine here if a new scrapejob should be created and create it
+		if jobResult.IsLastPage {
+			return
+		}
+		sjc.createNewSessionJob(job)
 	}
 
-	// TODO if we have an error while scraping we need to see what happens...
-
-	if err != nil {
-		// push message back in the queue
-		//message := <-sjc.messageChannel
-		//sjc.messageQueue.PutMessage("requestedJobs", message)
-		panic(err)
-	}
-	sjc.resultsChannel <- jobResult
-
-	// determine here if a new scrapejob should be created and create it
-	if jobResult.IsLastPage {
-		return
-	}
-	sjc.createNewSessionJob(job)
 }
 
 func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {

@@ -46,11 +46,15 @@ type VariablesParam struct {
 }
 
 type URLBuilder struct {
-	criteria jobs.Criteria
+	criteria     jobs.Criteria
+	paramsMapper ParamsMapper
 }
 
 func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
-	return &URLBuilder{criteria: criteria}
+	return &URLBuilder{
+		criteria:     criteria,
+		paramsMapper: NewParamsMapper(),
+	}
 }
 
 func (b URLBuilder) GetPageURL(pageNumber int) string {
@@ -115,7 +119,7 @@ func (b URLBuilder) createFiltersFromCriteria() []Filters {
 		},
 		{
 			Name:  "filter_enum_model",
-			Value: b.criteria.CarModel,
+			Value: b.paramsMapper.GetModelParamValue(b.criteria.CarModel),
 		},
 		{
 			Name:  "filter_enum_fuel_type",

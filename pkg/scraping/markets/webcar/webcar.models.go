@@ -101,8 +101,8 @@ type CarData struct {
 
 func (c CarData) ToAd() *jobs.Ad {
 	carAd := jobs.Ad{
-		Brand:              "bmw",
-		Model:              "x4",
+		Brand:              "",
+		Model:              "",
 		Year:               c.getYear(),
 		Km:                 c.getMileage(),
 		Fuel:               c.getFuel(),

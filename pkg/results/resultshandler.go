@@ -94,6 +94,9 @@ func (rp MarketScrapingResults) getNumOfExistingAds() int {
 
 func (rp MarketScrapingResults) getAds() []jobs.Ad {
 	ads := []jobs.Ad{}
+	if rp.adsInPage[0].results == nil {
+		return nil
+	}
 	for _, adsInPage := range rp.adsInPage {
 		ads = append(ads, *adsInPage.results...)
 	}

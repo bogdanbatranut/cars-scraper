@@ -14,16 +14,18 @@ func NewWebCarStrategy() WebCarStrategy {
 	return WebCarStrategy{}
 }
 
-func (ws WebCarStrategy) Execute(url string) ([]jobs.Ad, error) {
+func (ws WebCarStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
 	var ads []jobs.Ad
-	webCarResults := readResults(url)
+	webCarResults := readResults("")
 
 	for _, carData := range webCarResults.Data {
 		ad := carData.ToAd()
+		ad.Brand = job.Criteria.Brand
+		ad.Model = job.Criteria.CarModel
 		ads = append(ads, *ad)
 	}
 
-	return ads, nil
+	return ads, true, nil
 	//return nil, nil
 }
 

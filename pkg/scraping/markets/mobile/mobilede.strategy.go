@@ -27,6 +27,7 @@ func (as MobileDeStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error)
 		return nil, false, err
 	}
 
+	//isLastPage = true
 	return ads, isLastPage, nil
 }
 
@@ -198,6 +199,5 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		log.Println("WE NO RESULTS SO RETURN !!!!!")
 		return nil, true, nil
 	}
-	//isLastPage = true
 	return foundAds, isLastPage, nil
 }
