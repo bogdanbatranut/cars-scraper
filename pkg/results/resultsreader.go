@@ -112,9 +112,10 @@ func (rcs ResultsConsumerService) processResults() {
 			// TODO implement error in result...
 			continue
 		}
-		log.Printf("results %+v", result)
+
 		// TODO results.Data might be null... this should not happen... below is a fast fix but not ok
 		if result.Data == nil {
+			log.Printf("results %+v", result)
 			continue
 		}
 		if len(*result.Data) == 0 {

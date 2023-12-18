@@ -152,6 +152,9 @@ func (sjc PageScrapingService) processJob() {
 			//sjc.messageQueue.PutMessage("requestedJobs", message)
 			panic(err)
 		}
+		if jobResult.Data == nil {
+			log.Printf("NO RESULTS !!!! %+v", jobResult)
+		}
 		sjc.resultsChannel <- jobResult
 
 		// determine here if a new scrapejob should be created and create it
