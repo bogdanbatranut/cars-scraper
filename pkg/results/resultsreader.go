@@ -112,7 +112,7 @@ func (rcs ResultsConsumerService) processResults() {
 			// TODO implement error in result...
 			continue
 		}
-
+		log.Printf("results %+v", result)
 		if len(*result.Data) == 0 {
 			continue
 		}
