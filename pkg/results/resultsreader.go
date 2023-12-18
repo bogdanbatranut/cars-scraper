@@ -113,6 +113,10 @@ func (rcs ResultsConsumerService) processResults() {
 			continue
 		}
 		log.Printf("results %+v", result)
+		// TODO results.Data might be null... this should not happen... below is a fast fix but not ok
+		if result.Data == nil {
+			continue
+		}
 		if len(*result.Data) == 0 {
 			continue
 		}
