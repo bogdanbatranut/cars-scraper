@@ -98,6 +98,10 @@ func (rp MarketScrapingResults) getAds() []jobs.Ad {
 		return nil
 	}
 	for _, adsInPage := range rp.adsInPage {
+		if *adsInPage.results == nil {
+			log.Println("We have null adsInPage.results")
+			continue
+		}
 		ads = append(ads, *adsInPage.results...)
 	}
 	return ads

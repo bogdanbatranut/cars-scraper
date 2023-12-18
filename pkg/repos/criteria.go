@@ -34,6 +34,6 @@ func NewSQLCriteriaRepository(cfg amconfig.IConfig) *SQLCriteriaRepository {
 
 func (repo SQLCriteriaRepository) GetAll() *[]adsdb.Criteria {
 	var criterias []adsdb.Criteria
-	repo.db.Preload("Markets").Find(&criterias)
+	repo.db.Preload("Markets").Order("brand").Order("car_model").Find(&criterias)
 	return &criterias
 }

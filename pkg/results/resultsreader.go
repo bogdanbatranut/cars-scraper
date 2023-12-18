@@ -112,6 +112,10 @@ func (rcs ResultsConsumerService) processResults() {
 			// TODO implement error in result...
 			continue
 		}
+
+		if len(*result.Data) == 0 {
+			continue
+		}
 		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
 		//rcs.scrapeResults.Print()
 		complete := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
