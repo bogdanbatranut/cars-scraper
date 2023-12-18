@@ -136,7 +136,7 @@ func (sjc PageScrapingService) processJob() {
 	if implementation != nil {
 		pageResults, isLastPage, err := implementation.Execute(job)
 
-		if pageResults != nil {
+		if pageResults == nil {
 			log.Println("THERE ARE NO RESULTS SO RETURN...")
 			return
 		}
