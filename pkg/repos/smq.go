@@ -68,11 +68,11 @@ func (s SimpleMessageQueueRepository) PutMessage(topic string, message []byte) {
 		panic(err)
 	}
 	client := &http.Client{}
-	res, err := client.Do(r)
+	_, err = client.Do(r)
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("Push Message to topic: %s response code: %d", topic, res.StatusCode)
+	//log.Printf("Push Message to topic: %s response code: %d", topic, res.StatusCode)
 }
 
 type MessageQueueConfig struct {
