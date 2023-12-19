@@ -1,6 +1,7 @@
 package markets
 
 import (
+	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autovit"
 	"carscraper/pkg/scraping/markets/mobile"
 )
@@ -15,6 +16,7 @@ func NewImplemetationStrategies() ImplementationStrategies {
 	s["autovit"] = autovit.NewAutovitStrategy()
 	s["mobile.de"] = mobile.NewMobileDeStrategy()
 	//s["webcar"] = webcar.NewWebCarStrategy()
+	s["autoscout"] = autoscout.NewAutoscoutStrategy()
 	is := ImplementationStrategies{
 		strategies: s,
 	}

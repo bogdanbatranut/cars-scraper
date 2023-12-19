@@ -196,7 +196,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	}
 	c.Wait()
 	if len(foundAds) == 0 {
-		log.Println("WE NO RESULTS SO RETURN !!!!!")
+		log.Println("NO MORE RESULTS -> SO RETURN !!!!!")
 		return nil, true, nil
 	}
 	return foundAds, isLastPage, nil

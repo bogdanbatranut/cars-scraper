@@ -194,6 +194,8 @@ func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {
 func (sjc PageScrapingService) sendResults() {
 	// all fine til here so push the results
 	jobResult := <-sjc.resultsChannel
+
+	log.Printf("TotalResults SENT : %d: ", len(*jobResult.Data))
 	//log.Printf("Scraping service RESULTS: criteria: %d, market: %d, pageNumber: %d", jobResult.RequestedScrapingJob.CriteriaID, jobResult.RequestedScrapingJob.MarketID, jobResult.RequestedScrapingJob.Market.PageNumber)
 
 	resBytes, err := json.Marshal(&jobResult)
@@ -206,7 +208,7 @@ func (sjc PageScrapingService) sendResults() {
 
 func (sjc PageScrapingService) pushAdditionalSessionJob() {
 	job := <-sjc.additionalJobsChannel
-	log.Printf("Scraping service ADDITIONAL: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
+	//log.Printf("Scraping service ADDITIONAL: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
 
 	jobBytes, err := json.Marshal(&job)
 	if err != nil {
