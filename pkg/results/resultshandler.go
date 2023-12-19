@@ -50,6 +50,9 @@ func (scmr SessionCriteriaMarketResultsHandler) Add(sessionID uuid.UUID, criteri
 		}
 
 	}
+	if result.IsLastPage {
+		log.Printf("Got last page for : make: %s model: %s", result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
+	}
 	AddPageResults(result.RequestedScrapingJob.Market.PageNumber, result.IsLastPage, &result, scmr.results[sessionIDStr][criteriaID][marketID])
 
 }
@@ -127,6 +130,7 @@ func AddPageResults(pageNumber int, isLastPage bool, ads *jobs.AdsPageJobResult,
 	if rep.lastPageNumber == nil || *rep.lastPageNumber < 1 {
 		if isLastPage {
 			rep.lastPageNumber = &pageNumber
+			log.Println("Got last page for a criteria...")
 		}
 	}
 	aip := AdsInPage{
