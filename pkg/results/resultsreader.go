@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 type ResultsConsumerService struct {
@@ -75,7 +74,7 @@ func (rcs ResultsConsumerService) Start() {
 	go func() {
 		for {
 			rcs.getResultsFromMQ()
-			time.Sleep(2 * time.Second)
+			//time.Sleep(2 * time.Second)
 		}
 	}()
 
