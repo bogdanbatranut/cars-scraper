@@ -57,7 +57,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 
 		numberOfTotalPages := math.Ceil(totalResults / 50)
 
-		log.Printf("Number fo total pages %.4f current page %d from total results %d", numberOfTotalPages, pageNumber, totalResults_)
+		//log.Printf("Number fo total pages %.4f current page %d from total results %d", numberOfTotalPages, pageNumber, totalResults_)
 
 		if float64(pageNumber) == numberOfTotalPages || totalResults == 0 {
 			isLastPage = true

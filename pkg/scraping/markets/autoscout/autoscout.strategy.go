@@ -40,7 +40,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 
 	var totalResults float64
 	c.OnHTML("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > header > div.ListHeader_top__N6YWA > h1 > span > span:nth-child(1)", func(e *colly.HTMLElement) {
-		log.Printf("Market : autoscout ->>Total results : %s", e.Text)
 		totalResultsStr := strings.Replace(e.Text, ".", "", -1)
 		totalResults_, err := strconv.Atoi(totalResultsStr)
 		if err != nil {
@@ -51,7 +50,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 
 		numberOfTotalPages := math.Ceil(totalResults / 20)
 
-		log.Printf("Number fo total pages %.4f current page %d from total results %d", numberOfTotalPages, pageNumber, totalResults_)
+		//log.Printf("Number fo total pages %.4f current page %d from total results %d", numberOfTotalPages, pageNumber, totalResults_)
 
 		if float64(pageNumber) == numberOfTotalPages || totalResults == 0 {
 			isLastPage = true
@@ -60,21 +59,15 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	})
 
 	c.OnHTML("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li:last-child", func(element *colly.HTMLElement) {
-		log.Println(element.Text)
 		_, disabled := element.DOM.Find("button").Attr("disabled")
 		isLastPage = disabled
 	})
-	//#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li.prev-next.pagination-item--disabled > button
 
 	if executionErr != nil {
 		return nil, false, executionErr
 	}
 
-	// On every a element which has href attribute call callback
 	c.OnHTML("article.cldt-summary-full-item.listing-impressions-tracking.list-page-item.false.ListItem_article__qyYw7", func(e *colly.HTMLElement) {
-		//ad := e.DOM.Find("div > div.ListItem_header__J6xlG.ListItem_header_new_design__Rvyv_ > a > h2 > span")
-		//adText := ad.Text()
-
 		sellerType := "dealer"
 
 		sellerFAttr := e.Attr("data-seller-type")
