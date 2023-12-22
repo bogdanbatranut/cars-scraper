@@ -33,9 +33,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 
 	foundAds := []jobs.Ad{}
 
-	//c := colly.NewCollector(
-	//	colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
-	//)
 	c := colly.NewCollector()
 	isLastPage := false
 
@@ -61,6 +58,13 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		}
 
 	})
+
+	c.OnHTML("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li:last-child", func(element *colly.HTMLElement) {
+		log.Println(element.Text)
+		_, disabled := element.DOM.Find("button").Attr("disabled")
+		isLastPage = disabled
+	})
+	//#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li.prev-next.pagination-item--disabled > button
 
 	if executionErr != nil {
 		return nil, false, executionErr
@@ -141,5 +145,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		log.Println("WE NO RESULTS SO RETURN !!!!!")
 		return nil, true, nil
 	}
+
 	return foundAds, isLastPage, nil
 }

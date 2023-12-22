@@ -13,6 +13,7 @@ type Ad struct {
 	Active     bool    `gorm:"not null"`
 	Ad_url     string  `gorm:"not null"`
 	MarketID   uint    `gorm:"not null"`
+	CriteiaID  uint    `gorm:"not null"`
 	SellerID   uint    `gorm:"not null"`
 	Market     Market
 	Seller     Seller

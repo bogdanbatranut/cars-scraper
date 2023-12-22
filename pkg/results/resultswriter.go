@@ -14,18 +14,26 @@ func NewResultsWriter(iadapter IAdsResultsAdapter, rr ResultsRepository) *Result
 	return &ResultsWriter{adapter: iadapter, repo: rr}
 }
 
-func (w ResultsWriter) WriteAds(ads []jobs.Ad, marketID uint) error {
+func (w ResultsWriter) WriteAds(ads []jobs.Ad, marketID uint, criteriaID uint) (*[]uint, error) {
 	var dbAds []adsdb.Ad
 	for _, ad := range ads {
-		dbAd, err := w.adapter.ToActiveDBAd(ad, marketID)
+		dbAd, err := w.adapter.ToActiveDBAd(ad, marketID, criteriaID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		dbAds = append(dbAds, *dbAd)
 	}
-	err := w.repo.WriteResults(dbAds)
+	adsIds, err := w.repo.Write(dbAds)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return adsIds, nil
+}
+
+func (w ResultsWriter) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
+	return w.repo.GetAllAdsIDs(marketID, criteriaID)
+}
+
+func (w ResultsWriter) DeleteAd(adID uint) {
+	w.repo.DeleteAd(adID)
 }

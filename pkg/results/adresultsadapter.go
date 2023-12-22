@@ -11,7 +11,7 @@ import (
 )
 
 type IAdsResultsAdapter interface {
-	ToActiveDBAd(jobs.Ad, uint) (*adsdb.Ad, error)
+	ToActiveDBAd(jobs.Ad, uint, uint) (*adsdb.Ad, error)
 }
 
 type AdsResultsAdapter struct {
@@ -22,7 +22,7 @@ func NewAdsResultsAdapter(cfg amconfig.IConfig) *AdsResultsAdapter {
 	return &AdsResultsAdapter{sellersRepo: repos.NewSellerRepository(cfg)}
 }
 
-func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint) (*adsdb.Ad, error) {
+func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint, criteriaID uint) (*adsdb.Ad, error) {
 	// find seller
 	seller, err := adapter.sellersRepo.GetByURLInMarket(*ad.SellerMarketURL)
 	if err != nil {
@@ -60,6 +60,7 @@ func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint) (*adsdb
 		Active:     true,
 		Ad_url:     ad.Ad_url,
 		MarketID:   marketID,
+		CriteiaID:  criteriaID,
 		SellerID:   seller.ID,
 		// TODO Implement prices repo
 		Prices: prices,

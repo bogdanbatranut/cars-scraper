@@ -135,6 +135,8 @@ func (rcs ResultsConsumerService) processResults() {
 			brand := result.RequestedScrapingJob.Criteria.Brand
 			model := result.RequestedScrapingJob.Criteria.CarModel
 			market := result.RequestedScrapingJob.Market.Name
+			marketID := result.RequestedScrapingJob.MarketID
+			criteriaID := result.RequestedScrapingJob.CriteriaID
 
 			marketSrapintResults := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID]
 			ads := marketSrapintResults.getAds()
@@ -144,10 +146,25 @@ func (rcs ResultsConsumerService) processResults() {
 			}
 			log.Printf("WE HAVE A COMPLETE CRITERIA IN THE MARKET -> Brand: %s Model: %s Market: %s Total Ads: %d", brand, model, market, totalAds)
 			// transform them to db writeable results
-			err := rcs.resultsWriter.WriteAds(ads, result.RequestedScrapingJob.MarketID)
+			upsertedAdsIDs, err := rcs.resultsWriter.WriteAds(ads, result.RequestedScrapingJob.MarketID, result.RequestedScrapingJob.CriteriaID)
 			if err != nil {
 				panic(err)
 			}
+			exsitingAdsIDs := rcs.resultsWriter.GetAllAdsIDs(marketID, criteriaID)
+
+			for _, exsitingAdID := range *exsitingAdsIDs {
+				found := false
+				for _, upsertedAdID := range *upsertedAdsIDs {
+					if exsitingAdID == upsertedAdID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					rcs.resultsWriter.DeleteAd(exsitingAdID)
+				}
+			}
+
 		}
 	}
 }
