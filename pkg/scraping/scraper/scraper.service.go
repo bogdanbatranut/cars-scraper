@@ -136,8 +136,6 @@ func (sjc PageScrapingService) processJob() {
 	if implementation != nil {
 		pageResults, isLastPage, err := implementation.Execute(job)
 
-		log.Printf("Total Results for page: %d isLastpage : %t", len(pageResults), isLastPage)
-
 		if pageResults == nil {
 			log.Println("THERE ARE NO RESULTS SO RETURN...")
 			return
@@ -197,7 +195,7 @@ func (sjc PageScrapingService) sendResults() {
 	// all fine til here so push the results
 	jobResult := <-sjc.resultsChannel
 
-	log.Printf("TotalResults SENT : %d: ", len(*jobResult.Data))
+	//log.Printf("TotalResults SENT : %d: ", len(*jobResult.Data))
 	//log.Printf("Scraping service RESULTS: criteria: %d, market: %d, pageNumber: %d", jobResult.RequestedScrapingJob.CriteriaID, jobResult.RequestedScrapingJob.MarketID, jobResult.RequestedScrapingJob.Market.PageNumber)
 
 	resBytes, err := json.Marshal(&jobResult)

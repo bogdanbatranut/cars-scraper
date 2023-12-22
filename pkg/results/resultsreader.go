@@ -124,11 +124,11 @@ func (rcs ResultsConsumerService) processResults() {
 		}
 		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
 		//rcs.scrapeResults.Print()
-		log.Printf("Results for sessionID: %s Make: %s Model: %s TOTAL in MEM: %d",
-			result.RequestedScrapingJob.SessionID.String(),
-			result.RequestedScrapingJob.Criteria.Brand,
-			result.RequestedScrapingJob.Criteria.CarModel,
-			len(rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].adsInPage))
+		//log.Printf("Results for sessionID: %s Make: %s Model: %s TOTAL in MEM: %d",
+		//	result.RequestedScrapingJob.SessionID.String(),
+		//	result.RequestedScrapingJob.Criteria.Brand,
+		//	result.RequestedScrapingJob.Criteria.CarModel,
+		//	len(rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].adsInPage))
 
 		complete := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
 		if complete {
@@ -162,6 +162,7 @@ func (rcs ResultsConsumerService) processResults() {
 				}
 				if !found {
 					rcs.resultsWriter.DeleteAd(exsitingAdID)
+					log.Printf("Deleted record with ID: %d", exsitingAdID)
 				}
 			}
 
