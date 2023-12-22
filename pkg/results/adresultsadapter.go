@@ -60,7 +60,7 @@ func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint, criteri
 		Active:     true,
 		Ad_url:     ad.Ad_url,
 		MarketID:   marketID,
-		CriteiaID:  criteriaID,
+		CriteriaID: criteriaID,
 		SellerID:   seller.ID,
 		// TODO Implement prices repo
 		Prices: prices,
