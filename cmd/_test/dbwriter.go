@@ -4,7 +4,7 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
-	"carscraper/pkg/results"
+	"carscraper/pkg/repos"
 )
 
 func main() {
@@ -76,7 +76,7 @@ func main() {
 	}
 	ads = append(ads, ad2)
 
-	repo := results.NewResultsRepository(cfg)
-	repo.WriteResults(ads)
+	repo := repos.NewAdsRepository(cfg)
+	repo.Upsert(ads)
 
 }

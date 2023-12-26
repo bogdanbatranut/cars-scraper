@@ -15,7 +15,7 @@ import (
 
 type SessionStarterService struct {
 	messagesQueue              repos.IMessageQueue
-	criteriasRepository        repos.CriteriaRepository
+	criteriasRepository        repos.ICriteriaRepository
 	requesteScrapingJobs       []jobs.Session
 	urlComposerImplementations *url.URLComposerImplementations
 	criteriasTopicName         string

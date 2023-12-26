@@ -11,8 +11,10 @@ import (
 
 type IAdsRepository interface {
 	GetAll() (*[]adsdb.Ad, error)
-	Upsert(ad adsdb.Ad) error
-	//UpsertAll(ads []adsdb.Ad) error
+	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
+	GetAdsForCriteria(criteriaID uint) *[]adsdb.Ad
+	Upsert(ads []adsdb.Ad) (*[]uint, error)
+	DeleteAd(adID uint)
 }
 
 type AdsRepository struct {
@@ -43,27 +45,72 @@ func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
 	return &ads, nil
 }
 
-func (r AdsRepository) Upsert(ad adsdb.Ad) error {
-	tx := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&ad)
-	if tx.Error != nil {
-		return tx.Error
+func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
+	adsIds := []uint{}
+	r.db.Session(&gorm.Session{FullSaveAssociations: true})
+	transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
+		var err error
+		for _, foundAd := range ads {
+			foundAdPrice := foundAd.Prices[0].Price
+			var existingAd adsdb.Ad
+
+			foundMarketUUID := foundAd.MarketUUID
+			tx = r.db.Debug().FirstOrCreate(&existingAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
+			if tx.Error != nil {
+				err = tx.Error
+			}
+
+			// get last price id db
+			var lastExistingPrice adsdb.Price
+			tx = r.db.Debug().Last(&lastExistingPrice, adsdb.Price{AdID: existingAd.ID})
+			if tx.Error != nil {
+				err = tx.Error
+			}
+
+			if lastExistingPrice.Price != foundAdPrice {
+				// insert new price
+				tx = r.db.Debug().Create(&adsdb.Price{Price: foundAdPrice, AdID: existingAd.ID, MarketID: existingAd.MarketID})
+				if tx.Error != nil {
+					err = tx.Error
+				}
+			}
+
+			//price := foundAd.Prices[0]
+			//price.AdID = foundAd.ID
+			//tx = r.db.Debug().FirstOrCreate(&price, adsdb.Price{Price: foundAdPrice}, adsdb.Price{AdID: foundAd.ID})
+			//if tx.Error != nil {
+			//	err = tx.Error
+			//}
+			adsIds = append(adsIds, existingAd.ID)
+		}
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if transactionErr != nil {
+		return nil, transactionErr
 	}
-	return nil
+	return &adsIds, transactionErr
 }
 
-//func (r AdsRepository) UpserAll(ads *adsdb.Ad) error {
-//	transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
-//		var err error
-//		for _, ad := range ads {
-//			tx := r.db.Create(&ad)
-//			if tx.Error != nil {
-//				err = tx.Error
-//			}
-//		}
-//		if err != nil {
-//			return err
-//		}
-//		return nil
-//	})
-//	return transactionErr
-//}
+func (r AdsRepository) DeleteAd(adID uint) {
+	var ad adsdb.Ad
+	r.db.Model(adsdb.Ad{}).Delete(&ad, adID)
+}
+
+func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
+	var ads []adsdb.Ad
+	var adsIDs []uint
+	r.db.Model(adsdb.Ad{}).Select("id").Where("market_id = ? AND criteria_id = ?", marketID, criteriaID).Find(&ads)
+	for _, ad := range ads {
+		adsIDs = append(adsIDs, ad.ID)
+	}
+	return &adsIDs
+}
+
+func (r AdsRepository) GetAdsForCriteria(criteriaID uint) *[]adsdb.Ad {
+	var ads []adsdb.Ad
+	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Find(&ads)
+	return &ads
+}

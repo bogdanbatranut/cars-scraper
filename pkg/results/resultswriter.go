@@ -3,15 +3,16 @@ package results
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/repos"
 )
 
 type ResultsWriter struct {
 	adapter IAdsResultsAdapter
-	repo    ResultsRepository
+	repo    repos.AdsRepository
 }
 
-func NewResultsWriter(iadapter IAdsResultsAdapter, rr ResultsRepository) *ResultsWriter {
-	return &ResultsWriter{adapter: iadapter, repo: rr}
+func NewResultsWriter(iadapter IAdsResultsAdapter, adsRepo repos.AdsRepository) *ResultsWriter {
+	return &ResultsWriter{adapter: iadapter, repo: adsRepo}
 }
 
 func (w ResultsWriter) WriteAds(ads []jobs.Ad, marketID uint, criteriaID uint) (*[]uint, error) {
@@ -23,7 +24,7 @@ func (w ResultsWriter) WriteAds(ads []jobs.Ad, marketID uint, criteriaID uint) (
 		}
 		dbAds = append(dbAds, *dbAd)
 	}
-	adsIds, err := w.repo.Write(dbAds)
+	adsIds, err := w.repo.Upsert(dbAds)
 	if err != nil {
 		return nil, err
 	}

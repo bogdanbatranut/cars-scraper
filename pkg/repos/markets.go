@@ -9,15 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type ICriteriaRepository interface {
-	GetAll() *[]adsdb.Criteria
+type IMarketsRepository interface {
+	GetAll() *[]adsdb.Market
 }
 
-type SQLCriteriaRepository struct {
+type SQLMarketsRepository struct {
 	db *gorm.DB
 }
 
-func NewSQLCriteriaRepository(cfg amconfig.IConfig) *SQLCriteriaRepository {
+func NewSQLMarketsRepository(cfg amconfig.IConfig) *SQLMarketsRepository {
 	databaseName := cfg.GetString(amconfig.AppDBName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
 	dbUser := cfg.GetString(amconfig.AppDBUser)
@@ -27,13 +27,13 @@ func NewSQLCriteriaRepository(cfg amconfig.IConfig) *SQLCriteriaRepository {
 	if err != nil {
 		panic(err)
 	}
-	return &SQLCriteriaRepository{
+	return &SQLMarketsRepository{
 		db: db,
 	}
 }
 
-func (repo SQLCriteriaRepository) GetAll() *[]adsdb.Criteria {
-	var criterias []adsdb.Criteria
-	repo.db.Preload("Markets").Order("brand").Order("car_model").Find(&criterias)
-	return &criterias
+func (repo SQLMarketsRepository) GetAll() *[]adsdb.Market {
+	var markets []adsdb.Market
+	repo.db.Preload("Criterias").Find(&markets)
+	return &markets
 }

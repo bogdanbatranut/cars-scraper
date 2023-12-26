@@ -11,15 +11,17 @@ import (
 
 const (
 	SessionStarterHTTPPort = "service.sessionstarter.http.port"
+	BackendServiceHTTPPort = "service.backend.http.port"
 
-	AppBaseURL   = "app.baseurl"
-	AppDBUser    = "app.db.user"
-	AppDBPass    = "app.db.pass"
-	AppDBName    = "app.db.name"
-	AppDBHost    = "app.db.host"
-	SMQHTTPPort  = "smq.http.port"
-	SMQURL       = "smq.url"
-	MockHTTPPort = "mock.http.port"
+	AppBaseURL    = "app.baseurl"
+	AppDBUser     = "app.db.user"
+	AppDBPass     = "app.db.pass"
+	AppDBName     = "app.db.name"
+	AppTestDBName = "app.test.db.name"
+	AppDBHost     = "app.db.host"
+	SMQHTTPPort   = "smq.http.port"
+	SMQURL        = "smq.url"
+	MockHTTPPort  = "mock.http.port"
 
 	SMQJobsTopicName    = "smq.jobs.topic.name"
 	SMQResultsTopicName = "smq.results.topic.name"
@@ -74,6 +76,7 @@ func createViperConfig() (IConfig, error) {
 
 	// ----- Env bindings -----
 	_ = viper.BindEnv(SessionStarterHTTPPort, "SESSIONSTARTER_HTTP_PORT")
+	_ = viper.BindEnv(BackendServiceHTTPPort, "BACKEND_HTTP_PORT")
 
 	_ = viper.BindEnv(AppBaseURL, "APP_BASE_URL")
 

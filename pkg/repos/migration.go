@@ -17,6 +17,23 @@ type MigrationRepository struct {
 	db *gorm.DB
 }
 
+func NewTestMigrationRepository(cfg amconfig.IConfig) *MigrationRepository {
+	dbUser := cfg.GetString(amconfig.AppDBUser)
+	dbPass := cfg.GetString(amconfig.AppDBPass)
+	dbHost := cfg.GetString(amconfig.AppBaseURL)
+	dbName := cfg.GetString(amconfig.AppTestDBName)
+
+	//dsn := fmt.Sprintf("root:rootpass@tcp(host.docker.internal:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", databaseName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return &MigrationRepository{
+		db: db,
+	}
+}
+
 func NewMigrationRepository(cfg amconfig.IConfig) *MigrationRepository {
 	dbUser := cfg.GetString(amconfig.AppDBUser)
 	dbPass := cfg.GetString(amconfig.AppDBPass)

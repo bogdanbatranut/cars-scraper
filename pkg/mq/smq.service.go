@@ -9,7 +9,7 @@ import (
 
 type MessageQueueService struct {
 	messagesQueue       repos.IMessageQueue
-	criteriasRepository repos.CriteriaRepository
+	criteriasRepository repos.ICriteriaRepository
 }
 
 func NewMessageQueueService(cfgs ...MessageQueueServiceConfiguration) *MessageQueueService {

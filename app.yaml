@@ -1,5 +1,8 @@
 app:
   baseurl: "dev.auto-mall.ro"
+  test:
+    db:
+      name: "test"
   db:
     user: "dev"
     pass: "siana1316"
@@ -9,6 +12,9 @@ service:
   sessionstarter:
     http:
       port: "3223"
+  backend:
+    http:
+      port: "8080"
 smq:
   http:
     port: "3113"
