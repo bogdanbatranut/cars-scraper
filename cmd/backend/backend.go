@@ -20,7 +20,6 @@ func main() {
 	errorshandler.HandleErr(err)
 
 	r := mux.NewRouter().StrictSlash(true)
-	log.Println("here")
 
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)

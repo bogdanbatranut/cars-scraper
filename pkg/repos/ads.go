@@ -81,7 +81,6 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 					if tx.Error != nil {
 						err = tx.Error
 					}
-					r.db.Updates(&foundAd)
 				}
 
 			}
