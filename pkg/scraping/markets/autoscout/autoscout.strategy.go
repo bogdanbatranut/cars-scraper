@@ -2,6 +2,7 @@ package autoscout
 
 import (
 	"carscraper/pkg/jobs"
+	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -114,7 +115,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			Fuel:               criteria.Fuel,
 			Price:              grossPrice,
 			AdID:               adId,
-			Ad_url:             adHref,
+			Ad_url:             fmt.Sprintf("https://www.autoscout24.ro%s", adHref),
 			SellerType:         sellerType,
 			SellerName:         &seller,
 			SellerNameInMarket: &seller,

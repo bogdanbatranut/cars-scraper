@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"fmt"
+	"strings"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -52,26 +53,45 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 		var err error
 		for _, foundAd := range ads {
 			foundAdPrice := foundAd.Prices[0].Price
-			var existingAd adsdb.Ad
-
 			foundMarketUUID := foundAd.MarketUUID
-			tx = r.db.Debug().FirstOrCreate(&existingAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
+
+			tx = r.db.Debug().FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
 			if tx.Error != nil {
 				err = tx.Error
 			}
 
 			// get last price id db
 			var lastExistingPrice adsdb.Price
-			tx = r.db.Debug().Last(&lastExistingPrice, adsdb.Price{AdID: existingAd.ID})
+			tx = r.db.Debug().Last(&lastExistingPrice, adsdb.Price{AdID: foundAd.ID})
 			if tx.Error != nil {
 				err = tx.Error
 			}
 
 			if lastExistingPrice.Price != foundAdPrice {
 				// insert new price
-				tx = r.db.Debug().Create(&adsdb.Price{Price: foundAdPrice, AdID: existingAd.ID, MarketID: existingAd.MarketID})
+				tx = r.db.Debug().Create(&adsdb.Price{Price: foundAdPrice, AdID: foundAd.ID, MarketID: foundAd.MarketID})
 				if tx.Error != nil {
 					err = tx.Error
+				}
+			}
+
+			if foundAd.MarketID == 11 {
+				if !strings.Contains(foundAd.Ad_url, "www.mobile.de") {
+					tx := r.db.Model(&foundAd).Update("ad_url", fmt.Sprintf("https://www.mobile.de%s", foundAd.Ad_url))
+					if tx.Error != nil {
+						err = tx.Error
+					}
+					r.db.Updates(&foundAd)
+				}
+
+			}
+
+			if foundAd.MarketID == 12 {
+				if !strings.Contains(foundAd.Ad_url, "www.autoscout24.ro") {
+					tx := r.db.Model(&foundAd).Update("ad_url", fmt.Sprintf("https://www.autoscout24.ro%s", foundAd.Ad_url))
+					if tx.Error != nil {
+						err = tx.Error
+					}
 				}
 			}
 
@@ -81,7 +101,7 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			//if tx.Error != nil {
 			//	err = tx.Error
 			//}
-			adsIds = append(adsIds, existingAd.ID)
+			adsIds = append(adsIds, foundAd.ID)
 		}
 		if err != nil {
 			return err

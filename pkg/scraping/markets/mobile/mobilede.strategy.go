@@ -159,7 +159,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			Fuel:               criteria.Fuel,
 			Price:              grossPrice,
 			AdID:               mobileAdId,
-			Ad_url:             mobileAdHref,
+			Ad_url:             fmt.Sprintf("https://www.mobile.de%s", mobileAdHref),
 			SellerType:         sellerType,
 			SellerName:         &seller,
 			SellerNameInMarket: &seller,
