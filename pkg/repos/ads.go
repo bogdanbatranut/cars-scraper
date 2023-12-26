@@ -55,21 +55,21 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			foundAdPrice := foundAd.Prices[0].Price
 			foundMarketUUID := foundAd.MarketUUID
 
-			tx = r.db.Debug().FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
+			tx = r.db.FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
 			if tx.Error != nil {
 				err = tx.Error
 			}
 
 			// get last price id db
 			var lastExistingPrice adsdb.Price
-			tx = r.db.Debug().Last(&lastExistingPrice, adsdb.Price{AdID: foundAd.ID})
+			tx = r.db.Last(&lastExistingPrice, adsdb.Price{AdID: foundAd.ID})
 			if tx.Error != nil {
 				err = tx.Error
 			}
 
 			if lastExistingPrice.Price != foundAdPrice {
 				// insert new price
-				tx = r.db.Debug().Create(&adsdb.Price{Price: foundAdPrice, AdID: foundAd.ID, MarketID: foundAd.MarketID})
+				tx = r.db.Create(&adsdb.Price{Price: foundAdPrice, AdID: foundAd.ID, MarketID: foundAd.MarketID})
 				if tx.Error != nil {
 					err = tx.Error
 				}
