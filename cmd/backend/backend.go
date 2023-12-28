@@ -80,7 +80,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		type AdsResponse struct {
 			Data []Ad
 		}
-
+		sort.Sort(ByPrice(ads))
 		res := AdsResponse{Data: ads}
 
 		response, err := json.Marshal(&res)
