@@ -114,8 +114,11 @@ func sortAdsByPrice(ads *[]Ad) {
 func (a ByPrice) Len() int      { return len(a) }
 func (a ByPrice) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByPrice) Less(i, j int) bool {
-	lenOfPrices := len(a[i].Ad.Prices)
-	return a[i].Ad.Prices[lenOfPrices-1].Price < a[j].Ad.Prices[lenOfPrices-1].Price
+	lenOfIPrices := len(a[i].Ad.Prices)
+	lenOfJPrices := len(a[j].Ad.Prices)
+	price_i := a[i].Ad.Prices[lenOfIPrices-1].Price
+	price_j := a[j].Ad.Prices[lenOfJPrices-1].Price
+	return price_i < price_j
 }
 
 func (a BYAge) Len() int      { return len(a) }
