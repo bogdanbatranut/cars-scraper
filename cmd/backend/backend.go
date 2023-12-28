@@ -1,6 +1,7 @@
 package main
 
 import (
+	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/repos"
@@ -65,9 +66,15 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			w.Write([]byte("Invalid ID"))
 			return
 		}
-
 		criterias := repo.GetAdsForCriteria(uint(id))
-		response, err := json.Marshal(&criterias)
+
+		type AdsResponse struct {
+			Data []adsdb.Ad
+		}
+
+		res := AdsResponse{Data: *criterias}
+
+		response, err := json.Marshal(&res)
 		if err != nil {
 			panic(err)
 		}

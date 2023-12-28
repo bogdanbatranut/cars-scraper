@@ -198,12 +198,15 @@ func (sjc PageScrapingService) sendResults() {
 	//log.Printf("TotalResults SENT : %d: ", len(*jobResult.Data))
 	//log.Printf("Scraping service RESULTS: criteria: %d, market: %d, pageNumber: %d", jobResult.RequestedScrapingJob.CriteriaID, jobResult.RequestedScrapingJob.MarketID, jobResult.RequestedScrapingJob.Market.PageNumber)
 
-	resBytes, err := json.Marshal(&jobResult)
-	if err != nil {
-		panic(err)
+	for _, ad := range *jobResult.Data {
+		log.Printf(" %+v", ad)
 	}
-	sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
-	//sjc.messageQueue.PutMessage(jobResult.GetTopic(), resBytes)
+
+	//resBytes, err := json.Marshal(&jobResult)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
 }
 
 func (sjc PageScrapingService) pushAdditionalSessionJob() {

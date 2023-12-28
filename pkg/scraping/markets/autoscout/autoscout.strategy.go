@@ -40,6 +40,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	var executionErr error
 
 	var totalResults float64
+
 	c.OnHTML("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > header > div.ListHeader_top__N6YWA > h1 > span > span:nth-child(1)", func(e *colly.HTMLElement) {
 		totalResultsStr := strings.Replace(e.Text, ".", "", -1)
 		totalResults_, err := strconv.Atoi(totalResultsStr)
@@ -68,7 +69,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		return nil, false, executionErr
 	}
 
-	c.OnHTML("article.cldt-summary-full-item.listing-impressions-tracking.list-page-item.false.ListItem_article__qyYw7", func(e *colly.HTMLElement) {
+	c.OnHTML("article", func(e *colly.HTMLElement) {
 		sellerType := "dealer"
 
 		sellerFAttr := e.Attr("data-seller-type")
@@ -128,6 +129,84 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	if executionErr != nil {
 		return nil, false, executionErr
 	}
+
+	//t := time.Now()
+	//t = t.AddDate(1, 0, 0)
+	//
+	//log.Println(t)
+	//
+	//cookie := http.Cookie{
+	//	Name:       "cconsent-v2",
+	//	Value:      "%7B%22purpose%22%3A%7B%22legitimateInterests%22%3A%5B25%5D%2C%22consents%22%3A%5B%5D%7D%2C%22vendor%22%3A%7B%22legitimateInterests%22%3A%5B10211%2C10218%2C10441%5D%2C%22consents%22%3A%5B%5D%7D%7D",
+	//	Path:       "/",
+	//	Domain:     ".autoscout24.ro",
+	//	Expires:    t,
+	//	RawExpires: "",
+	//	MaxAge:     0,
+	//	Secure:     false,
+	//	HttpOnly:   false,
+	//	SameSite:   http.SameSiteLaxMode,
+	//	Raw:        "",
+	//	Unparsed:   nil,
+	//}
+	//var cookies []*http.Cookie
+	//cookies = append(cookies, &cookie)
+	//
+	//cookie = http.Cookie{
+	//	Name:       "as24-cmp-signature",
+	//	Value:      "ZCen3kxXtVWBetBY98GF2RUzuWQZcIoIlFWyiRN1pJ0lc3O6P3DZuWZoaiVr9KBCYW56Kc42kptzFKP%2F4D%2BsK7uKTrAvczACES8GLVQhtiNQqu%2FjNbDB%2F%2FJzL17ss1qlU3jWKNFbL0U%2F%2FgBpY5HGheKr8szZx%2B7vkqaFE1MHoOQ%3D",
+	//	Path:       "/",
+	//	Domain:     ".autoscout24.ro",
+	//	Expires:    t,
+	//	RawExpires: "",
+	//	MaxAge:     0,
+	//	Secure:     false,
+	//	HttpOnly:   false,
+	//	SameSite:   http.SameSiteLaxMode,
+	//	Raw:        "",
+	//	Unparsed:   nil,
+	//}
+	//cookies = append(cookies, &cookie)
+	//
+	//c.SetCookies(url, cookies)
+	//
+	//cookie = http.Cookie{
+	//	Name:       "addtl_consent",
+	//	Value:      "1~",
+	//	Path:       "/",
+	//	Domain:     ".autoscout24.ro",
+	//	Expires:    t,
+	//	RawExpires: "",
+	//	MaxAge:     0,
+	//	Secure:     false,
+	//	HttpOnly:   false,
+	//	SameSite:   http.SameSiteLaxMode,
+	//	Raw:        "",
+	//	Unparsed:   nil,
+	//}
+	//cookies = append(cookies, &cookie)
+	//
+	//cookie = http.Cookie{
+	//	Name:       "euconsent-v2",
+	//	Value:      "CP3f0kAP3f0kAGNACBROAgEsAP_gAEPgAAAAJStR5D7dbWlBcXp3aPswWY1T19DxpsQhBhaAg6AFiDOQcIwGk2AyNAygJgACEBAEghJBIQFFHAEAAQCAQAgBBAHsIgEEgAAIIABEgEMAQQNIAAgKCIAAAQAYgEAlEFAAmBiQANLkTcigAIAADgAYAAABAIABAgIBAAAYQBIAAAAAACAAAAoAAAAAAAAAAAAAAAAAQAAAIIQoBgChUQAlAQUhFoOEQCAEQVhARAIAAAASAggAACBAQYAwCEWAiAACAAAAAAAAAggABAAAJAAAAAAAAQAAAAAAIAAAAAAAIAEBAAGAAQAAAAAgKAIAAAAAAAAAEAEAAgAhQABACSUCAAAAADgAAAAABAIAAAAAAAgAIAAAAAAAAAAAAQAIB46BiAAsACoAHAAQAAvgBkAGgAPAAiABMACrAFwAXQAxABmADeAHoAP0AhgCJAEsAJoAUYAwABhgDRAHtAPwA_QCLAEdAJKASkAuYBeQDFAHUAReAkQBKgCZAFDgKPAU2AtgBcgDBgGSAMnAZZA1cDWAHFgPHJQGAAFgAcAB4AEQAJgAVQAuABigEMARIAjgBRgDAAH4AXMAxQB1AEXgJEAUeAtgBkgDJwGsAQhKQJwAFgAVAA4ACCAGQAaAA8ACIAEwAKQAVQAxABmAD9AIYAiQBRgDAAGjAPwA_QCLAEdAJKASkAuYBeQDFAHUAReAkQBQ4CmwFsALkAZIAycBlkDWANZAcEA8cCEIQAWABsAEgARwBpADnAIOATsAzQC_wGLAMhCQLwAFgAVAA4AB4AEAAL4AZABoADwAIgATAAqgBmADeAHoAPwAhIBDAESAI4ASwAmgBgADDAGWAO4Ae0A_AD9AI0ASUAlIBcwDFAGiASIAocBR4CkQFNgLYAXIAwYBkgDJwGZwNXA1kBwQDxwIQhgBIAiwBRgDnAOoAocBTYDFgGsgPHEACAASACLAGkAOcAiIChwGsgPHHADgASABHACgAOcAd0BBwEIAIiATsBf4DBAGLAMhAZUAzMiACAACAEIoANAAVACIAJAAWgBHAC2AI4Ac4A7gCDgE7AP-AwQBixCAWAHoARwAwAB3AFzAMUAdQBKgC5AGTgPHIAAgBzgMEJABgAjgDuAIOAv8BiwDxy0AUARwAwAB3AMzAeOWABADLAI4.YAAAAAAAA4CA",
+	//	Path:       "/",
+	//	Domain:     ".autoscout24.ro",
+	//	Expires:    t,
+	//	RawExpires: "",
+	//	MaxAge:     0,
+	//	Secure:     false,
+	//	HttpOnly:   false,
+	//	SameSite:   http.SameSiteLaxMode,
+	//	Raw:        "",
+	//	Unparsed:   nil,
+	//}
+	//cookies = append(cookies, &cookie)
+
+	//c.SetCookies(url, cookies)
+
+	c.OnRequest(func(request *colly.Request) {
+		request.Headers.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
+	})
 
 	err := c.Visit(url)
 	log.Println("Visiting ", url)
