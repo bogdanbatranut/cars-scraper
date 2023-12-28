@@ -195,18 +195,11 @@ func (sjc PageScrapingService) sendResults() {
 	// all fine til here so push the results
 	jobResult := <-sjc.resultsChannel
 
-	//log.Printf("TotalResults SENT : %d: ", len(*jobResult.Data))
-	//log.Printf("Scraping service RESULTS: criteria: %d, market: %d, pageNumber: %d", jobResult.RequestedScrapingJob.CriteriaID, jobResult.RequestedScrapingJob.MarketID, jobResult.RequestedScrapingJob.Market.PageNumber)
-
-	for _, ad := range *jobResult.Data {
-		log.Printf(" %+v", ad)
+	resBytes, err := json.Marshal(&jobResult)
+	if err != nil {
+		panic(err)
 	}
-
-	//resBytes, err := json.Marshal(&jobResult)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
+	sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
 }
 
 func (sjc PageScrapingService) pushAdditionalSessionJob() {

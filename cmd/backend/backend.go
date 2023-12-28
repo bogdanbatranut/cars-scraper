@@ -9,7 +9,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -66,13 +68,20 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			w.Write([]byte("Invalid ID"))
 			return
 		}
-		criterias := repo.GetAdsForCriteria(uint(id))
-
-		type AdsResponse struct {
-			Data []adsdb.Ad
+		dbAds := repo.GetAdsForCriteria(uint(id))
+		var ads []Ad
+		for _, dbAd := range *dbAds {
+			ads = append(ads, Ad{
+				Ad:  dbAd,
+				Age: computeAge(dbAd),
+			})
 		}
 
-		res := AdsResponse{Data: *criterias}
+		type AdsResponse struct {
+			Data []Ad
+		}
+
+		res := AdsResponse{Data: ads}
 
 		response, err := json.Marshal(&res)
 		if err != nil {
@@ -81,4 +90,36 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
+}
+
+func computeAge(ad adsdb.Ad) int {
+	currentTime := time.Now()
+	adFirstSeenTime := ad.CreatedAt
+	diff := currentTime.Sub(adFirstSeenTime)
+	return int(diff.Hours() / 24)
+}
+
+type Ad struct {
+	adsdb.Ad
+	Age int
+}
+
+type ByPrice []Ad
+type BYAge []Ad
+
+func sortAdsByPrice(ads *[]Ad) {
+	sort.Sort(ByPrice(*ads))
+}
+
+func (a ByPrice) Len() int      { return len(a) }
+func (a ByPrice) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByPrice) Less(i, j int) bool {
+	lenOfPrices := len(a[i].Ad.Prices)
+	return a[i].Ad.Prices[lenOfPrices-1].Price < a[j].Ad.Prices[lenOfPrices-1].Price
+}
+
+func (a BYAge) Len() int      { return len(a) }
+func (a BYAge) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a BYAge) Less(i, j int) bool {
+	return a[i].Age < a[j].Age
 }
