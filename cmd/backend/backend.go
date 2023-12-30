@@ -40,6 +40,12 @@ func main() {
 
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		markets := repo.GetAll()
+		response, err := json.Marshal(&markets)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(response)
 	}
 }
 
