@@ -52,7 +52,7 @@ func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *ht
 		if err != nil {
 			panic(err)
 		}
-
+		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
