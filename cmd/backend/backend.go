@@ -42,13 +42,10 @@ func main() {
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		markets := repo.GetAll()
-
 		type MarketsResponse struct {
 			Data []adsdb.Market
 		}
-
 		marketsResponse := MarketsResponse{Data: *markets}
-
 		response, err := json.Marshal(&marketsResponse)
 		if err != nil {
 			panic(err)
