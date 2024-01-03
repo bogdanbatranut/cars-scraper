@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -82,7 +83,14 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			w.Write([]byte("Invalid ID"))
 			return
 		}
-		dbAds := repo.GetAdsForCriteria(uint(id))
+
+		sortOptionDirection := r.URL.Query().Get("sortOptionDirection")
+		sortOption := r.URL.Query().Get("sortOption")
+		marketsStr := r.URL.Query().Get("markets")
+		markets := strings.Split(marketsStr, ",")
+		log.Println(markets)
+
+		dbAds := repo.GetAdsForCriteria(uint(id), markets)
 		var ads []Ad
 		for _, dbAd := range *dbAds {
 			ads = append(ads, Ad{
@@ -94,7 +102,19 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		type AdsResponse struct {
 			Data []Ad
 		}
-		sort.Sort(ByPrice(ads))
+
+		if sortOption == "byAge" {
+			if sortOptionDirection == "desc" {
+				sort.Sort(ByAgeDesc(ads))
+			}
+			sort.Sort(ByAge(ads))
+		} else {
+			if sortOptionDirection == "desc" {
+				sort.Sort(ByPriceDesc(ads))
+			}
+			sort.Sort(ByPrice(ads))
+		}
+
 		res := AdsResponse{Data: ads}
 
 		response, err := json.Marshal(&res)
@@ -119,7 +139,9 @@ type Ad struct {
 }
 
 type ByPrice []Ad
-type BYAge []Ad
+type ByAge []Ad
+type ByPriceDesc []Ad
+type ByAgeDesc []Ad
 
 func sortAdsByPrice(ads *[]Ad) {
 	sort.Sort(ByPrice(*ads))
@@ -135,8 +157,24 @@ func (a ByPrice) Less(i, j int) bool {
 	return price_i < price_j
 }
 
-func (a BYAge) Len() int      { return len(a) }
-func (a BYAge) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a BYAge) Less(i, j int) bool {
+func (a ByAge) Len() int      { return len(a) }
+func (a ByAge) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByAge) Less(i, j int) bool {
 	return a[i].Age < a[j].Age
+}
+
+func (a ByPriceDesc) Len() int      { return len(a) }
+func (a ByPriceDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByPriceDesc) Less(i, j int) bool {
+	lenOfIPrices := len(a[i].Ad.Prices)
+	lenOfJPrices := len(a[j].Ad.Prices)
+	price_i := a[i].Ad.Prices[lenOfIPrices-1].Price
+	price_j := a[j].Ad.Prices[lenOfJPrices-1].Price
+	return price_i > price_j
+}
+
+func (a ByAgeDesc) Len() int      { return len(a) }
+func (a ByAgeDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByAgeDesc) Less(i, j int) bool {
+	return a[i].Age > a[j].Age
 }
