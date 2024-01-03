@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/jobs"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -32,12 +33,13 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 		ads = append(ads, *ad)
 
 	}
+	log.Printf("Got Autovit results : %d", len(ads))
 
 	isLastPage := false
 	totalCount := autovitResults.Data.AdvertSearch.TotalCount
 	offSet := autovitResults.Data.AdvertSearch.PageInfo.CurrentOffset
 
-	if totalCount-offSet < autovitResults.Data.AdvertSearch.PageInfo.PageSize {
+	if totalCount-offSet <= autovitResults.Data.AdvertSearch.PageInfo.PageSize {
 		isLastPage = true
 	}
 	//isLastPage = true

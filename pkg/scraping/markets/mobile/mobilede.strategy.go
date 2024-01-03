@@ -170,7 +170,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	})
 
 	c.OnRequest(func(req *colly.Request) {
-		fmt.Println("Visiting", req.URL.String())
+		fmt.Println("MOBILE Visiting", req.URL.String())
 		fmt.Println("applying headers")
 		req.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
 		req.Headers.Add("Accept-Encoding", "gzip, deflate, br")
@@ -199,5 +199,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		log.Println("NO MORE RESULTS -> SO RETURN !!!!!")
 		return nil, true, nil
 	}
+	log.Println("MOBILE found ads : ", len(foundAds))
 	return foundAds, isLastPage, nil
 }

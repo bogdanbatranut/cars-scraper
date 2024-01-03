@@ -13,7 +13,7 @@ import (
 type IAdsRepository interface {
 	GetAll() (*[]adsdb.Ad, error)
 	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
-	GetAdsForCriteria(criteriaID uint) *[]adsdb.Ad
+	GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
 }
@@ -128,8 +128,8 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 	return &adsIDs
 }
 
-func (r AdsRepository) GetAdsForCriteria(criteriaID uint) *[]adsdb.Ad {
+func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
-	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Find(&ads)
+	r.db.Debug().Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Find(&ads)
 	return &ads
 }

@@ -209,7 +209,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	})
 
 	err := c.Visit(url)
-	log.Println("Visiting ", url)
+	log.Println("AUTOSCOUT Visiting ", url)
 	if err != nil {
 		return nil, false, err
 	}
@@ -218,6 +218,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		log.Println("WE NO RESULTS SO RETURN !!!!!")
 		return nil, true, nil
 	}
-
+	log.Println("AUTOSCOUT found ads : ", len(foundAds))
 	return foundAds, isLastPage, nil
 }
