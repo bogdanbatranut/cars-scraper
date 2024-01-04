@@ -29,7 +29,7 @@ func main() {
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
 
-	cleanupPrices(adsRepo)
+	//cleanupPrices(adsRepo)
 
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
