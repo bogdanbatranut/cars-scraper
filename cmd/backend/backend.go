@@ -48,15 +48,17 @@ func cleanupPrices(repo repos.IAdsRepository) {
 		panic(err)
 	}
 	for _, ad := range *allAds {
-		if len(ad.Prices) > 1 {
-			firstPrice := ad.Prices[0].Price
-			for i, price := range ad.Prices {
+		prices := repo.GetAdPrices(ad.ID)
+		if len(prices) > 1 {
+			log.Println("Ad has more prices")
+			firstPrice := prices[0].Price
+			for i, price := range prices {
 				if i >= 1 {
 					if price.Price == firstPrice {
+						log.Println("Deleting price ...")
 						repo.DeletePrice(price.ID)
 					}
 				}
-
 			}
 		}
 	}

@@ -17,6 +17,7 @@ type IAdsRepository interface {
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
 	DeletePrice(priceID uint)
+	GetAdPrices(adID uint) []adsdb.Price
 }
 
 type AdsRepository struct {
@@ -143,4 +144,14 @@ func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string) *[]a
 	var ads []adsdb.Ad
 	r.db.Debug().Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Find(&ads)
 	return &ads
+}
+
+func (r AdsRepository) GetAdPrices(adID uint) []adsdb.Price {
+	var prices []adsdb.Price
+	price := adsdb.Price{AdID: adID}
+	tx := r.db.Find(&prices, price)
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	return prices
 }
