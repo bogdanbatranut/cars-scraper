@@ -29,6 +29,8 @@ func main() {
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
 
+	cleanupPrices(adsRepo)
+
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
@@ -37,6 +39,24 @@ func main() {
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
 	errorshandler.HandleErr(err)
 
+}
+
+func cleanupPrices(repo repos.IAdsRepository) {
+	// get all ads
+	allAds, err := repo.GetAll()
+	if err != nil {
+		panic(err)
+	}
+	for _, ad := range *allAds {
+		if len(ad.Prices) > 1 {
+			firstPrice := ad.Prices[0].Price
+			for _, price := range ad.Prices {
+				if price.Price == firstPrice {
+					repo.DeletePrice(price.ID)
+				}
+			}
+		}
+	}
 }
 
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {

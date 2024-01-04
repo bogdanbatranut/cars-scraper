@@ -16,6 +16,7 @@ type IAdsRepository interface {
 	GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
+	DeletePrice(priceID uint)
 }
 
 type AdsRepository struct {
@@ -116,6 +117,16 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 func (r AdsRepository) DeleteAd(adID uint) {
 	var ad adsdb.Ad
 	r.db.Model(adsdb.Ad{}).Delete(&ad, adID)
+}
+
+func (r AdsRepository) DeletePrice(priceID uint) {
+	model := gorm.Model{
+		ID: priceID,
+	}
+	price := adsdb.Price{
+		Model: &model,
+	}
+	r.db.Model(adsdb.Price{}).Unscoped().Delete(&price)
 }
 
 func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
