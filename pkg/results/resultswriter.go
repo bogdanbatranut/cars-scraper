@@ -18,6 +18,9 @@ func NewResultsWriter(iadapter IAdsResultsAdapter, adsRepo repos.AdsRepository) 
 func (w ResultsWriter) WriteAds(ads []jobs.Ad, marketID uint, criteriaID uint) (*[]uint, error) {
 	var dbAds []adsdb.Ad
 	for _, ad := range ads {
+		if ad.Price == 0 {
+			continue
+		}
 		dbAd, err := w.adapter.ToActiveDBAd(ad, marketID, criteriaID)
 		if err != nil {
 			return nil, err

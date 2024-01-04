@@ -115,7 +115,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		if len(yearAndKm) >= 7 {
 			if strings.Contains(yearAndKm, "/") {
 				km_ := yearAndKm[9:]
-				kmStr := strings.Replace(km_, ".", "", -1)
+				kmStr = strings.Replace(km_, ".", "", -1)
 				kmStr = strings.Replace(kmStr, "\u00a0", "", -1)
 				kmStr = strings.Replace(kmStr, "km", "", -1)
 			} else {

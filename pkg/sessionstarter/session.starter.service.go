@@ -142,6 +142,5 @@ func (sss SessionStarterService) pushSessionJobs(jobs []jobs.SessionJob) {
 		}
 		log.Printf("Pushing job: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
 		sss.messagesQueue.PutMessage(sss.criteriasTopicName, jobBytes)
-
 	}
 }

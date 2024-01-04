@@ -114,14 +114,29 @@ func (rcs ResultsConsumerService) processResults() {
 			continue
 		}
 
-		// TODO results.Data might be null... this should not happen... below is a fast fix but not ok
-		if result.Data == nil {
+		// TODO results.Data might be null... this happens on mobile when traversing pages... at some point you just get an empty page..
+
+		if result.Data == nil || len(*result.Data) == 0 {
 			log.Printf("results %+v", result)
-			continue
+			result.Data = &[]jobs.Ad{jobs.Ad{
+				Brand:              "",
+				Model:              "",
+				Year:               0,
+				Km:                 0,
+				Fuel:               "",
+				Price:              0,
+				AdID:               "",
+				Ad_url:             "",
+				SellerType:         "",
+				SellerName:         nil,
+				SellerNameInMarket: nil,
+				SellerOwnURL:       nil,
+				SellerMarketURL:    nil,
+			}}
+			result.IsLastPage = true
+			//continue
 		}
-		if len(*result.Data) == 0 {
-			continue
-		}
+
 		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
 		//rcs.scrapeResults.Print()
 		//log.Printf("Results for sessionID: %s Make: %s Model: %s TOTAL in MEM: %d",

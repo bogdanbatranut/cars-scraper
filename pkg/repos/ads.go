@@ -56,10 +56,16 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 		for _, foundAd := range ads {
 			foundAdPrice := foundAd.Prices[0].Price
 			foundMarketUUID := foundAd.MarketUUID
+			foundAdKm := foundAd.Km
 
 			tx = r.db.FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
 			if tx.Error != nil {
 				err = tx.Error
+			}
+
+			if foundAd.Km != foundAdKm {
+				foundAd.Km = foundAdKm
+				r.db.Save(&foundAd)
 			}
 
 			// get last price id db

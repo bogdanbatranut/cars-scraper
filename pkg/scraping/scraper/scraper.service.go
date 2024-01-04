@@ -135,10 +135,11 @@ func (sjc PageScrapingService) processJob() {
 
 	if implementation != nil {
 		pageResults, isLastPage, err := implementation.Execute(job)
-
-		if pageResults == nil {
-			log.Println("THERE ARE NO RESULTS SO RETURN...")
-			return
+		if err != nil {
+			// push message back in the queue
+			//message := <-sjc.messageChannel
+			//sjc.messageQueue.PutMessage("requestedJobs", message)
+			panic(err)
 		}
 
 		jobResult := jobs.AdsPageJobResult{
@@ -149,16 +150,13 @@ func (sjc PageScrapingService) processJob() {
 			PageNumber:           job.Market.PageNumber,
 		}
 
+		if pageResults == nil {
+			jobResult.IsLastPage = true
+		}
 		// TODO if we have an error while scraping we need to see what happens...
 
-		if err != nil {
-			// push message back in the queue
-			//message := <-sjc.messageChannel
-			//sjc.messageQueue.PutMessage("requestedJobs", message)
-			panic(err)
-		}
-		if jobResult.Data == nil {
-			log.Printf("NO RESULTS !!!! %+v", jobResult)
+		if jobResult.IsLastPage {
+			log.Println("Pushing job with lasPage in resultsChannel")
 		}
 		sjc.resultsChannel <- jobResult
 
@@ -194,7 +192,9 @@ func (sjc PageScrapingService) createNewSessionJob(oldJob jobs.SessionJob) {
 func (sjc PageScrapingService) sendResults() {
 	// all fine til here so push the results
 	jobResult := <-sjc.resultsChannel
-
+	if jobResult.IsLastPage {
+		log.Println("Pushing jobresults with last page")
+	}
 	resBytes, err := json.Marshal(&jobResult)
 	if err != nil {
 		panic(err)
