@@ -28,8 +28,10 @@ func main() {
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
-
-	//cleanupPrices(adsRepo)
+	//chartsRepo := repos.NewChartsRepository(cfg)
+	//chartsRepo.GetAdsPricesByStep(5000)
+	////cleanupPrices(adsRepo)
+	//return
 
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
@@ -40,6 +42,12 @@ func main() {
 	errorshandler.HandleErr(err)
 
 }
+
+//func getPriceDistribution(repo repos.IAdsRepository) {
+//	allAds, err := repo.GetAll()
+//	step := 5000
+//
+//}
 
 func cleanupPrices(repo repos.IAdsRepository) {
 	// get all ads
@@ -109,12 +117,32 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		sortOptionDirection := r.URL.Query().Get("sortOptionDirection")
 		sortOption := r.URL.Query().Get("sortOption")
 		marketsStr := r.URL.Query().Get("markets")
+		limitLowStr := r.URL.Query().Get("limitLow")
+		limitHighStr := r.URL.Query().Get("limitHigh")
+
+		//var lowLimit *int
+
+		low, err := strconv.Atoi(limitLowStr)
+		if err != nil {
+			log.Println(err)
+		}
+		lowLimit := &low
+
+		high, err := strconv.Atoi(limitHighStr)
+		if err != nil {
+			log.Println(err)
+		}
+		highLimit := &high
+
 		markets := strings.Split(marketsStr, ",")
 		log.Println(markets)
 
 		dbAds := repo.GetAdsForCriteria(uint(id), markets)
 		var ads []Ad
 		for _, dbAd := range *dbAds {
+			if !inPriceRange(lowLimit, highLimit, dbAd) {
+				continue
+			}
 			ads = append(ads, Ad{
 				Ad:  dbAd,
 				Age: computeAge(dbAd),
@@ -128,13 +156,16 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		if sortOption == "byAge" {
 			if sortOptionDirection == "desc" {
 				sort.Sort(ByAgeDesc(ads))
+			} else {
+				sort.Sort(ByAge(ads))
 			}
-			sort.Sort(ByAge(ads))
 		} else {
 			if sortOptionDirection == "desc" {
 				sort.Sort(ByPriceDesc(ads))
+			} else {
+				sort.Sort(ByPrice(ads))
 			}
-			sort.Sort(ByPrice(ads))
+
 		}
 
 		res := AdsResponse{Data: ads}
@@ -199,4 +230,42 @@ func (a ByAgeDesc) Len() int      { return len(a) }
 func (a ByAgeDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByAgeDesc) Less(i, j int) bool {
 	return a[i].Age > a[j].Age
+}
+
+func inPriceRange(low *int, high *int, ad adsdb.Ad) bool {
+	lastPrice := ad.Prices[len(ad.Prices)-1].Price
+	noHighLimit := high == nil || *high == 0
+	noLowLimit := low == nil || *low == 0
+
+	if noLowLimit && noHighLimit {
+		return true
+	}
+	if low == nil && high == nil {
+		return true
+	}
+
+	hasLowLimit := low != nil && *low > 0
+	hasHighLimit := high != nil && *high > 0
+
+	if !hasLowLimit && hasHighLimit {
+		if lastPrice <= *high {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	if hasLowLimit && !hasHighLimit {
+		if lastPrice >= *low {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	if lastPrice >= *low && lastPrice <= *high {
+		return true
+	}
+
+	return false
 }
