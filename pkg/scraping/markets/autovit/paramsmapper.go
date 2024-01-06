@@ -51,8 +51,8 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["gle-class"] = "gle"
 	modelsMap["e-class"] = "e"
 	modelsMap["s90"] = "s90"
-	modelsMap["xc90"] = "xc90"
-	modelsMap["xc60"] = "xc60"
+	modelsMap["xc90"] = "xc-90"
+	modelsMap["xc60"] = "xc-60"
 
 	return modelsMap
 }
