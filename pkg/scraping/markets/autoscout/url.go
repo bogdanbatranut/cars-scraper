@@ -52,6 +52,7 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 func initFuelsMap() map[string]string {
 	fuelsMap := make(map[string]string)
 	fuelsMap["diesel"] = "ft_motorina"
+	fuelsMap["petrol"] = "ft_benzină"
 	return fuelsMap
 }
 
@@ -70,6 +71,13 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc90"
 	modelsMap["xc60"] = "xc60"
+	modelsMap["x3"] = "x3"
+	modelsMap["glb-class"] = "glb-(toate)"
+	modelsMap["glc-class"] = "glc-(toate)"
+	modelsMap["glc-coupe"] = "glc-(toate)" // TODO implement this special case
+	modelsMap["octavia"] = "octavia"
+	modelsMap["superb"] = "superb"
+	modelsMap["mokka"] = "mokka"
 
 	return modelsMap
 }

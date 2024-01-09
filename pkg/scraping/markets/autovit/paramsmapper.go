@@ -53,92 +53,12 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc-90"
 	modelsMap["xc60"] = "xc-60"
+	modelsMap["glb-class"] = "glb"
+	modelsMap["glc-class"] = "glc"
+	modelsMap["glc-coupe"] = "glc-coupe"
+	modelsMap["octavia"] = "octavia"
+	modelsMap["superb"] = "superb"
+	modelsMap["mokka"] = "mokka"
 
 	return modelsMap
-}
-
-func initParamNames() map[string]map[string]BrandModelValues {
-	params := make(map[string]map[string]BrandModelValues)
-
-	mbModelsMap := map[string]BrandModelValues{}
-	mbGLE := BrandModelValues{
-		Brand: "17200",
-		Model: "-58",
-	}
-	mbModelsMap["clasa-gle"] = mbGLE
-
-	mbE := BrandModelValues{
-		Brand: "17200",
-		Model: "-11",
-	}
-	mbModelsMap["clasa-e"] = mbE
-
-	params["mercedes-benz"] = mbModelsMap
-
-	volvoModelsMap := map[string]BrandModelValues{}
-	vs90 := BrandModelValues{
-		Brand: "25100",
-		Model: "31",
-	}
-	volvoModelsMap["s90"] = vs90
-
-	vxc60 := BrandModelValues{
-		Brand: "25100",
-		Model: "40",
-	}
-	volvoModelsMap["xc60"] = vxc60
-
-	vxc90 := BrandModelValues{
-		Brand: "25100",
-		Model: "37",
-	}
-	volvoModelsMap["xc90"] = vxc90
-
-	bmwModelsMap := map[string]BrandModelValues{}
-	params["volvo"] = volvoModelsMap
-
-	bmwx4 := BrandModelValues{
-		Brand: "3500",
-		Model: "92",
-	}
-	bmwModelsMap["x4"] = bmwx4
-
-	bmwx4m := BrandModelValues{
-		Brand: "3500",
-		Model: "146",
-	}
-	bmwModelsMap["x4m"] = bmwx4m
-
-	bmwx5 := BrandModelValues{
-		Brand: "3500",
-		Model: "49",
-	}
-	bmwModelsMap["x5"] = bmwx5
-
-	bmwx5m := BrandModelValues{
-		Brand: "3500",
-		Model: "53",
-	}
-	bmwModelsMap["x5-m"] = bmwx5m
-
-	bmwx6 := BrandModelValues{
-		Brand: "3500",
-		Model: "60",
-	}
-	bmwModelsMap["x6"] = bmwx6
-
-	bmwx6m := BrandModelValues{
-		Brand: "3500",
-		Model: "62",
-	}
-	bmwModelsMap["x6-m"] = bmwx6m
-
-	bmw7 := BrandModelValues{
-		Brand: "3500",
-		Model: "-24",
-	}
-	bmwModelsMap["seria-7"] = bmw7
-	params["bmw"] = bmwModelsMap
-
-	return params
 }

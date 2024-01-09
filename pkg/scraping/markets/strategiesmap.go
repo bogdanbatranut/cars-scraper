@@ -13,9 +13,10 @@ type ImplementationStrategies struct {
 func NewImplemetationStrategies() ImplementationStrategies {
 	s := make(map[string]IScrapingStrategy)
 	// here we add to the map the implementations ...
+	//s["webcar"] = webcar.NewWebCarStrategy()
+
 	s["autovit"] = autovit.NewAutovitStrategy()
 	s["mobile.de"] = mobile.NewMobileDeStrategy()
-	//s["webcar"] = webcar.NewWebCarStrategy()
 	s["autoscout"] = autoscout.NewAutoscoutStrategy()
 	is := ImplementationStrategies{
 		strategies: s,

@@ -3,9 +3,7 @@ package autovit
 import (
 	"carscraper/pkg/jobs"
 	"encoding/json"
-	"fmt"
 	"log"
-	"os"
 )
 
 type AutovitStrategy struct {
@@ -55,21 +53,4 @@ func (s AutovitStrategy) getJobResults(job jobs.SessionJob) AutovitGraphQLRespon
 		panic(err)
 	}
 	return obj
-}
-
-func getResultsFromFile(fileNumber string) AutovitGraphQLResponse {
-
-	fileName := fmt.Sprintf("pkg/scraping/markets/autovit_%s.txt", fileNumber)
-	data, err := os.ReadFile(fileName)
-	check(err)
-	//fmt.Print(string(data))
-
-	wcr := AutovitGraphQLResponse{}
-
-	err = json.Unmarshal(data, &wcr)
-	if err != nil {
-		panic(err)
-	}
-
-	return wcr
 }
