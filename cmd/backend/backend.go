@@ -28,8 +28,8 @@ func main() {
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
-	//chartsRepo := repos.NewChartsRepository(cfg)
-	//chartsRepo.GetAdsPricesByStep(5000)
+	chartsRepo := repos.NewChartsRepository(cfg)
+	chartsRepo.GetAdsPricesByStep(5000)
 	////cleanupPrices(adsRepo)
 	//return
 
@@ -68,8 +68,41 @@ func cleanupPrices(repo repos.IAdsRepository) {
 					}
 				}
 			}
+			duplicates := removeDuplicates(prices)
+			if len(duplicates) > 0 {
+
+				for _, price := range prices {
+					log.Printf("Price: %d Price ID: %d - Ad ID: %d ", price.Price, price.ID, price.AdID)
+				}
+
+				for _, duplicatePriceID := range duplicates {
+					repo.DeletePrice(duplicatePriceID)
+				}
+			}
+
 		}
 	}
+}
+
+func removeDuplicates(prices []adsdb.Price) []uint {
+	seen := make(map[int]bool)
+	result := []uint{}
+	duplicates := []uint{}
+
+	for _, price := range prices {
+		if _, ok := seen[price.Price]; !ok {
+			seen[price.Price] = true
+			result = append(result, price.ID)
+		} else {
+			duplicates = append(duplicates, price.ID)
+		}
+	}
+	if len(duplicates) > 0 {
+		log.Println("we have duplicates")
+		log.Printf("clean : %+v", result)
+		log.Printf("duplicates : %+v", duplicates)
+	}
+	return duplicates
 }
 
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
@@ -159,13 +192,20 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			} else {
 				sort.Sort(ByAge(ads))
 			}
-		} else {
+		}
+		if sortOption == "byPrice" {
 			if sortOptionDirection == "desc" {
 				sort.Sort(ByPriceDesc(ads))
 			} else {
 				sort.Sort(ByPrice(ads))
 			}
-
+		}
+		if sortOption == "byLastChange" {
+			if sortOptionDirection == "desc" {
+				sort.Sort(ByLastChangeDesc(ads))
+			} else {
+				sort.Sort(ByLastChange(ads))
+			}
 		}
 
 		res := AdsResponse{Data: ads}
@@ -195,9 +235,31 @@ type ByPrice []Ad
 type ByAge []Ad
 type ByPriceDesc []Ad
 type ByAgeDesc []Ad
+type ByLastChange []Ad
+type ByLastChangeDesc []Ad
 
 func sortAdsByPrice(ads *[]Ad) {
 	sort.Sort(ByPrice(*ads))
+}
+
+func (a ByLastChange) Len() int      { return len(a) }
+func (a ByLastChange) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByLastChange) Less(i, j int) bool {
+	lenOfIPrices := len(a[i].Ad.Prices)
+	lenOfJPrices := len(a[j].Ad.Prices)
+	date_i := a[i].Ad.Prices[lenOfIPrices-1].CreatedAt
+	date_j := a[j].Ad.Prices[lenOfJPrices-1].CreatedAt
+	return date_i.Before(date_j)
+}
+
+func (a ByLastChangeDesc) Len() int      { return len(a) }
+func (a ByLastChangeDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByLastChangeDesc) Less(i, j int) bool {
+	lenOfIPrices := len(a[i].Ad.Prices)
+	lenOfJPrices := len(a[j].Ad.Prices)
+	date_i := a[i].Ad.Prices[lenOfIPrices-1].CreatedAt
+	date_j := a[j].Ad.Prices[lenOfJPrices-1].CreatedAt
+	return date_j.Before(date_i)
 }
 
 func (a ByPrice) Len() int      { return len(a) }
