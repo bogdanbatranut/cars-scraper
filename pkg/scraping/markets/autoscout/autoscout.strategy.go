@@ -2,6 +2,7 @@ package autoscout
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"fmt"
 	"log"
 	"math"
@@ -12,16 +13,20 @@ import (
 )
 
 type MobileDeStrategy struct {
+	logger logging.ScrapeLoggingService
 }
 
-func NewAutoscoutStrategy() MobileDeStrategy {
-	return MobileDeStrategy{}
+func NewAutoscoutStrategy(loggingService logging.ScrapeLoggingService) MobileDeStrategy {
+	return MobileDeStrategy{
+		logger: loggingService,
+	}
 }
 
 func (as MobileDeStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
 	builder := NewURLBuilder(job.Criteria)
 	url := builder.GetPageURL(job.Market.PageNumber)
 	ads, isLastPage, err := getData(url, job.Market.PageNumber, job.Criteria)
+	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, url, err)
 	if err != nil {
 		return nil, false, err
 	}

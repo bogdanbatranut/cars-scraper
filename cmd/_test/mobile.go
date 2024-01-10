@@ -3,7 +3,7 @@ package main
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/jobs"
-	"carscraper/pkg/scraping/markets"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -44,10 +44,11 @@ func main() {
 			PageNumber: 1,
 		},
 	}
+	log.Println(rsj)
 
-	implementationStragegies := markets.NewImplemetationStrategies()
-	impl := implementationStragegies.GetImplementation("mobile.de")
-	impl.Execute(rsj)
+	//implementationStragegies := markets.NewImplemetationStrategies()
+	//impl := implementationStragegies.GetImplementation("mobile.de")
+	//impl.Execute(rsj)
 }
 
 func toIntPointer(value int) *int {

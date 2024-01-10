@@ -3,6 +3,7 @@ package results
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/repos"
 	"context"
 	"encoding/json"
@@ -19,6 +20,7 @@ type ResultsConsumerService struct {
 	scrapeResults    SessionCriteriaMarketResultsHandler
 	pageAdsChannel   chan jobs.AdsPageJobResult
 	resultsWriter    ResultsWriter
+	logger           logging.ScrapeLoggingService
 }
 
 type ResultsReaderServiceConfiguration func(rcs *ResultsConsumerService)
@@ -33,6 +35,13 @@ func NewResultsReaderService(cfgs ...ResultsReaderServiceConfiguration) *Results
 		cfg(service)
 	}
 	return service
+}
+
+func WithLogger(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
+	logger := logging.NewScrapeLoggingService(cfg)
+	return func(cis *ResultsConsumerService) {
+		cis.logger = logger
+	}
 }
 
 func WithResultsMQRepository(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {

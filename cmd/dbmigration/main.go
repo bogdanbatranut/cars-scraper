@@ -10,15 +10,18 @@ import (
 func main() {
 	cfg, err := amconfig.NewViperConfig()
 	errorshandler.HandleErr(err)
+
 	migrator := repos.NewMigrationRepository(cfg)
 	err = migrator.GetDB().AutoMigrate(
-		&adsdb.Criteria{},
-		&adsdb.Ad{},
-		&adsdb.Seller{},
-		&adsdb.Market{},
-		&adsdb.Price{},
-		&adsdb.SellerMarkets{},
-		&adsdb.CriteriaMarkets{},
+		//&adsdb.Criteria{},
+		//&adsdb.Ad{},
+		//&adsdb.Seller{},
+		//&adsdb.Market{},
+		//&adsdb.Price{},
+		//&adsdb.SellerMarkets{},
+		//&adsdb.CriteriaMarkets{},
+		&adsdb.ScrapeLog{},
+		&adsdb.CriteriaLog{},
 	)
 	errorshandler.HandleErr(err)
 }

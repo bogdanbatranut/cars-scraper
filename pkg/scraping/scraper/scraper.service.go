@@ -3,6 +3,7 @@ package scraper
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/repos"
 	"carscraper/pkg/scraping/markets"
 	"context"
@@ -26,6 +27,7 @@ type PageScrapingService struct {
 	pagesToScrapeTopicName string
 	resultsTopicName       string
 	jobsTopicName          string
+	loggingService         logging.ScrapeLoggingService
 }
 
 type PageScrapingServiceConfiguration func(sjc *PageScrapingService)
@@ -40,6 +42,7 @@ func NewPageScrapingService(cfg amconfig.IConfig, cfgs ...PageScrapingServiceCon
 		pagesToScrapeTopicName: jobsTopicName,
 		resultsTopicName:       cfg.GetString(amconfig.SMQResultsTopicName),
 		jobsTopicName:          cfg.GetString(amconfig.SMQJobsTopicName),
+		loggingService:         logging.NewScrapeLoggingService(cfg),
 	}
 	for _, cfg := range cfgs {
 		cfg(service)
@@ -130,7 +133,7 @@ func (sjc PageScrapingService) processJob() {
 	job := <-sjc.jobChannel
 	marketName := job.Market.Name
 
-	availableImplementations := markets.NewImplemetationStrategies()
+	availableImplementations := markets.NewImplemetationStrategies(sjc.loggingService)
 	implementation := availableImplementations.GetImplementation(marketName)
 
 	if implementation != nil {

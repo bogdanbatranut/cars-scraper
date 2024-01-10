@@ -2,15 +2,19 @@ package autovit
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"encoding/json"
 	"log"
 )
 
 type AutovitStrategy struct {
+	loggingService logging.ScrapeLoggingService
 }
 
-func NewAutovitStrategy() AutovitStrategy {
-	return AutovitStrategy{}
+func NewAutovitStrategy(logginService logging.ScrapeLoggingService) AutovitStrategy {
+	return AutovitStrategy{
+		loggingService: logginService,
+	}
 }
 
 func check(e error) {
@@ -23,7 +27,7 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 	var ads []jobs.Ad
 
 	//fileNumberStr := strconv.Itoa(job.Market.PageNumber)
-	autovitResults := as.getJobResults(job)
+	autovitResults, pageURL, getResultsERR := as.getJobResults(job)
 
 	for _, carData := range autovitResults.Data.AdvertSearch.Edges {
 		ad := carData.Node.ToAd()
@@ -40,17 +44,26 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 	if totalCount-offSet <= autovitResults.Data.AdvertSearch.PageInfo.PageSize {
 		isLastPage = true
 	}
+	//pageSize := autovitResults.Data.AdvertSearch.PageInfo.PageSize
+	//pageNumber := offSet / pageSize
+	as.loggingService.AddPageScrapeEntry(job, totalCount, job.Market.PageNumber, isLastPage, pageURL, getResultsERR)
+	if getResultsERR != nil {
+		panic(getResultsERR)
+	}
 	//isLastPage = true
 	return ads, isLastPage, nil
 }
 
-func (s AutovitStrategy) getJobResults(job jobs.SessionJob) AutovitGraphQLResponse {
+func (s AutovitStrategy) getJobResults(job jobs.SessionJob) (*AutovitGraphQLResponse, string, error) {
 	r := NewRequest(job.Criteria)
-	byteResults := r.GetPage(job.Market.PageNumber)
-	var obj AutovitGraphQLResponse
-	err := json.Unmarshal(byteResults, &obj)
+	byteResults, pageURL, err := r.GetPage(job.Market.PageNumber)
 	if err != nil {
-		panic(err)
+		return nil, pageURL, err
 	}
-	return obj
+	var obj AutovitGraphQLResponse
+	err = json.Unmarshal(byteResults, &obj)
+	if err != nil {
+		return nil, pageURL, err
+	}
+	return &obj, pageURL, nil
 }

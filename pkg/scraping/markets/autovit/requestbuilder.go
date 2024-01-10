@@ -17,7 +17,7 @@ func NewRequest(criteria jobs.Criteria) *Request {
 	}
 }
 
-func (r Request) GetPage(pageNumber int) []byte {
+func (r Request) GetPage(pageNumber int) ([]byte, string, error) {
 
 	url := r.urlBuilder.GetPageURL(pageNumber)
 
@@ -26,18 +26,19 @@ func (r Request) GetPage(pageNumber int) []byte {
 	httpRequest, err := http.NewRequest(httpMethod, url, nil)
 
 	if err != nil {
-		panic(err)
+		return nil, url, err
+		//panic(err)
 	}
 
 	response, err := httpClient.Do(httpRequest)
 	if err != nil {
-		panic(err)
+		return nil, url, err
 	}
 	defer response.Body.Close()
 	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
-		panic(err)
+		return nil, url, err
 	}
 
-	return bodyBytes
+	return bodyBytes, url, nil
 }

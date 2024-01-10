@@ -1,6 +1,7 @@
 package markets
 
 import (
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autovit"
 	"carscraper/pkg/scraping/markets/mobile"
@@ -10,14 +11,14 @@ type ImplementationStrategies struct {
 	strategies map[string]IScrapingStrategy
 }
 
-func NewImplemetationStrategies() ImplementationStrategies {
+func NewImplemetationStrategies(logger logging.ScrapeLoggingService) ImplementationStrategies {
 	s := make(map[string]IScrapingStrategy)
 	// here we add to the map the implementations ...
 	//s["webcar"] = webcar.NewWebCarStrategy()
 
-	s["autovit"] = autovit.NewAutovitStrategy()
-	s["mobile.de"] = mobile.NewMobileDeStrategy()
-	s["autoscout"] = autoscout.NewAutoscoutStrategy()
+	s["autovit"] = autovit.NewAutovitStrategy(logger)
+	s["mobile.de"] = mobile.NewMobileDeStrategy(logger)
+	s["autoscout"] = autoscout.NewAutoscoutStrategy(logger)
 	is := ImplementationStrategies{
 		strategies: s,
 	}
