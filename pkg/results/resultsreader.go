@@ -176,6 +176,8 @@ func (rcs ResultsConsumerService) processResults() {
 			}
 			exsitingAdsIDs := rcs.resultsWriter.GetAllAdsIDs(marketID, criteriaID)
 
+			rcs.logger.AddCriteriaEntry(result.RequestedScrapingJob, len(*exsitingAdsIDs), err.Error(), true)
+
 			for _, exsitingAdID := range *exsitingAdsIDs {
 				found := false
 				for _, upsertedAdID := range *upsertedAdsIDs {
