@@ -34,7 +34,7 @@ func NewLogsRepository(cfg amconfig.IConfig) *LogsRepository {
 }
 
 func (r LogsRepository) AddEntry(entry adsdb.ScrapeLog) error {
-	tx := r.db.Create(entry)
+	tx := r.db.Create(&entry)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -68,6 +68,11 @@ func (sls ScrapeLoggingService) AddCriteriaEntry(job jobs.SessionJob, numberOfAd
 }
 
 func (sls ScrapeLoggingService) AddPageScrapeEntry(job jobs.SessionJob, numberOfAds int, pageNumber int, isLastPage bool, visitURL string, err error) error {
+	errStr := ""
+	if err != nil {
+		errStr = err.Error()
+	}
+
 	logEntry := adsdb.ScrapeLog{
 		SessionID:   job.SessionID,
 		JobID:       job.JobID,
@@ -78,7 +83,7 @@ func (sls ScrapeLoggingService) AddPageScrapeEntry(job jobs.SessionJob, numberOf
 		NumberOfAds: numberOfAds,
 		PageNumber:  pageNumber,
 		IsLastPage:  isLastPage,
-		Error:       err.Error(),
+		Error:       errStr,
 	}
 
 	err_ := sls.repo.AddEntry(logEntry)

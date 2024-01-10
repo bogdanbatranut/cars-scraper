@@ -15,5 +15,4 @@ type Criteria struct {
 	KmTo         *int
 	AllowProcess bool
 	Markets      *[]Market `gorm:"many2many:criteria_markets;"`
-	ScrapeLogs   *[]ScrapeLog
 }
