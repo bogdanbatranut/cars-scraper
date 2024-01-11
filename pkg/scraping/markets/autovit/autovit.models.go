@@ -203,6 +203,7 @@ func (cn CarNode) ToAd() *jobs.Ad {
 		SellerType:      "",
 		SellerName:      cn.SellerLink.Name,
 		SellerMarketURL: cn.SellerLink.WebsiteUrl,
+		Thumbnail:       &cn.Thumbnail.X2,
 	}
 
 	if cn.SellerLink.Name == nil {

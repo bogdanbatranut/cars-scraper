@@ -15,6 +15,7 @@ type Ad struct {
 	MarketID   uint    `gorm:"not null"`
 	CriteriaID uint    `gorm:"not null"`
 	SellerID   uint    `gorm:"not null"`
+	Thumbnail  *string
 	Market     Market
 	Seller     Seller
 	Prices     []Price

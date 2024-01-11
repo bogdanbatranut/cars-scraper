@@ -93,6 +93,17 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			mobileAdHref = "NOT FOUND!!"
 		}
 
+		//ttt := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img")
+		//src, exists := ttt.Attr("src")
+		//elems := strings.Split(src, ",")
+		//rawDecodedText, err := base64.StdEncoding.DecodeString(elems[1])
+		//if err != nil {
+		//	panic(err)
+		//}
+		//log.Println(src, exists, rawDecodedText)
+		//thumbnailSRC, _ := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img").Attr("src")
+
+		//div > div.g-row.js-ad-entry > a > div.thumbnail.g-col-s-12.g-col-m-4.blazy-loaded > img
 		//title := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > h3").Text()
 		yearAndKm := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > div.vehicle-information.g-col-s-6.g-col-m-8 > p.u-text-bold").Text()
 		year, _, _ := time.Now().Date()
@@ -170,6 +181,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			SellerNameInMarket: &seller,
 			SellerOwnURL:       &seller,
 			SellerMarketURL:    &seller,
+			Thumbnail:          nil,
 		}
 		foundAds = append(foundAds, ad)
 	})

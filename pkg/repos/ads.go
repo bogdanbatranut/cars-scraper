@@ -54,6 +54,7 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 	transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
 		var err error
 		for _, foundAd := range ads {
+			thumbnail := foundAd.Thumbnail
 			foundAdPrice := foundAd.Prices[0].Price
 			foundMarketUUID := foundAd.MarketUUID
 			foundAdKm := foundAd.Km
@@ -61,6 +62,11 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			tx = r.db.FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
 			if tx.Error != nil {
 				err = tx.Error
+			}
+
+			if foundAd.Thumbnail == nil && thumbnail != nil {
+				foundAd.Thumbnail = thumbnail
+				r.db.Save(&foundAd)
 			}
 
 			if foundAd.Km != foundAdKm {

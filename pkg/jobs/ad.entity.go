@@ -14,4 +14,5 @@ type Ad struct {
 	SellerNameInMarket *string
 	SellerOwnURL       *string
 	SellerMarketURL    *string
+	Thumbnail          *string
 }

@@ -89,6 +89,8 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			adHref = "NOT FOUND!!"
 		}
 
+		thumbnail, exists := e.DOM.Find("div.ListItem_wrapper__TxHWu > div.Gallery_wrapper__iqp3u > section > div:nth-child(1) > picture > img").Attr("src")
+
 		yearStr := e.Attr("data-first-registration")
 		year, err := strconv.Atoi(yearStr[3:])
 		if err != nil {
@@ -127,6 +129,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			SellerNameInMarket: &seller,
 			SellerOwnURL:       &seller,
 			SellerMarketURL:    &seller,
+			Thumbnail:          &thumbnail,
 		}
 		foundAds = append(foundAds, carad)
 	})
