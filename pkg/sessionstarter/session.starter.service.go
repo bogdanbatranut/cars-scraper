@@ -70,6 +70,7 @@ func (sss SessionStarterService) Start() {
 }
 
 func (sss SessionStarterService) newSession() jobs.Session {
+	log.Println("creating session")
 	sessionID := uuid.New()
 	sessionJobs := sss.createSessionJobs(sessionID)
 	session := jobs.Session{

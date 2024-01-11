@@ -43,6 +43,7 @@ type VariablesParam struct {
 	Page                       int          `json:"page"`
 	Parameters                 []string     `json:"parameters"`
 	SearchTerms                []string     `json:"searchTerms"`
+	SortBy                     string       `json:"sortBy"`
 }
 
 type URLBuilder struct {
@@ -93,6 +94,7 @@ func (b URLBuilder) createVariablesParam(page int) VariablesParam {
 		Page:                       page,
 		Parameters:                 []string{"make", "vat", "fuel_type", "mileage", "engine_capacity", "engine_code", "engine_power", "first_registration_year", "model", "version", "year"},
 		SearchTerms:                nil,
+		SortBy:                     "filter_float_price:asc",
 	}
 
 }

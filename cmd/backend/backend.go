@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -147,11 +148,12 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			return
 		}
 
-		sortOptionDirection := r.URL.Query().Get("sortOptionDirection")
+		sortOptionDirection := r.URL.Query().Get("sortDirection")
 		sortOption := r.URL.Query().Get("sortOption")
 		marketsStr := r.URL.Query().Get("markets")
 		limitLowStr := r.URL.Query().Get("limitLow")
 		limitHighStr := r.URL.Query().Get("limitHigh")
+		groupingOption := r.URL.Query().Get("groupingOption")
 
 		//var lowLimit *int
 
@@ -168,47 +170,82 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		highLimit := &high
 
 		markets := strings.Split(marketsStr, ",")
-		log.Println(markets)
 
-		dbAds := repo.GetAdsForCriteria(uint(id), markets)
 		var ads []Ad
+		dbAds := repo.GetAdsForCriteria(uint(id), markets)
+		//var ads []Ad
+		type GroupedAds struct {
+			Discounted []Ad
+			Rest       []Ad
+			Increased  []Ad
+		}
+		var groupedAds GroupedAds
+		type AdsResponse struct {
+			Data []Ad
+		}
+		var res AdsResponse
 		for _, dbAd := range *dbAds {
 			if !inPriceRange(lowLimit, highLimit, dbAd) {
 				continue
 			}
-			ads = append(ads, Ad{
-				Ad:  dbAd,
-				Age: computeAge(dbAd),
-			})
-		}
+			if groupingOption == "discounted" {
+				if len(dbAd.Prices) > 1 {
+					discountVal, discountPercent := computeDiscount(dbAd)
+					if discountVal > 0 {
+						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
+							Ad:              dbAd,
+							Age:             computeAge(dbAd),
+							DiscountValue:   discountVal,
+							DiscountPercent: discountPercent,
+						})
+					} else {
+						groupedAds.Increased = append(groupedAds.Discounted, Ad{
+							Ad:              dbAd,
+							Age:             computeAge(dbAd),
+							DiscountValue:   discountVal,
+							DiscountPercent: discountPercent,
+						})
+					}
 
-		type AdsResponse struct {
-			Data []Ad
-		}
+				} else {
+					groupedAds.Rest = append(groupedAds.Rest, Ad{
+						Ad:              dbAd,
+						Age:             computeAge(dbAd),
+						DiscountValue:   0,
+						DiscountPercent: 0,
+					})
+				}
 
-		if sortOption == "byAge" {
-			if sortOptionDirection == "desc" {
-				sort.Sort(ByAgeDesc(ads))
-			} else {
-				sort.Sort(ByAge(ads))
+			}
+
+			if groupingOption == "none" {
+
+				discountVal := 0
+				discountPercent := float64(0)
+				if len(dbAd.Prices) > 1 {
+					discountVal, discountPercent = computeDiscount(dbAd)
+				}
+				ads = append(ads, Ad{
+					Ad:              dbAd,
+					Age:             computeAge(dbAd),
+					DiscountValue:   discountVal,
+					DiscountPercent: discountPercent,
+				})
+
 			}
 		}
-		if sortOption == "byPrice" {
-			if sortOptionDirection == "desc" {
-				sort.Sort(ByPriceDesc(ads))
-			} else {
-				sort.Sort(ByPrice(ads))
-			}
+		if groupingOption == "discounted" {
+			sortAds(groupedAds.Discounted, sortOption, sortOptionDirection)
+			sortAds(groupedAds.Rest, sortOption, sortOptionDirection)
+			sortAds(groupedAds.Increased, sortOption, sortOptionDirection)
+			res.Data = append(res.Data, groupedAds.Discounted...)
+			res.Data = append(res.Data, groupedAds.Rest...)
+			res.Data = append(res.Data, groupedAds.Increased...)
 		}
-		if sortOption == "byLastChange" {
-			if sortOptionDirection == "desc" {
-				sort.Sort(ByLastChangeDesc(ads))
-			} else {
-				sort.Sort(ByLastChange(ads))
-			}
+		if groupingOption == "none" {
+			sortAds(ads, sortOption, sortOptionDirection)
+			res.Data = ads
 		}
-
-		res := AdsResponse{Data: ads}
 
 		response, err := json.Marshal(&res)
 		if err != nil {
@@ -219,6 +256,45 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 	}
 }
 
+func sortAds(ads []Ad, sortOption string, sortOptionDirection string) {
+	if sortOption == "byAge" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByAgeDesc(ads))
+		} else {
+			sort.Sort(ByAge(ads))
+		}
+	}
+	if sortOption == "byPrice" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByPriceDesc(ads))
+		} else {
+			sort.Sort(ByPrice(ads))
+		}
+	}
+	if sortOption == "byLastChanged" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByLastChangeDesc(ads))
+		} else {
+			sort.Sort(ByLastChange(ads))
+		}
+	}
+	if sortOption == "byDiscount" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByDiscountDesc(ads))
+		} else {
+			sort.Sort(ByDiscount(ads))
+		}
+	}
+	if sortOption == "byDiscountPercent" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByDiscountPercentDesc(ads))
+		} else {
+			sort.Sort(ByDiscountPercent(ads))
+		}
+	}
+
+}
+
 func computeAge(ad adsdb.Ad) int {
 	currentTime := time.Now()
 	adFirstSeenTime := ad.CreatedAt
@@ -226,9 +302,27 @@ func computeAge(ad adsdb.Ad) int {
 	return int(diff.Hours() / 24)
 }
 
+func computeDiscount(ad adsdb.Ad) (int, float64) {
+	discVal := ad.Prices[0].Price - ad.Prices[len(ad.Prices)-1].Price
+	discPercent := float64(discVal) / float64(ad.Prices[0].Price) * 100
+	ro := toFixed(discPercent, 2)
+	return discVal, ro
+}
+
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
+}
+
 type Ad struct {
 	adsdb.Ad
-	Age int
+	Age             int
+	DiscountValue   int
+	DiscountPercent float64
 }
 
 type ByPrice []Ad
@@ -237,9 +331,37 @@ type ByPriceDesc []Ad
 type ByAgeDesc []Ad
 type ByLastChange []Ad
 type ByLastChangeDesc []Ad
+type ByDiscount []Ad
+type ByDiscountDesc []Ad
+type ByDiscountPercent []Ad
+type ByDiscountPercentDesc []Ad
 
 func sortAdsByPrice(ads *[]Ad) {
 	sort.Sort(ByPrice(*ads))
+}
+
+func (a ByDiscountPercent) Len() int      { return len(a) }
+func (a ByDiscountPercent) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDiscountPercent) Less(i, j int) bool {
+	return a[i].DiscountPercent < a[j].DiscountPercent
+}
+
+func (a ByDiscountPercentDesc) Len() int      { return len(a) }
+func (a ByDiscountPercentDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDiscountPercentDesc) Less(i, j int) bool {
+	return a[i].DiscountPercent > a[j].DiscountPercent
+}
+
+func (a ByDiscount) Len() int      { return len(a) }
+func (a ByDiscount) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDiscount) Less(i, j int) bool {
+	return a[i].DiscountValue < a[j].DiscountValue
+}
+
+func (a ByDiscountDesc) Len() int      { return len(a) }
+func (a ByDiscountDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDiscountDesc) Less(i, j int) bool {
+	return a[i].DiscountValue > a[j].DiscountValue
 }
 
 func (a ByLastChange) Len() int      { return len(a) }

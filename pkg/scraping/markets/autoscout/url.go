@@ -45,7 +45,8 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 	cyParam := url.QueryEscape("D,A,B,E,F,I,L,NL")
 	ustateParam := url.QueryEscape("N,U")
 	// https://www.autoscout24.ro/lst/mercedes-benz/gle-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2019&kmto=125000&powertype=kw&search_id=21p91bbp3zv&sort=standard&source=detailsearch&ustate=N%2CU
-	url := fmt.Sprintf("https://www.autoscout24.ro/lst/%s/%s/%s?atype=C&cy=%s&damaged_listing=exclude&desc=0&fregfrom=%d&kmto=%d&page=%d&powertype=kw&regfrom=%d&sort=standard&source=detailsearch&ustate=%s", brand, model, fuel, cyParam, *b.criteria.YearFrom, *b.criteria.KmTo, pageNumber, *b.criteria.YearFrom, ustateParam)
+	//https://www.autoscout24.ro/lst/mercedes-benz/glc-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2019&kmto=125000&powertype=kw&regfrom=2019&search_id=1kf3w3r2bjf&sort=price&source=detailsearch&ustate=N%2CU
+	url := fmt.Sprintf("https://www.autoscout24.ro/lst/%s/%s/%s?atype=C&cy=%s&damaged_listing=exclude&desc=0&fregfrom=%d&kmto=%d&page=%d&powertype=kw&regfrom=%d&sort=price&source=detailsearch&ustate=%s", brand, model, fuel, cyParam, *b.criteria.YearFrom, *b.criteria.KmTo, pageNumber, *b.criteria.YearFrom, ustateParam)
 	return url
 }
 
