@@ -148,7 +148,7 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 
 func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
-	r.db.Debug().Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Find(&ads)
+	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Find(&ads)
 	return &ads
 }
 

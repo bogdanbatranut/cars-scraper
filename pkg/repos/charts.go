@@ -55,28 +55,16 @@ func (r ChartsRepository) GetAdsPricesByStep(step int) {
 		panic(tx.Error)
 	}
 	log.Printf("%+v", res)
-	maxPrice := res.Max
+	//maxPrice := res.Max
 
 	tx = r.db.Debug().Raw("select min(price) as max from prices where id in (select max(id) from prices group by ad_id)").Scan(&res)
 	if tx.Error != nil {
 		panic(tx.Error)
 	}
-	minPrice := res.Max
+	//minPrice := res.Max
 
 	tx = r.db.Raw("select * from prices where id in (select max(id) from prices group by ad_id)").Scan(&allPrices)
 	if tx.Error != nil {
 		panic(tx.Error)
 	}
-	log.Println(maxPrice, minPrice)
-
-	log.Println(len(allPrices))
-
-	for i, price := range allPrices {
-		log.Printf("%d - %d - %d", price.ID, price.AdID, price.Price)
-
-		if i == 100 {
-			return
-		}
-	}
-
 }

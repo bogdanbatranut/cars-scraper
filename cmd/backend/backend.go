@@ -72,9 +72,9 @@ func cleanupPrices(repo repos.IAdsRepository) {
 			duplicates := removeDuplicates(prices)
 			if len(duplicates) > 0 {
 
-				for _, price := range prices {
-					log.Printf("Price: %d Price ID: %d - Ad ID: %d ", price.Price, price.ID, price.AdID)
-				}
+				//for _, price := range prices {
+				//	log.Printf("Price: %d Price ID: %d - Ad ID: %d ", price.Price, price.ID, price.AdID)
+				//}
 
 				for _, duplicatePriceID := range duplicates {
 					repo.DeletePrice(duplicatePriceID)
@@ -191,6 +191,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
 					discountVal, discountPercent := computeDiscount(dbAd)
+
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
 							Ad:              dbAd,
@@ -199,7 +200,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 							DiscountPercent: discountPercent,
 						})
 					} else {
-						groupedAds.Increased = append(groupedAds.Discounted, Ad{
+						groupedAds.Increased = append(groupedAds.Increased, Ad{
 							Ad:              dbAd,
 							Age:             computeAge(dbAd),
 							DiscountValue:   discountVal,
