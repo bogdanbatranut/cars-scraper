@@ -3,6 +3,7 @@ package autovit
 import (
 	"carscraper/pkg/jobs"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -27,16 +28,19 @@ func (r Request) GetPage(pageNumber int) ([]byte, string, error) {
 
 	if err != nil {
 		return nil, url, err
-		//panic(err)
+		panic(err)
 	}
 
 	response, err := httpClient.Do(httpRequest)
+	log.Println("Status code : ", response.StatusCode)
 	if err != nil {
+		log.Printf("got response with error: %+v", err)
 		return nil, url, err
 	}
 	defer response.Body.Close()
 	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
+
 		return nil, url, err
 	}
 
