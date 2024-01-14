@@ -93,8 +93,12 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			mobileAdHref = "NOT FOUND!!"
 		}
 
-		//ttt := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img")
-		//src, exists := ttt.Attr("src")
+		ttt := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img")
+		src, exists := ttt.Attr("src")
+		if !exists {
+			log.Println("img not found")
+		}
+
 		//elems := strings.Split(src, ",")
 		//rawDecodedText, err := base64.StdEncoding.DecodeString(elems[1])
 		//if err != nil {
@@ -181,7 +185,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			SellerNameInMarket: &seller,
 			SellerOwnURL:       &seller,
 			SellerMarketURL:    &seller,
-			Thumbnail:          nil,
+			Thumbnail:          &src,
 		}
 		foundAds = append(foundAds, ad)
 	})

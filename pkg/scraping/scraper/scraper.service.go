@@ -54,6 +54,7 @@ func WithSimpleMessageQueueRepository(cfg amconfig.IConfig) PageScrapingServiceC
 	smqHost := cfg.GetString(amconfig.SMQURL)
 	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
 	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
 	return WithMessageQueueRepository(smqr)
 }
 
