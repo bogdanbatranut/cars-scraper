@@ -37,6 +37,7 @@ func main() {
 func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//s.Start()
+		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write([]byte("started scraping session starter"))
 	}
 }
