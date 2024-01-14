@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -77,6 +78,7 @@ func (sjc PageScrapingService) Start() {
 	go func() {
 		for {
 			sjc.getJobFromMQ()
+			time.Sleep(time.Second * 10)
 		}
 	}()
 
@@ -113,9 +115,12 @@ func (sjc PageScrapingService) Start() {
 
 func (sjc PageScrapingService) getJobFromMQ() {
 	// pop message from MQ
+	log.Println("Getting message from MQ")
 	message := sjc.messageQueue.GetMessageWithDelete(sjc.pagesToScrapeTopicName)
+	log.Println("Got message from mq", fmt.Sprintf("%+v", message))
 	var scrapeJob jobs.SessionJob
 	if len(*message) > 0 {
+		log.Printf("got message from the message queue")
 		err := json.Unmarshal(*message, &scrapeJob)
 		if err != nil {
 			// push message back in the queue
