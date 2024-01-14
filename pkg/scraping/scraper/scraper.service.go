@@ -115,9 +115,7 @@ func (sjc PageScrapingService) Start() {
 
 func (sjc PageScrapingService) getJobFromMQ() {
 	// pop message from MQ
-	log.Println("Getting message from MQ")
 	message := sjc.messageQueue.GetMessageWithDelete(sjc.pagesToScrapeTopicName)
-	log.Println("Got message from mq", fmt.Sprintf("%+v", message))
 	var scrapeJob jobs.SessionJob
 	if len(*message) > 0 {
 		log.Printf("got message from the message queue")
