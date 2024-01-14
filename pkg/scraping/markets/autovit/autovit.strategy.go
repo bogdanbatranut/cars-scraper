@@ -28,7 +28,9 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 
 	//fileNumberStr := strconv.Itoa(job.Market.PageNumber)
 	autovitResults, pageURL, getResultsERR := as.getJobResults(job)
-
+	if getResultsERR != nil {
+		panic(getResultsERR)
+	}
 	for _, carData := range autovitResults.Data.AdvertSearch.Edges {
 		ad := carData.Node.ToAd()
 
