@@ -37,7 +37,7 @@ func main() {
 
 func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//s.Start()
+		s.Start()
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		type Response struct {
 			Data string
