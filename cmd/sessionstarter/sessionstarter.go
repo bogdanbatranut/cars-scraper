@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/sessionstarter"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,6 +39,15 @@ func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//s.Start()
 		w.Header().Add("Access-Control-Allow-Origin", "*")
-		w.Write([]byte("started scraping session starter"))
+		type Response struct {
+			Data string
+		}
+		res := Response{Data: "started scraping session starter"}
+		resb, err := json.Marshal(&res)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Write(resb)
 	}
 }
