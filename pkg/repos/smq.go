@@ -37,10 +37,12 @@ func (smqr SimpleMessageQueueRepository) pushURL(topic string) string {
 }
 
 func (s SimpleMessageQueueRepository) GetMessageWithDelete(topic string) *[]byte {
+	log.Printf("Get message from %s", s.popURL(topic))
 	resp, err := http.Get(s.popURL(topic))
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Println("Response code: ", resp.StatusCode)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
