@@ -5,6 +5,7 @@ import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/repos"
+	"carscraper/pkg/valueobjects"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -31,17 +32,65 @@ func main() {
 	adsRepo := repos.NewAdsRepository(cfg)
 	chartsRepo := repos.NewChartsRepository(cfg)
 	chartsRepo.GetAdsPricesByStep(5000)
+
 	////cleanupPrices(adsRepo)
 	//return
 
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
+
+	r.HandleFunc("/marketsAndCriterias", marketsAndCriterias(criteriaRepo)).Methods("POST")
+
 	httpPort := cfg.GetString(amconfig.BackendServiceHTTPPort)
 	log.Printf("HTTP listening on port %s\n", httpPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
 	errorshandler.HandleErr(err)
 
+}
+
+func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		type ChangeRequest struct {
+			Criterias []valueobjects.Selectable `json:criterias`
+			Markets   []valueobjects.Selectable `json:markets`
+		}
+
+		decoder := json.NewDecoder(r.Body)
+		var cr ChangeRequest
+		err := decoder.Decode(&cr)
+		if err != nil {
+			panic(err)
+		}
+
+		err = repo.UpdateSelectedCriterias(cr.Criterias)
+		if err != nil {
+			panic(err)
+		}
+		err = repo.UpdateSelectedMarkets(cr.Markets)
+		if err != nil {
+			panic(err)
+		}
+
+		type Respose struct {
+			Data string
+		}
+		res := Respose{Data: "success"}
+
+		response, err := json.Marshal(&res)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+
+		_, err = w.Write(response)
+		if err != nil {
+			panic(err)
+		}
+
+	}
 }
 
 //func getPriceDistribution(repo repos.IAdsRepository) {

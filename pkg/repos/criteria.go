@@ -3,6 +3,7 @@ package repos
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
+	"carscraper/pkg/valueobjects"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -11,6 +12,8 @@ import (
 
 type ICriteriaRepository interface {
 	GetAll() *[]adsdb.Criteria
+	UpdateSelectedCriterias(criterias []valueobjects.Selectable) error
+	UpdateSelectedMarkets(markets []valueobjects.Selectable) error
 }
 
 type SQLCriteriaRepository struct {
@@ -36,4 +39,51 @@ func (repo SQLCriteriaRepository) GetAll() *[]adsdb.Criteria {
 	var criterias []adsdb.Criteria
 	repo.db.Model(&adsdb.Criteria{}).Preload("Markets").Order("brand").Order("car_model").Find(&criterias)
 	return &criterias
+}
+
+func (repo SQLCriteriaRepository) UpdateSelectedCriterias(criterias []valueobjects.Selectable) error {
+	transactionErr := repo.db.Transaction(func(tx *gorm.DB) error {
+		for _, selectable := range criterias {
+			criteria := adsdb.Criteria{}
+			repo.db.First(&criteria, selectable.Id)
+
+			criteria.AllowProcess = selectable.Selected
+
+			tx := repo.db.Save(&criteria)
+			if tx.Error != nil {
+				return tx.Error
+			}
+		}
+
+		return nil
+	})
+	if transactionErr != nil {
+		return transactionErr
+	}
+	return nil
+}
+
+func (repo SQLCriteriaRepository) UpdateSelectedMarkets(markets []valueobjects.Selectable) error {
+	transactionErr := repo.db.Transaction(func(tx *gorm.DB) error {
+		for _, selectable := range markets {
+			market := adsdb.Market{}
+			tx := repo.db.First(&market, selectable.Id)
+			if tx.Error != nil {
+				return tx.Error
+			}
+
+			market.AllowProcess = selectable.Selected
+
+			tx = repo.db.Save(&market)
+			if tx.Error != nil {
+				return tx.Error
+			}
+		}
+
+		return nil
+	})
+	if transactionErr != nil {
+		return transactionErr
+	}
+	return nil
 }
