@@ -157,6 +157,9 @@ func removeDuplicates(prices []adsdb.Price) []uint {
 
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Methods", "POST")
+		r.Header.Set("Access-Control-Allow-Methods", "POST")
+		r.Header.Set("Access-Control-Allow-Origin", "*")
 		markets := repo.GetAll()
 		type MarketsResponse struct {
 			Data []adsdb.Market
@@ -166,6 +169,7 @@ func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *ht
 		if err != nil {
 			panic(err)
 		}
+		w.Header().Set("Access-Control-Allow-Methods", "POST")
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
