@@ -29,3 +29,8 @@ type CriteriaLog struct {
 	Error       string
 	Success     bool
 }
+
+type SessionLog struct {
+	*gorm.Model
+	SessionID uuid.UUID
+}

@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -78,7 +77,7 @@ func (sjc PageScrapingService) Start() {
 	go func() {
 		for {
 			sjc.getJobFromMQ()
-			time.Sleep(time.Second * 10)
+			//time.Sleep(time.Second * 10)
 		}
 	}()
 

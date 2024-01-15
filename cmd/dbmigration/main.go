@@ -20,8 +20,9 @@ func main() {
 		//&adsdb.Price{},
 		//&adsdb.SellerMarkets{},
 		//&adsdb.CriteriaMarkets{},
-		&adsdb.ScrapeLog{},
-		&adsdb.CriteriaLog{},
+		//&adsdb.ScrapeLog{},
+		//&adsdb.CriteriaLog{},
+		&adsdb.SessionLog{},
 	)
 	errorshandler.HandleErr(err)
 }

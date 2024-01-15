@@ -50,6 +50,18 @@ func NewScrapeLoggingService(cfg amconfig.IConfig) ScrapeLoggingService {
 func (sls ScrapeLoggingService) GetDB() *gorm.DB {
 	return sls.repo.db
 }
+
+func (sls ScrapeLoggingService) AddSession(job jobs.Session) error {
+	log := adsdb.SessionLog{
+		SessionID: job.SessionID,
+	}
+	tx := sls.repo.db.Create(&log)
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
 func (sls ScrapeLoggingService) AddCriteriaEntry(job jobs.SessionJob, numberOfAds int, error string, success bool) error {
 	log := adsdb.CriteriaLog{
 		SessionID:   job.SessionID,

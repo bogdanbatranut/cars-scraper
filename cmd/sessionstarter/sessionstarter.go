@@ -22,6 +22,7 @@ func main() {
 	sessionService := sessionstarter.NewSessionStarterService(
 		sessionstarter.WithSimpleMessageQueueRepository(cfg),
 		sessionstarter.WithCriteriaSQLRepository(cfg),
+		sessionstarter.WithLogging(cfg),
 	)
 
 	log.Println("sessionstarter service init...")

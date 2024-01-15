@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/repos"
 	"carscraper/pkg/url"
 	"encoding/json"
@@ -16,6 +17,7 @@ import (
 type SessionStarterService struct {
 	messagesQueue              repos.IMessageQueue
 	criteriasRepository        repos.ICriteriaRepository
+	logger                     logging.ScrapeLoggingService
 	requesteScrapingJobs       []jobs.Session
 	urlComposerImplementations *url.URLComposerImplementations
 	criteriasTopicName         string
@@ -38,6 +40,12 @@ func NewSessionStarterService(cfgs ...CrawlinglInitiatorServiceConfiguration) *S
 func WithCriteriaSQLRepository(cfg amconfig.IConfig) CrawlinglInitiatorServiceConfiguration {
 	return func(mqs *SessionStarterService) {
 		mqs.criteriasRepository = repos.NewSQLCriteriaRepository(cfg)
+	}
+}
+
+func WithLogging(cfg amconfig.IConfig) CrawlinglInitiatorServiceConfiguration {
+	return func(mqs *SessionStarterService) {
+		mqs.logger = logging.NewScrapeLoggingService(cfg)
 	}
 }
 
@@ -64,6 +72,7 @@ func WithMessageQueueRepository(mqr repos.IMessageQueue) CrawlinglInitiatorServi
 func (sss SessionStarterService) Start() {
 	// create and push jobs to queue
 	session := sss.newSession()
+	sss.logger.AddSession(session)
 	sss.pushSessionJobs(session.Jobs)
 	log.Printf("Pushed session %+v", session.SessionID)
 
