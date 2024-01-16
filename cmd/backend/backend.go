@@ -8,6 +8,7 @@ import (
 	"carscraper/pkg/valueobjects"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"net/http"
@@ -26,12 +27,14 @@ func main() {
 	errorshandler.HandleErr(err)
 
 	r := mux.NewRouter().StrictSlash(true)
+	//r.Use(CORS)
 
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
-	chartsRepo := repos.NewChartsRepository(cfg)
-	chartsRepo.GetAdsPricesByStep(5000)
+
+	//chartsRepo := repos.NewChartsRepository(cfg)
+	//chartsRepo.GetAdsPricesByStep(5000)
 
 	////cleanupPrices(adsRepo)
 	//return
@@ -39,6 +42,8 @@ func main() {
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
+
+	r.HandleFunc("/test", test()).Methods("POST")
 
 	r.HandleFunc("/marketsAndCriterias", marketsAndCriterias(criteriaRepo)).Methods("POST")
 
@@ -49,12 +54,62 @@ func main() {
 
 }
 
+func CORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// Set headers
+		w.Header().Set("Access-Control-Allow-Headers:", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		fmt.Println("ok")
+
+		// Next
+		next.ServeHTTP(w, r)
+		return
+	})
+}
+
+func test() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var bodyBytes []byte
+		var err error
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		//w.Header().Add("Access-Control-Allow-Methods", "POST")
+		//w.Header().Add("Content-Type", "application/json")
+		//
+		//if r.Method == "OPTIONS" {
+		//	return
+		//}
+
+		log.Println("HERE")
+
+		if r.Body != nil {
+			bodyBytes, err = io.ReadAll(r.Body)
+			if err != nil {
+				fmt.Printf("Body reading error: %v", err)
+				return
+			}
+			defer r.Body.Close()
+		}
+
+		_, err = w.Write(bodyBytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Methods", "POST")
-		w.Header().Add("Access-Control-Allow-Methods", "OPTIONS")
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Add("Access-Control-Allow-Methods", "*")
+
 		type ChangeRequest struct {
 			Criterias []valueobjects.Selectable `json:criterias`
 			Markets   []valueobjects.Selectable `json:markets`
@@ -85,8 +140,6 @@ func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.Response
 		if err != nil {
 			panic(err)
 		}
-
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 
 		_, err = w.Write(response)
 		if err != nil {
