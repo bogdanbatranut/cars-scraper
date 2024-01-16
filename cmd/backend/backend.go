@@ -51,7 +51,10 @@ func main() {
 
 func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "POST")
+		w.Header().Add("Access-Control-Allow-Methods", "OPTIONS")
+		w.Header().Add("Content-Type", "application/json")
 		type ChangeRequest struct {
 			Criterias []valueobjects.Selectable `json:criterias`
 			Markets   []valueobjects.Selectable `json:markets`
