@@ -47,7 +47,7 @@ func (repo SQLCriteriaRepository) UpdateSelectedCriterias(criterias []valueobjec
 			criteria := adsdb.Criteria{}
 			repo.db.First(&criteria, selectable.Id)
 
-			criteria.AllowProcess = selectable.Selected
+			criteria.AllowProcess = selectable.Checked
 
 			tx := repo.db.Save(&criteria)
 			if tx.Error != nil {
@@ -72,7 +72,7 @@ func (repo SQLCriteriaRepository) UpdateSelectedMarkets(markets []valueobjects.S
 				return tx.Error
 			}
 
-			market.AllowProcess = selectable.Selected
+			market.AllowProcess = selectable.Checked
 
 			tx = repo.db.Save(&market)
 			if tx.Error != nil {
