@@ -39,9 +39,6 @@ func main() {
 	////cleanupPrices(adsRepo)
 	//return
 
-	setCurrentPrice(adsRepo)
-	return
-
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
