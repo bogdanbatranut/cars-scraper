@@ -59,10 +59,16 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			foundAdPrice := foundAd.Prices[0].Price
 			foundMarketUUID := foundAd.MarketUUID
 			foundAdKm := foundAd.Km
+			currentPrice := foundAd.CurrentPrice
 
 			tx = r.db.FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
 			if tx.Error != nil {
 				err = tx.Error
+			}
+
+			if *foundAd.CurrentPrice != *currentPrice {
+				foundAd.CurrentPrice = currentPrice
+				r.db.Save(&foundAd)
 			}
 
 			if foundAd.Thumbnail == nil && thumbnail != nil {

@@ -1,17 +1,18 @@
 package results
 
 import (
+	"carscraper/pkg/adapters"
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/repos"
 )
 
 type ResultsWriter struct {
-	adapter IAdsResultsAdapter
+	adapter adapters.IAdsResultsAdapter
 	repo    repos.AdsRepository
 }
 
-func NewResultsWriter(iadapter IAdsResultsAdapter, adsRepo repos.AdsRepository) *ResultsWriter {
+func NewResultsWriter(iadapter adapters.IAdsResultsAdapter, adsRepo repos.AdsRepository) *ResultsWriter {
 	return &ResultsWriter{adapter: iadapter, repo: adsRepo}
 }
 

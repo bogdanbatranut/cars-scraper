@@ -1,4 +1,4 @@
-package results
+package adapters
 
 import (
 	"carscraper/pkg/adsdb"
@@ -63,7 +63,8 @@ func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint, criteri
 		CriteriaID: criteriaID,
 		SellerID:   seller.ID,
 		// TODO Implement prices repo
-		Prices:    prices,
-		Thumbnail: ad.Thumbnail,
+		Prices:       prices,
+		Thumbnail:    ad.Thumbnail,
+		CurrentPrice: &ad.Price,
 	}, nil
 }
