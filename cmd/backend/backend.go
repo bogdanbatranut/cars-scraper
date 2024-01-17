@@ -39,6 +39,11 @@ func main() {
 	////cleanupPrices(adsRepo)
 	//return
 
+	setCurrentPrice(adsRepo)
+	return
+
+	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
+
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
@@ -52,6 +57,22 @@ func main() {
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
 	errorshandler.HandleErr(err)
 
+}
+
+func setCurrentPrice(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var ads *[]adsdb.Ad
+		ads, err := repo.GetAll()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, ad := range *ads {
+			repo.UpdateCurrentPrice(ad.ID)
+		}
+
+		w.Write([]byte("done !!!"))
+	}
 }
 
 func CORS(next http.Handler) http.Handler {
@@ -281,7 +302,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		markets := strings.Split(marketsStr, ",")
 
 		var ads []Ad
-		dbAds := repo.GetAdsForCriteria(uint(id), markets)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
 		//var ads []Ad
 		type GroupedAds struct {
 			Discounted []Ad

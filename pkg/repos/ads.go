@@ -13,11 +13,12 @@ import (
 type IAdsRepository interface {
 	GetAll() (*[]adsdb.Ad, error)
 	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
-	GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad
+	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
 	DeletePrice(priceID uint)
 	GetAdPrices(adID uint) []adsdb.Price
+	UpdateCurrentPrice(adID uint)
 }
 
 type AdsRepository struct {
@@ -152,7 +153,7 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 	return &adsIDs
 }
 
-func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string) *[]adsdb.Ad {
+func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad {
 	var ads []adsdb.Ad
 	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Find(&ads)
 	return &ads
@@ -166,4 +167,18 @@ func (r AdsRepository) GetAdPrices(adID uint) []adsdb.Price {
 		panic(tx.Error)
 	}
 	return prices
+}
+
+func (r AdsRepository) UpdateCurrentPrice(adID uint) {
+	var ad adsdb.Ad
+	tx := r.db.Preload("Prices").Find(&ad, adID)
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	lastPrice := ad.Prices[len(ad.Prices)-1].Price
+	ad.CurrentPrice = &lastPrice
+	tx = r.db.Save(&ad)
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
 }
