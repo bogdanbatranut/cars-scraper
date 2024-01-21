@@ -44,6 +44,7 @@ func main() {
 	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
+	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET")
 
 	r.HandleFunc("/test", test()).Methods("POST")
 
@@ -373,6 +374,187 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		if groupingOption == "none" {
 			sortAds(ads, sortOption, sortOptionDirection)
 			res.Data = ads
+		}
+
+		response, err := json.Marshal(&res)
+		if err != nil {
+			panic(err)
+		}
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Write(response)
+	}
+}
+
+func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+		idStr, ok := vars["id"]
+		if !ok {
+			fmt.Println("id is missing in parameters")
+		}
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			w.Write([]byte("Invalid ID"))
+			return
+		}
+
+		sortOptionDirection := r.URL.Query().Get("sortDirection")
+		sortOption := r.URL.Query().Get("sortOption")
+		marketsStr := r.URL.Query().Get("markets")
+		limitLowStr := r.URL.Query().Get("limitLow")
+		limitHighStr := r.URL.Query().Get("limitHigh")
+		groupingOption := r.URL.Query().Get("groupingOption")
+		limitStr := r.URL.Query().Get("limit")
+		pageStr := r.URL.Query().Get("page")
+
+		limit, err := strconv.Atoi(limitStr)
+		if err != nil {
+			log.Println(err)
+			limit = 50
+		}
+
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			log.Println(err)
+			page = 1
+		}
+
+		//var lowLimit *int
+
+		low, err := strconv.Atoi(limitLowStr)
+		if err != nil {
+			log.Println(err)
+		}
+		lowLimit := &low
+
+		high, err := strconv.Atoi(limitHighStr)
+		if err != nil {
+			log.Println(err)
+		}
+		highLimit := &high
+
+		markets := strings.Split(marketsStr, ",")
+
+		requestPagination := repos.Pagination{
+			Limit: limit,
+			Page:  page,
+		}
+
+		var ads []Ad
+
+		//dbAds, pagination := repo.GetAdsForCriteriaPaginated(&requestPagination, uint(id), markets, nil, nil, lowLimit, highLimit)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
+		//var ads []Ad
+		type GroupedAds struct {
+			Discounted []Ad
+			Rest       []Ad
+			Increased  []Ad
+		}
+		var groupedAds GroupedAds
+
+		type Paginated struct {
+			Pagination repos.Pagination
+			Ads        []Ad
+		}
+
+		type AdsResponse struct {
+			Data Paginated
+		}
+		res := AdsResponse{Data: Paginated{
+			Pagination: requestPagination,
+			Ads:        nil,
+		}}
+		for _, dbAd := range *dbAds {
+			//if index < (page-1)*limit {
+			//	continue
+			//}
+			//
+			//if index > page*limit {
+			//	break
+			//}
+
+			if !inPriceRange(lowLimit, highLimit, dbAd) {
+				continue
+			}
+
+			if groupingOption == "discounted" {
+				if len(dbAd.Prices) > 1 {
+					discountVal, discountPercent := computeDiscount(dbAd)
+
+					if discountVal > 0 {
+						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
+							Ad:              dbAd,
+							Age:             computeAge(dbAd),
+							DiscountValue:   discountVal,
+							DiscountPercent: discountPercent,
+						})
+					} else {
+						groupedAds.Increased = append(groupedAds.Increased, Ad{
+							Ad:              dbAd,
+							Age:             computeAge(dbAd),
+							DiscountValue:   discountVal,
+							DiscountPercent: discountPercent,
+						})
+					}
+
+				} else {
+					groupedAds.Rest = append(groupedAds.Rest, Ad{
+						Ad:              dbAd,
+						Age:             computeAge(dbAd),
+						DiscountValue:   0,
+						DiscountPercent: 0,
+					})
+				}
+
+			}
+
+			if groupingOption == "none" {
+
+				discountVal := 0
+				discountPercent := float64(0)
+				if len(dbAd.Prices) > 1 {
+					discountVal, discountPercent = computeDiscount(dbAd)
+				}
+				ads = append(ads, Ad{
+					Ad:              dbAd,
+					Age:             computeAge(dbAd),
+					DiscountValue:   discountVal,
+					DiscountPercent: discountPercent,
+				})
+
+			}
+		}
+		if groupingOption == "discounted" {
+			sortAds(groupedAds.Discounted, sortOption, sortOptionDirection)
+			sortAds(groupedAds.Rest, sortOption, sortOptionDirection)
+			sortAds(groupedAds.Increased, sortOption, sortOptionDirection)
+			res.Data.Ads = append(res.Data.Ads, groupedAds.Discounted...)
+			res.Data.Ads = append(res.Data.Ads, groupedAds.Rest...)
+			res.Data.Ads = append(res.Data.Ads, groupedAds.Increased...)
+			lengthOfResults := len(res.Data.Ads)
+			startIndex := limit * (page - 1)
+			endIndex := page * limit
+			res.Data.Pagination.TotalPages = int(math.Ceil(float64(lengthOfResults) / float64(limit)))
+			res.Data.Pagination.TotalRows = int64(lengthOfResults)
+			if endIndex > lengthOfResults {
+				endIndex = lengthOfResults
+			}
+			res.Data.Ads = res.Data.Ads[startIndex:endIndex]
+
+		}
+		if groupingOption == "none" {
+			sortAds(ads, sortOption, sortOptionDirection)
+			lengthOfResults := len(ads)
+			startIndex := limit * (page - 1)
+			endIndex := page * limit
+
+			if endIndex > lengthOfResults {
+				endIndex = lengthOfResults
+			}
+			res.Data.Ads = ads[startIndex:endIndex]
+			res.Data.Pagination.TotalPages = int(math.Ceil(float64(lengthOfResults) / float64(limit)))
+			res.Data.Pagination.TotalRows = int64(lengthOfResults)
 		}
 
 		response, err := json.Marshal(&res)

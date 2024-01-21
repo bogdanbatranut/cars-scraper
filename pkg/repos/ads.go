@@ -4,16 +4,26 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"fmt"
+	"math"
 	"strings"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+type Pagination struct {
+	Limit      int   `json:"limit,omitempty;query:limit"`
+	Page       int   `json:"page,omitempty;query:page"`
+	TotalRows  int64 `json:"total_rows"`
+	TotalPages int   `json:"total_pages"`
+	//Rows       interface{} `json:"rows"`
+}
+
 type IAdsRepository interface {
 	GetAll() (*[]adsdb.Ad, error)
 	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
 	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad
+	GetAdsForCriteriaPaginated(pagination *Pagination, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) (*[]adsdb.Ad, *Pagination)
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
 	DeletePrice(priceID uint)
@@ -165,6 +175,42 @@ func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minK
 	return &ads
 }
 
+func withLimitAndOffset(pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
+	}
+}
+
+func WithFilterConditions(db *gorm.DB, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+	}
+}
+
+//func WithFilterConditions(db *gorm.DB, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *gorm.DB {
+//	return db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+//}
+
+func (r AdsRepository) GetAdsForCriteriaPaginated(pagination *Pagination, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) (*[]adsdb.Ad, *Pagination) {
+	var ads []adsdb.Ad
+	//tx := r.db.Scopes(paginate(ads, pagination, r.db)).Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	//tx := r.db.Scopes(withLimitAndOffset(pagination, r.db)).Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	tx := r.db.Debug().Scopes(WithFilterConditions(r.db, criteriaID, markets, minKm, maxKm, minPrice, maxPrice)).Find(&ads)
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	var totalRows int64
+	tx = r.db.Debug().Model(&adsdb.Ad{}).Scopes(WithFilterConditions(r.db, criteriaID, markets, minKm, maxKm, minPrice, maxPrice)).Count(&totalRows)
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	pagination.TotalRows = totalRows
+	totalPages := int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+	pagination.TotalPages = totalPages
+
+	return &ads, pagination
+}
+
 func (r AdsRepository) GetAdPrices(adID uint) []adsdb.Price {
 	var prices []adsdb.Price
 	price := adsdb.Price{AdID: adID}
@@ -186,5 +232,39 @@ func (r AdsRepository) UpdateCurrentPrice(adID uint) {
 	tx = r.db.Save(&ad)
 	if tx.Error != nil {
 		panic(tx.Error)
+	}
+}
+
+func (p *Pagination) GetOffset() int {
+	return (p.GetPage() - 1) * p.GetLimit()
+}
+
+func (p *Pagination) GetLimit() int {
+	if p.Limit == 0 {
+		p.Limit = 10
+	}
+	return p.Limit
+}
+func (p *Pagination) GetPage() int {
+	if p.Page == 0 {
+		p.Page = 1
+	}
+	return p.Page
+}
+
+func AmountGreaterThan1000(db *gorm.DB, maxPrice int) *gorm.DB {
+	return db.Where("current_price < ?", maxPrice)
+}
+
+func paginate(value interface{}, pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	var totalRows int64
+	db.Debug().Model(value).Count(&totalRows)
+
+	pagination.TotalRows = totalRows
+	totalPages := int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+	pagination.TotalPages = totalPages
+
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
 	}
 }
