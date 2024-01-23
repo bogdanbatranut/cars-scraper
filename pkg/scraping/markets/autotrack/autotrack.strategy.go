@@ -26,6 +26,9 @@ func NewAutoTrackStrategy(logger *logging.ScrapeLoggingService) AutoTrackStrateg
 func (as AutoTrackStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
 	builder := NewURLBuilder(job.Criteria)
 	url := builder.GetPageURL(job.Market.PageNumber)
+	if url == nil {
+		return nil, true, nil
+	}
 	ads, isLastPage, err := getData(*url, job.Market.PageNumber, job.Criteria)
 	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, *url, err)
 	if err != nil {
