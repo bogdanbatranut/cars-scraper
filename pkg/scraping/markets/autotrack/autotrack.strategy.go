@@ -25,37 +25,16 @@ func NewAutoTrackStrategy(logger *logging.ScrapeLoggingService) AutoTrackStrateg
 
 func (as AutoTrackStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
 	builder := NewURLBuilder(job.Criteria)
-	i := 1
-	for {
-		url := builder.GetPageURL(i)
-		if url == nil {
-			break
-		}
-		data, b, err := getData(*url, i, job.Criteria)
-		if err != nil {
-			panic(err)
-		}
-		if b {
-			break
-		}
-		i++
-		for _, ad := range data {
-			log.Println("brand: ", ad.Brand, " model: ", ad.Model)
-		}
+	url := builder.GetPageURL(job.Market.PageNumber)
+	ads, isLastPage, err := getData(*url, job.Market.PageNumber, job.Criteria)
+	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, *url, err)
+	if err != nil {
+		return nil, false, err
 	}
-	//
-	//url := builder.GetPageURL(1)
-	////data, b, err := getData(url, 1, job.Criteria)
-	//url = builder.GetPageURL(2)
-	//data, b, err := getData(*url, 2, job.Criteria)
-	//if err != nil {
-	//	return nil, false, err
-	//}
 
-	//log.Println(data, b)
-	//as.TestGETRequest(builder.GetPageURL(1))
-	//url := builder.GetPageURL(job.Market.PageNumber)
-	return nil, true, nil
+	//isLastPage = true
+	return ads, isLastPage, nil
+
 }
 
 func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, bool, error) {
@@ -144,8 +123,8 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			SellerType:         "dealer",
 			SellerName:         &dealer,
 			SellerNameInMarket: &dealer,
-			SellerOwnURL:       nil,
-			SellerMarketURL:    nil,
+			SellerOwnURL:       &dealer,
+			SellerMarketURL:    &dealer,
 			Thumbnail:          &thumbNailValue,
 		}
 		foundAds = append(foundAds, carad)
