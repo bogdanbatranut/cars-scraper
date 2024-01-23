@@ -3,6 +3,7 @@ package main
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/utils"
 	"log"
 
 	"github.com/google/uuid"
@@ -15,11 +16,11 @@ func main() {
 	criteria := adsdb.Criteria{
 		Brand:        "mercedes-benz",
 		CarModel:     "gle_class",
-		YearFrom:     toIntPointer(2019),
+		YearFrom:     utils.ToIntPointer(2019),
 		YearTo:       nil,
 		Fuel:         "diesel",
 		KmFrom:       nil,
-		KmTo:         toIntPointer(125000),
+		KmTo:         utils.ToIntPointer(125000),
 		AllowProcess: false,
 		Markets:      nil,
 		ScrapeLogs:   nil,
@@ -49,12 +50,4 @@ func main() {
 	//implementationStragegies := markets.NewImplemetationStrategies()
 	//impl := implementationStragegies.GetImplementation("mobile.de")
 	//impl.Execute(rsj)
-}
-
-func toIntPointer(value int) *int {
-	return &value
-}
-
-func toStringPointer(value string) *string {
-	return &value
 }
