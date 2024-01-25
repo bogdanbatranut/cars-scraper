@@ -6,6 +6,7 @@ import (
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/markets/autovit"
 	"carscraper/pkg/scraping/markets/mobile"
+	"carscraper/pkg/scraping/markets/olx"
 )
 
 type ImplementationStrategies struct {
@@ -21,6 +22,7 @@ func NewImplemetationStrategies(logger logging.ScrapeLoggingService) Implementat
 	s["mobile.de"] = mobile.NewMobileDeStrategy(logger)
 	s["autoscout"] = autoscout.NewAutoscoutStrategy(logger)
 	s["autotracknl"] = autotrack.NewAutoTrackStrategy(&logger)
+	s["olx"] = olx.NewOlxStrategy(&logger)
 	is := ImplementationStrategies{
 		strategies: s,
 	}

@@ -126,7 +126,7 @@ func (rcs ResultsConsumerService) processResults() {
 		// TODO results.Data might be null... this happens on mobile when traversing pages... at some point you just get an empty page..
 
 		if result.Data == nil || len(*result.Data) == 0 {
-			log.Printf("results %+v", result)
+			//log.Printf("results %+v", result)
 			result.Data = &[]jobs.Ad{jobs.Ad{
 				Brand:              "",
 				Model:              "",
@@ -192,7 +192,7 @@ func (rcs ResultsConsumerService) processResults() {
 				}
 				if !found {
 					rcs.resultsWriter.DeleteAd(exsitingAdID)
-					log.Printf("Deleted record with ID: %d", exsitingAdID)
+					//log.Printf("Deleted record with ID: %d", exsitingAdID)
 				}
 			}
 
