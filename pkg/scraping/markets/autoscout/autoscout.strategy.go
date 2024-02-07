@@ -90,6 +90,9 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		}
 
 		thumbnail, exists := e.DOM.Find("div.ListItem_wrapper__TxHWu > div.Gallery_wrapper__iqp3u > section > div:nth-child(1) > picture > img").Attr("src")
+		if !strings.HasPrefix(thumbnail, "https://prod.pictures.autoscout24.net/listing-images/") || !exists {
+			thumbnail, exists = e.DOM.Find("div.ListItem_wrapper__TxHWu > div.Gallery_wrapper__iqp3u > section > div:nth-child(1) > picture > source:nth-child(1)").Attr("srcset")
+		}
 
 		yearStr := e.Attr("data-first-registration")
 		year, err := strconv.Atoi(yearStr[3:])

@@ -8,21 +8,224 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/rod/lib/proto"
+	"github.com/go-rod/rod/lib/utils"
+	"github.com/ysmood/gson"
 )
 
+//func main() {
+//	url := "https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000"
+//	GetData(url)
+//}
+
+func mainII() {
+	// This example is to launch a browser remotely, not connect to a running browser remotely,
+	// to connect to a running browser check the "../connect-browser" example.
+	// Rod provides a docker image for beginners, run the below to start a launcher.Manager:
+	//
+	//     docker run --rm -p 7317:7317 ghcr.io/go-rod/rod
+	//
+	// For available CLI flags run: docker run --rm ghcr.io/go-rod/rod rod-manager -h
+	// For more information, check the doc of launcher.Manager
+	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
+
+	// You can also set any flag remotely before you launch the remote browser.
+	// Available flags: https://peter.sh/experiments/chromium-command-line-switches
+	l.Set("disable-gpu").Delete("disable-gpu")
+
+	// Launch with headful mode
+	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+
+	browser := rod.New().Client(l.MustClient()).MustConnect()
+
+	// You may want to start a server to watch the screenshots of the remote browser.
+	launcher.Open(browser.ServeMonitor(""))
+
+	fmt.Println(
+		browser.MustPage("https://developer.mozilla.org").MustEval("() => document.title"),
+	)
+
+}
+
 func main() {
-	url := "https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000"
-	GetData(url)
+	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
+
+	// You can also set any flag remotely before you launch the remote browser.
+	// Available flags: https://peter.sh/experiments/chromium-command-line-switches
+	l.Set("disable-gpu").Delete("disable-gpu")
+
+	// Launch with headful mode
+	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+
+	browser := rod.New().Client(l.MustClient()).MustConnect()
+
+	// You may want to start a server to watch the screenshots of the remote browser.
+	launcher.Open(browser.ServeMonitor(""))
+	page, err := browser.Page(proto.TargetCreateTarget{})
+	if err != nil {
+		panic(err)
+	}
+
+	headers := []string{
+		//"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+		//"Accept-Encoding", "gzip, deflate, br",
+		//"Accept-Language", "en-GB,en;q=0.9",
+		//"Sec-Ch-Ua", "\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"",
+		//"Sec-Ch-Ua-Mobile", "?0",
+		//"Sec-Ch-Ua-Platform", "\"macOS\"",
+		//"Sec-Fetch-Dest", "document",
+		//"Sec-Fetch-Mode", "navigate",
+		//"Sec-Fetch-Site", "none",
+		//"Sec-Fetch-User", "?1",
+		//"Upgrade-Insecure-Requests", "1",
+		//"User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+	}
+
+	result, err := page.SetExtraHeaders(headers)
+	if err != nil {
+		panic(err)
+	}
+
+	result()
+	//extraHeaders := page.MustSetExtraHeaders(
+	//	"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+	//	"Accept-Encoding", "gzip, deflate, br",
+	//	"Accept-Language", "en-GB,en;q=0.9",
+	//	"Sec-Ch-Ua", "\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"",
+	//	"Sec-Ch-Ua-Mobile", "?0",
+	//	"Sec-Ch-Ua-Platform", "\"macOS\"",
+	//	"Sec-Fetch-Dest", "document",
+	//	"Sec-Fetch-Mode", "navigate",
+	//	"Sec-Fetch-Site", "none",
+	//	"Sec-Fetch-User", "?1",
+	//	"Upgrade-Insecure-Requests", "1",
+	//	"User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+	//)
+	//extraHeaders()
+
+	err = page.Navigate("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000")
+	if err != nil {
+		panic(err)
+	}
+	elements := page.MustElements("body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > div.result-list-section.js-result-list-section.u-clearfix > article")
+	log.Println("articles: ", len(elements))
+	utils.Pause()
+}
+
+func mainOLD() {
+	//	// This example is to launch a browser remotely, not connect to a running browser remotely,
+	//	// to connect to a running browser check the "../connect-browser" example.
+	//	// Rod provides a docker image for beginners, run the below to start a launcher.Manager:
+	//	//
+	//	//     docker run --rm -p 7317:7317 ghcr.io/go-rod/rod
+	//	//
+	//	// For available CLI flags run: docker run --rm ghcr.io/go-rod/rod rod-manager -h
+	//	// For more information, check the doc of launcher.Manager
+	//	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
+	//
+	//	// You can also set any flag remotely before you launch the remote browser.
+	//	// Available flags: https://peter.sh/experiments/chromium-command-line-switches
+	//	l.Set("disable-gpu").Delete("disable-gpu")
+	//
+	//	// Launch with headful mode
+	//	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+	//
+	//	browser := rod.New().Client(l.MustClient()).MustConnect()
+	//
+	//	// You may want to start a server to watch the screenshots of the remote browser.
+	//	launcher.Open(browser.ServeMonitor(""))
+	//
+	//	fmt.Println(
+	//		browser.MustPage("https://developer.mozilla.org").MustEval("() => document.title"),
+	//	)
+	//
+	// Launch another browser with the same docker container.
+	ll := launcher.MustNewManaged("http://dev.auto-mall.ro:7317") //.Headless(true)
+	//ll.Open(browser.ServeMonitor(""))
+	// You can set different flags for each browser.
+	//ll.Set("disable-sync").Delete("disable-sync")
+
+	//ll.Set("--headless")
+	anotherBrowser := rod.New().Client(ll.MustClient()).MustConnect()
+
+	//router := anotherBrowser.HijackRequests()
+	//router.MustAdd()
+	page, err := anotherBrowser.Page(proto.TargetCreateTarget{})
+	if err != nil {
+		panic(err)
+	}
+
+	extraHeaders := page.MustSetExtraHeaders(
+		"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+		"Accept-Encoding", "gzip, deflate, br",
+		"Accept-Language", "en-GB,en;q=0.9",
+		"Sec-Ch-Ua", "\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"",
+		"Sec-Ch-Ua-Mobile", "?0",
+		"Sec-Ch-Ua-Platform", "\"macOS\"",
+		"Sec-Fetch-Dest", "document",
+		"Sec-Fetch-Mode", "navigate",
+		"Sec-Fetch-Site", "none",
+		"Sec-Fetch-User", "?1",
+		"Upgrade-Insecure-Requests", "1",
+		"User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	var e proto.NetworkResponseReceived
+	wait := page.WaitEvent(&e)
+	err = page.Navigate("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000")
+	if err != nil {
+		panic(err)
+	}
+	wait()
+	log.Println("Response status: ", e.Response.Status)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	page.MustScreenshot("my.png")
+
+	// customization version
+	img, _ := page.Screenshot(true, &proto.PageCaptureScreenshot{
+		Format:  proto.PageCaptureScreenshotFormatJpeg,
+		Quality: gson.Int(90),
+		Clip: &proto.PageViewport{
+			X:      0,
+			Y:      0,
+			Width:  1800,
+			Height: 3200,
+			Scale:  1,
+		},
+		FromSurface: true,
+	})
+	_ = utils.OutputFile("my.jpg", img)
+
+	defer cancel()
+	//result := anotherBrowser.Context(ctx).MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").MustEval("() => document.querySelectorAll(\"article\")")
+	result := anotherBrowser.Context(ctx).MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").MustElement("body")
+	log.Println("Result : ", result)
+	extraHeaders()
+	//fmt.Println(
+	//	"===>",
+	//	//anotherBrowser.MustPage("https://go-rod.github.io").MustEval("() => document.title"),
+	//	anotherBrowser.MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").MustEval("() => document.querySelectorAll(\"article\")"),
+	//)
+
+	//utils.Pause()
 }
 
 func GetData(url string) {
 	//isLastPage := true
-
-	page := rod.New().MustConnect().MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").
+	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
+	page := rod.New().Client(l.MustClient()).MustConnect().MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").
 		MustWaitLoad()
+	//page := rod.New().MustConnect().MustPage("https://www.mobile.de/ro/automobil/mercedes-benz-clasa-gle/vhc:car,srt:price,sro:asc,ms1:17200_-58_,frn:2019,ful:diesel,mlx:125000").
+	//	MustWaitLoad()
 	// LoadState detects whether the network domain is enabled or not.
 	fmt.Println("******")
 	fmt.Println(page.LoadState(&proto.PageStopLoading{}))
@@ -39,8 +242,11 @@ func GetData(url string) {
 	}
 
 	var totalResults float64
-	totalResultsElement := page.MustSearch("body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > section.result-block-header.g-row > div > h1")
-	totalResultsElementText, err := totalResultsElement.Text()
+	totalResultsElement, err := page.Search("body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > section.result-block-header.g-row > div > h1")
+	if err != nil {
+		panic(err)
+	}
+	totalResultsElementText, err := totalResultsElement.First.Text()
 	if err != nil {
 		panic(err)
 	}
