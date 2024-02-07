@@ -107,6 +107,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			thumbNail = strings.Split(thumbSrc, "=")[1] + "=" + strings.Split(thumbSrc, "=")[2]
 			rep := "\""
 			thumbNail = strings.Replace(thumbNail, rep, "", -1)
+			log.Println("thumbnail from page: ", thumbNail)
 		}
 
 		yearAndKm := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > div.vehicle-information.g-col-s-6.g-col-m-8 > p.u-text-bold").Text()
