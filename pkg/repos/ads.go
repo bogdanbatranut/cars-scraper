@@ -86,6 +86,11 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				r.db.Save(&foundAd)
 			}
 
+			if foundAd.Thumbnail != nil && strings.HasPrefix(*foundAd.Thumbnail, "data:image") && *foundAd.Thumbnail != *thumbnail {
+				foundAd.Thumbnail = thumbnail
+				r.db.Save(&foundAd)
+			}
+
 			if foundAd.Km != foundAdKm {
 				foundAd.Km = foundAdKm
 				r.db.Save(&foundAd)

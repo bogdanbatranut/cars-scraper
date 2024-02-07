@@ -93,22 +93,22 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			mobileAdHref = "NOT FOUND!!"
 		}
 
-		ttt := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img")
-		src, exists := ttt.Attr("src")
-		if !exists {
-			log.Println("img not found")
+		//ttt := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img")
+		//src, exists := ttt.Attr("src")
+		//if !exists {
+		//	log.Println("img not found")
+		//}
+
+		noscriptELem := e.DOM.Find("div > div.g-row.js-ad-entry >  a > div.thumbnail > noscript")
+		thumbNail := noscriptELem.Text()
+		log.Println(thumbNail)
+		if thumbNail != "" {
+			thumbSrc := strings.Split(thumbNail, " ")[2]
+			thumbNail = strings.Split(thumbSrc, "=")[1] + "=" + strings.Split(thumbSrc, "=")[2]
+			rep := "\""
+			thumbNail = strings.Replace(thumbNail, rep, "", -1)
 		}
 
-		//elems := strings.Split(src, ",")
-		//rawDecodedText, err := base64.StdEncoding.DecodeString(elems[1])
-		//if err != nil {
-		//	panic(err)
-		//}
-		//log.Println(src, exists, rawDecodedText)
-		//thumbnailSRC, _ := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.thumbnail > img").Attr("src")
-
-		//div > div.g-row.js-ad-entry > a > div.thumbnail.g-col-s-12.g-col-m-4.blazy-loaded > img
-		//title := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > h3").Text()
 		yearAndKm := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > div.vehicle-information.g-col-s-6.g-col-m-8 > p.u-text-bold").Text()
 		year, _, _ := time.Now().Date()
 		yearStr := strconv.Itoa(year)
@@ -185,7 +185,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 			SellerNameInMarket: &seller,
 			SellerOwnURL:       &seller,
 			SellerMarketURL:    &seller,
-			Thumbnail:          &src,
+			Thumbnail:          &thumbNail,
 		}
 		foundAds = append(foundAds, ad)
 	})
