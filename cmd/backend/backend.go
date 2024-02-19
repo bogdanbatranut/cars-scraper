@@ -33,11 +33,11 @@ func main() {
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
 
-	//chartsRepo := repos.NewChartsRepository(cfg)
-	//chartsRepo.GetAdsPricesByStep(5000)
+	chartsRepo := repos.NewChartsRepository(cfg)
+	chartsRepo.GetAdsPricesByStep(5000)
 
-	////cleanupPrices(adsRepo)
-	//return
+	cleanupPrices(adsRepo)
+	return
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
@@ -183,17 +183,16 @@ func cleanupPrices(repo repos.IAdsRepository) {
 	for _, ad := range *allAds {
 		prices := repo.GetAdPrices(ad.ID)
 		if len(prices) > 1 {
-			log.Println("Ad has more prices")
+			//log.Println("Ad has more prices ", ad.ID)
 			firstPrice := prices[0].Price
 			for i, price := range prices {
 				if i >= 1 {
 					if price.Price == firstPrice {
-						log.Println("Deleting price ...")
 						repo.DeletePrice(price.ID)
 					}
 				}
 			}
-			duplicates := removeDuplicates(prices)
+			duplicates := removeDuplicates(prices, ad.ID)
 			if len(duplicates) > 0 {
 
 				//for _, price := range prices {
@@ -209,7 +208,7 @@ func cleanupPrices(repo repos.IAdsRepository) {
 	}
 }
 
-func removeDuplicates(prices []adsdb.Price) []uint {
+func removeDuplicates(prices []adsdb.Price, adID uint) []uint {
 	seen := make(map[int]bool)
 	result := []uint{}
 	duplicates := []uint{}
@@ -223,7 +222,8 @@ func removeDuplicates(prices []adsdb.Price) []uint {
 		}
 	}
 	if len(duplicates) > 0 {
-		log.Println("we have duplicates")
+
+		log.Println("We have duplicates for ad ID: ", adID)
 		log.Printf("clean : %+v", result)
 		log.Printf("duplicates : %+v", duplicates)
 	}
