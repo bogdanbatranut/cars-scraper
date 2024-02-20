@@ -37,7 +37,6 @@ func main() {
 	chartsRepo.GetAdsPricesByStep(5000)
 
 	cleanupPrices(adsRepo)
-	return
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
