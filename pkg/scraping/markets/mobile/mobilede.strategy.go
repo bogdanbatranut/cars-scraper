@@ -101,7 +101,6 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 
 		noscriptELem := e.DOM.Find("div > div.g-row.js-ad-entry >  a > div.thumbnail > noscript")
 		thumbNail := noscriptELem.Text()
-		log.Println(thumbNail)
 		if thumbNail != "" {
 			thumbSrc := strings.Split(thumbNail, " ")[2]
 			thumbNail = strings.Split(thumbSrc, "=")[1] + "=" + strings.Split(thumbSrc, "=")[2]
