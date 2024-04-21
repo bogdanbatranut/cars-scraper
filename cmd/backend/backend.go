@@ -18,6 +18,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -36,7 +38,8 @@ func main() {
 	chartsRepo := repos.NewChartsRepository(cfg)
 	chartsRepo.GetAdsPricesByStep(5000)
 
-	cleanupPrices(adsRepo)
+	//cleanupPrices(adsRepo)
+	cleanupAds(cfg)
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
@@ -53,7 +56,6 @@ func main() {
 	log.Printf("HTTP listening on port %s\n", httpPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
 	errorshandler.HandleErr(err)
-
 }
 
 func setCurrentPrice(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
@@ -204,6 +206,127 @@ func cleanupPrices(repo repos.IAdsRepository) {
 			}
 
 		}
+	}
+}
+
+func cleanupAds(cfg amconfig.IConfig) {
+	databaseName := cfg.GetString(amconfig.AppDBName)
+	databaseHost := cfg.GetString(amconfig.AppDBHost)
+	dbUser := cfg.GetString(amconfig.AppDBUser)
+	dbPass := cfg.GetString(amconfig.AppDBPass)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, databaseHost, databaseName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Println(err)
+	}
+
+	// get all ads grouped by adID where count > 0
+	type Result struct {
+		Count       int
+		Market_uuid string
+	}
+	var res []Result
+	db.Raw("select count(id) as Count, market_uuid as Market_uuid from ads group by market_uuid order by count(id) desc").Scan(&res)
+
+	var ress []Result
+
+	for _, ad := range res {
+		if ad.Count > 1 {
+			ress = append(ress, ad)
+		}
+	}
+
+	log.Println(len(ress))
+	counter := 1
+	for _, ad := range ress {
+
+		if ad.Count < 2 {
+			continue
+		}
+		// get all ads with prices
+		var ads []adsdb.Ad
+		//db.Debug().Preload("Prices").Where(&adsdb.Ad{MarketUUID: &ad.Market_uuid}).Find(&ads)
+		// get all ads
+		db.Raw("SELECT * FROM `ads` WHERE `ads`.`market_uuid` = ? ORDER BY id desc", ad.Market_uuid).Scan(&ads)
+
+		removeUnecessaryAdsAndPrice(ads, db)
+		log.Printf("Corrected %d from: %d . Remaning: %d", counter, len(ress), len(ress)-counter)
+		counter++
+	}
+}
+
+func removeUnecessaryAdsAndPrice(foundAds []adsdb.Ad, db *gorm.DB) {
+	isActive := false
+	var lastAd adsdb.Ad
+	for _, ad := range foundAds {
+		if ad.DeletedAt.Valid {
+			isActive = true
+			lastAd = ad
+		}
+	}
+	if !isActive {
+		lastAd = foundAds[0]
+	}
+
+	// get all the prices for all found Ads
+	var adsIds []uint
+	for _, ad := range foundAds {
+		adsIds = append(adsIds, ad.ID)
+	}
+
+	// select the prices for all ads
+	var prices []adsdb.Price
+	db.Order("created_at asc").Where("ad_id IN ?", adsIds).Find(&prices)
+	// determine the unique prices and the ones that should be deleted
+	var uniquePrices []adsdb.Price
+	var nonUNIQUEPricesIDS []uint
+
+	for _, price := range prices {
+		hasPriceInUnique := false
+		for _, uniquPrice := range uniquePrices {
+			if uniquPrice.Price == price.Price {
+				hasPriceInUnique = true
+				break
+			}
+		}
+		if !hasPriceInUnique {
+			uniquePrices = append(uniquePrices, price)
+		} else {
+			nonUNIQUEPricesIDS = append(nonUNIQUEPricesIDS, price.ID)
+		}
+	}
+
+	// get the ads to delete
+	var adsToDelete []uint
+	for _, ad := range foundAds {
+		if ad.ID != lastAd.ID {
+			adsToDelete = append(adsToDelete, ad.ID)
+		}
+	}
+
+	// update uniquePrices
+	for _, price := range uniquePrices {
+		db.Model(&price).Updates(adsdb.Price{AdID: lastAd.ID})
+	}
+
+	// delete non uniquePrices
+	tx := db.Exec("DELETE from `prices` WHERE `prices`.`id` IN (?) ", nonUNIQUEPricesIDS)
+	if tx.Error != nil {
+		log.Println(tx.Error)
+	}
+
+	// delete ads to delete
+	tx = db.Exec("DELETE FROM `ads` WHERE `ads`.`id` IN (?)", adsToDelete)
+	if tx.Error != nil {
+		log.Println(tx.Error)
+	}
+
+	var ads []adsdb.Ad
+	//db.Debug().Preload("Prices").Where(&adsdb.Ad{MarketUUID: &ad.Market_uuid}).Find(&ads)
+	// get all ads
+	tx = db.Raw("SELECT * FROM `ads` WHERE `ads`.`market_uuid` = ? ORDER BY id desc", lastAd.MarketUUID).Scan(&ads)
+	if tx.Error != nil {
+		log.Println(tx.Error)
 	}
 }
 
