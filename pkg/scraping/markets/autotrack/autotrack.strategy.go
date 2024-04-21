@@ -3,6 +3,7 @@ package autotrack
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	"carscraper/pkg/scraping/icollector"
 	"fmt"
 	"io"
 	"log"
@@ -23,24 +24,45 @@ func NewAutoTrackStrategy(logger *logging.ScrapeLoggingService) AutoTrackStrateg
 	}
 }
 
-func (as AutoTrackStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
-	builder := NewURLBuilder(job.Criteria)
-	url := builder.GetPageURL(job.Market.PageNumber)
+func (as AutoTrackStrategy) Execute(job jobs.SessionJob) icollector.AdsResults {
+	builder := NewURLBuilder()
+	url := builder.GetURL(job)
 	if url == nil {
-		return nil, true, nil
+		return icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: true,
+			Error:      nil,
+		}
+		//return nil, true, nil
 	}
 	ads, isLastPage, err := getData(*url, job.Market.PageNumber, job.Criteria)
-	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, *url, err)
+	err = as.logger.AddPageScrapeEntry(job, len(*ads), job.Market.PageNumber, isLastPage, *url, err)
 	if err != nil {
-		return nil, false, err
+		return icollector.AdsResults{
+			nil,
+			true,
+			err,
+		}
+	}
+	if err != nil {
+		return icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: false,
+			Error:      err,
+		}
+		//return nil, false, err
 	}
 
 	//isLastPage = true
-	return ads, isLastPage, nil
+	return icollector.AdsResults{
+		Ads:        ads,
+		IsLastPage: isLastPage,
+		Error:      nil,
+	} //return ads, isLastPage, nil
 
 }
 
-func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, bool, error) {
+func getData(url string, pageNumber int, criteria jobs.Criteria) (*[]jobs.Ad, bool, error) {
 
 	foundAds := []jobs.Ad{}
 
@@ -148,7 +170,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		return nil, true, nil
 	}
 	log.Println("AUTOTRACK found ads : ", len(foundAds))
-	return foundAds, isLastPage, nil
+	return &foundAds, isLastPage, nil
 }
 
 func (as AutoTrackStrategy) TestGETRequest(url string) {

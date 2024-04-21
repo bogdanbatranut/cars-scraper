@@ -3,6 +3,7 @@ package autoscout
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	icollector2 "carscraper/pkg/scraping/icollector"
 	"fmt"
 	"log"
 	"math"
@@ -12,30 +13,83 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type MobileDeStrategy struct {
-	logger logging.ScrapeLoggingService
+type AutoscoutStrategy struct {
+	logger       *logging.ScrapeLoggingService
+	adsCollector icollector2.IAdCollector
+	//rodService   *scrapingservices.RodBrowserService
 }
 
-func NewAutoscoutStrategy(loggingService logging.ScrapeLoggingService) MobileDeStrategy {
-	return MobileDeStrategy{
-		logger: loggingService,
+//	func NewAutoscoutStrategy(loggingService *logging.ScrapeLoggingService, adsCollector icollector2.IAdCollector, service *scrapingservices.RodBrowserService) AutoscoutStrategy {
+//		return AutoscoutStrategy{
+//			logger:       loggingService,
+//			adsCollector: adsCollector,
+//			rodService:   service,
+//		}
+//	}
+
+func NewAutoscoutStrategy(loggingService *logging.ScrapeLoggingService, adsCollector icollector2.IAdCollector) AutoscoutStrategy {
+	return AutoscoutStrategy{
+		logger:       loggingService,
+		adsCollector: adsCollector,
+		//rodService:   service,
 	}
 }
-
-func (as MobileDeStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
-	builder := NewURLBuilder(job.Criteria)
-	url := builder.GetPageURL(job.Market.PageNumber)
-	ads, isLastPage, err := getData(url, job.Market.PageNumber, job.Criteria)
-	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, url, err)
-	if err != nil {
-		return nil, false, err
-	}
-
-	//isLastPage = true
-	return ads, isLastPage, nil
+func (as AutoscoutStrategy) Execute(job jobs.SessionJob) icollector2.AdsResults {
+	//builder := NewURLBuilder(job.Criteria)
+	//url := builder.GetPageURL(job.Market.PageNumber)
+	//pageProcessor := autoscoutrodpageprocessor.AutoscoutRodProcessor{}
+	//as.rodService.AddJob(url, pageProcessor)
+	//for {
+	//	res := <-as.rodService.GetResultsChannel()
+	//	if res.Ads == nil {
+	//		log.Println(" NIL RESULTS !!!")
+	//	} else {
+	//		log.Printf("Found ads: %d", len(*res.Ads))
+	//	}
+	//	return res
+	//}
+	log.Println("J=HERE")
+	return icollector2.AdsResults{}
 }
 
-func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, bool, error) {
+func (as AutoscoutStrategy) ExecuteAsync(job jobs.SessionJob) icollector2.AdsResults {
+	//builder := NewURLBuilder(job.Criteria)
+	//url := builder.GetPageURL(job.Market.PageNumber)
+	//pageProcessor := autoscoutrodpageprocessor.AutoscoutRodProcessor{}
+	//as.rodService.AddJob(url, pageProcessor)
+	//for {
+	//	res := <-as.rodService.GetResultsChannel()
+	//	if res.Ads == nil {
+	//		log.Println(" NIL RESULTS !!!")
+	//	} else {
+	//		log.Printf("Found ads: %d", len(*res.Ads))
+	//	}
+	//	return res
+	//}
+	log.Println("WWWEFW")
+	return icollector2.AdsResults{}
+}
+
+//func (as AutoscoutStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
+//	builder := NewURLBuilder(job.Criteria)
+//	url := builder.GetPageURL(job.Market.PageNumber)
+//
+//	pageProcessor := autoscoutrodpageprocessor.AutoscoutRodProcessor{}
+//	as.rodService.AddJob(url, pageProcessor)
+//
+//	collectorResults := <-as.rodService.GetResultsChannel()
+//
+//	if as.logger != nil {
+//		as.logger.AddPageScrapeEntry(job, len(collectorResults.Ads), job.Market.PageNumber, collectorResults.IsLastPage, url, collectorResults.Error)
+//	}
+//	if collectorResults.Error != nil {
+//		return nil, false, collectorResults.Error
+//	}
+//
+//	return collectorResults.Ads, collectorResults.IsLastPage, nil
+//}
+
+func getData(url string, pageNumber int, criteria jobs.Criteria) icollector2.AdsResults {
 
 	foundAds := []jobs.Ad{}
 
@@ -71,7 +125,12 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	})
 
 	if executionErr != nil {
-		return nil, false, executionErr
+		//return nil, false, executionErr
+		return icollector2.AdsResults{
+			Ads:        nil,
+			IsLastPage: false,
+			Error:      executionErr,
+		}
 	}
 
 	c.OnHTML("article", func(e *colly.HTMLElement) {
@@ -138,7 +197,12 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	})
 
 	if executionErr != nil {
-		return nil, false, executionErr
+		//return nil, false, executionErr
+		return icollector2.AdsResults{
+			Ads:        nil,
+			IsLastPage: false,
+			Error:      executionErr,
+		}
 	}
 
 	//t := time.Now()
@@ -222,13 +286,28 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	err := c.Visit(url)
 	log.Println("AUTOSCOUT Visiting ", url)
 	if err != nil {
-		return nil, false, err
+		//return nil, false, err
+		return icollector2.AdsResults{
+			Ads:        nil,
+			IsLastPage: false,
+			Error:      err,
+		}
 	}
 	c.Wait()
 	if len(foundAds) == 0 {
 		log.Println("WE NO RESULTS SO RETURN !!!!!")
-		return nil, true, nil
+		//return nil, true, nil
+		return icollector2.AdsResults{
+			Ads:        nil,
+			IsLastPage: true,
+			Error:      err,
+		}
 	}
 	log.Println("AUTOSCOUT found ads : ", len(foundAds))
-	return foundAds, isLastPage, nil
+	//return foundAds, isLastPage, nil
+	return icollector2.AdsResults{
+		Ads:        &foundAds,
+		IsLastPage: isLastPage,
+		Error:      nil,
+	}
 }

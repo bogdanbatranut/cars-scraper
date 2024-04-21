@@ -11,6 +11,7 @@ import (
 
 type IMarketsRepository interface {
 	GetAll() *[]adsdb.Market
+	GetMarketByID(id uint) *adsdb.Market
 }
 
 type SQLMarketsRepository struct {
@@ -36,4 +37,10 @@ func (repo SQLMarketsRepository) GetAll() *[]adsdb.Market {
 	var markets []adsdb.Market
 	repo.db.Preload("Criterias").Find(&markets)
 	return &markets
+}
+
+func (repo SQLMarketsRepository) GetMarketByID(id uint) *adsdb.Market {
+	var market adsdb.Market
+	repo.db.First(&market, id)
+	return &market
 }

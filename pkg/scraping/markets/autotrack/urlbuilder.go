@@ -3,39 +3,39 @@ package autotrack
 import (
 	"carscraper/pkg/jobs"
 	"fmt"
+	"log"
 )
 
 type URLBuilder struct {
-	criteria    jobs.Criteria
 	brandModels map[string]map[string]*BrandModelIds
 }
 
-func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
+func NewURLBuilder() *URLBuilder {
 	builder := &URLBuilder{
-		criteria:    criteria,
 		brandModels: buildBrandModelIDsParams(),
 	}
 	return builder
 }
 
-func (b URLBuilder) GetPageURL(pageNumber int) *string {
+func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	fuels := make(map[string]string)
 	fuels["diesel"] = "DIESEL"
 	fuels["petrol"] = "BENZINE"
 
-	bm := b.brandModels[b.criteria.Brand][b.criteria.CarModel]
+	bm := b.brandModels[job.Criteria.Brand][job.Criteria.CarModel]
 	if bm == nil {
 		return nil
 	}
 	pr := bm.asQueryParams()
 	url := fmt.Sprintf(
 		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=30&sortering=PRIJS_OPLOPEND",
-		*b.criteria.YearFrom,
-		*b.criteria.KmTo,
-		fuels[b.criteria.Fuel],
+		*job.Criteria.YearFrom,
+		*job.Criteria.KmTo,
+		fuels[job.Criteria.Fuel],
 		pr,
-		pageNumber,
+		job.Market.PageNumber,
 	)
+	log.Println("AUTOTRACK Fuel : ", fuels[job.Criteria.Fuel], "Fuel in criteria : ", job.Criteria.Fuel)
 	return &url
 }
 
@@ -177,6 +177,13 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 		ModelID: "65de8176-8216-4217-93c3-c9e9bafd73b8",
 	}
 	modelMap["s90"] = &s90
+	brandModelsMap["volvo"] = modelMap
+
+	xc40 := BrandModelIds{
+		BrandID: volvo,
+		ModelID: "8c4dc7aa-755b-4377-ab2f-0d984b5db139",
+	}
+	modelMap["xc40"] = &xc40
 	brandModelsMap["volvo"] = modelMap
 
 	return brandModelsMap

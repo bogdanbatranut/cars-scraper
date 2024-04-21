@@ -3,6 +3,7 @@ package mobile
 import (
 	"carscraper/pkg/jobs"
 	"fmt"
+	"log"
 )
 
 // https://www.mobile.de/
@@ -48,6 +49,7 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 		subModelParamValue = *b.brandModelParamsValues[brand][model].SubModel
 	}
 	fuel := b.criteria.Fuel
+	log.Println("MOBILE.DE Fuel : ", b.criteria.Fuel)
 	url := fmt.Sprintf("https://www.mobile.de/ro/automobil/%s-%s/vhc:car,pgn:%d,pgs:50,srt:price,sro:asc,ms1:%s_%s_%s,frn:2019,ful:%s,mlx:125000,dmg:false", brand, model, pageNumber, brandParamValue, modelParamValue, subModelParamValue, fuel)
 	return url
 }
@@ -67,6 +69,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc90"
 	modelsMap["xc60"] = "xc60"
+	modelsMap["xc40"] = "xc40"
 	modelsMap["glb-class"] = "clasa-glb"
 	modelsMap["x3"] = "x3"
 	modelsMap["glc-class"] = "clasa-glc"
@@ -157,6 +160,12 @@ func initParamNames() map[string]map[string]BrandModelValues {
 		Model: "37",
 	}
 	volvoModelsMap["xc90"] = vxc90
+
+	vxc40 := BrandModelValues{
+		Brand: "25100",
+		Model: "45",
+	}
+	volvoModelsMap["xc40"] = vxc40
 
 	bmwModelsMap := map[string]BrandModelValues{}
 	params["volvo"] = volvoModelsMap

@@ -3,6 +3,7 @@ package autoscout
 import (
 	"carscraper/pkg/jobs"
 	"fmt"
+	"log"
 	"net/url"
 )
 
@@ -25,29 +26,28 @@ func (q QueryParam) toQueryStr() string {
 }
 
 type URLBuilder struct {
-	criteria  jobs.Criteria
 	modelsMap map[string]string
 	fuelsMap  map[string]string
 }
 
-func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
+func NewURLBuilder() *URLBuilder {
 	return &URLBuilder{
-		criteria:  criteria,
 		modelsMap: initModelsAdapterMap(),
 		fuelsMap:  initFuelsMap(),
 	}
 }
 
-func (b URLBuilder) GetPageURL(pageNumber int) string {
-	brand := b.criteria.Brand
-	model := b.modelsMap[b.criteria.CarModel]
-	fuel := b.fuelsMap[b.criteria.Fuel]
+func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
+	brand := job.Criteria.Brand
+	model := b.modelsMap[job.Criteria.CarModel]
+	fuel := b.fuelsMap[job.Criteria.Fuel]
 	cyParam := url.QueryEscape("D,A,B,E,F,I,L,NL")
 	ustateParam := url.QueryEscape("N,U")
+	log.Println("AUTOSCOUT Fuel: ", job.Criteria.Fuel)
 	// https://www.autoscout24.ro/lst/mercedes-benz/gle-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2019&kmto=125000&powertype=kw&search_id=21p91bbp3zv&sort=standard&source=detailsearch&ustate=N%2CU
 	//https://www.autoscout24.ro/lst/mercedes-benz/glc-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2019&kmto=125000&powertype=kw&regfrom=2019&search_id=1kf3w3r2bjf&sort=price&source=detailsearch&ustate=N%2CU
-	url := fmt.Sprintf("https://www.autoscout24.ro/lst/%s/%s/%s?atype=C&cy=%s&damaged_listing=exclude&desc=0&fregfrom=%d&kmto=%d&page=%d&powertype=kw&regfrom=%d&sort=price&source=detailsearch&ustate=%s", brand, model, fuel, cyParam, *b.criteria.YearFrom, *b.criteria.KmTo, pageNumber, *b.criteria.YearFrom, ustateParam)
-	return url
+	url := fmt.Sprintf("https://www.autoscout24.ro/lst/%s/%s/%s?atype=C&cy=%s&damaged_listing=exclude&desc=0&fregfrom=%d&kmto=%d&page=%d&powertype=kw&regfrom=%d&sort=price&source=detailsearch&ustate=%s", brand, model, fuel, cyParam, *job.Criteria.YearFrom, *job.Criteria.KmTo, job.Market.PageNumber, *job.Criteria.YearFrom, ustateParam)
+	return &url
 }
 
 func initFuelsMap() map[string]string {
@@ -72,6 +72,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc90"
 	modelsMap["xc60"] = "xc60"
+	modelsMap["xc40"] = "xc40"
 	modelsMap["x3"] = "x3"
 	modelsMap["glb-class"] = "glb-(toate)"
 	modelsMap["glc-class"] = "glc-(toate)"

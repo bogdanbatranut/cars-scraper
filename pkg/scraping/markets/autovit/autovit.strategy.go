@@ -3,6 +3,7 @@ package autovit
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	"carscraper/pkg/scraping/icollector"
 	"encoding/json"
 	"log"
 )
@@ -23,7 +24,7 @@ func check(e error) {
 	}
 }
 
-func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
+func (as AutovitStrategy) Execute(job jobs.SessionJob) icollector.AdsResults {
 	var ads []jobs.Ad
 
 	//fileNumberStr := strconv.Itoa(job.Market.PageNumber)
@@ -46,14 +47,16 @@ func (as AutovitStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) 
 	if totalCount-offSet <= autovitResults.Data.AdvertSearch.PageInfo.PageSize {
 		isLastPage = true
 	}
-	//pageSize := autovitResults.Data.AdvertSearch.PageInfo.PageSize
-	//pageNumber := offSet / pageSize
 	as.loggingService.AddPageScrapeEntry(job, totalCount, job.Market.PageNumber, isLastPage, pageURL, getResultsERR)
 	if getResultsERR != nil {
 		panic(getResultsERR)
 	}
-	//isLastPage = true
-	return ads, isLastPage, nil
+	//return ads, isLastPage, nil
+	return icollector.AdsResults{
+		Ads:        &ads,
+		IsLastPage: isLastPage,
+		Error:      nil,
+	}
 }
 
 func (s AutovitStrategy) getJobResults(job jobs.SessionJob) (*AutovitGraphQLResponse, string, error) {

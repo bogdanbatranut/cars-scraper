@@ -3,7 +3,6 @@ package main
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
-	"carscraper/pkg/scraping/scraper"
 	"carscraper/pkg/sessionstarter"
 	"log"
 )
@@ -21,6 +20,6 @@ func main() {
 	)
 	sessionService.Start()
 
-	sjc := scraper.NewPageScrapingService(cfg, scraper.WithSimpleMessageQueueRepository(cfg))
+	sjc := NewPageScrapingService(cfg, temp.WithSimpleMessageQueueRepository(cfg))
 	sjc.Start()
 }

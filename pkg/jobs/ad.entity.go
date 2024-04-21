@@ -16,3 +16,15 @@ type Ad struct {
 	SellerMarketURL    *string
 	Thumbnail          *string
 }
+
+func (ad Ad) SetBrand(brand string) {
+	ad.Brand = brand
+}
+
+func (ad Ad) SetModel(model string) {
+	ad.Model = model
+}
+
+func (ad Ad) SetFuel(fuel string) {
+	ad.Brand = fuel
+}

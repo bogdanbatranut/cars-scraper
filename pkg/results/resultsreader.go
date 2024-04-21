@@ -71,7 +71,7 @@ func WithTopicName(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
 }
 
 func (rcs ResultsConsumerService) Start() {
-	log.Println("Results Consumer Service Start")
+	log.Println("Results Consumer Service StartAsync")
 	done := make(chan bool, 1)
 
 	signalsChannel := make(chan os.Signal, 1)

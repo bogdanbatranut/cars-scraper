@@ -1,8 +1,6 @@
 package jobs
 
 import (
-	"carscraper/pkg/scraping/urlbuilder"
-
 	"github.com/google/uuid"
 )
 
@@ -45,6 +43,6 @@ type PageToScrapeJob struct {
 	SessionID  uuid.UUID
 	MarketID   uint
 	CriteriaID uint
-	PageURL    urlbuilder.PageURL
+	PageURL    PageURL
 	Visited    bool
 }

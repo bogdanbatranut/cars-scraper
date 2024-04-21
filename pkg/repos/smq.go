@@ -14,6 +14,11 @@ type IMessageQueue interface {
 	PutMessage(topic string, message []byte)
 }
 
+func NewQueueRepository(baseURL string) IMessageQueue {
+	return SimpleMessageQueueRepository{
+		baseURL: baseURL,
+	}
+}
 func NewSimpleMessageQueueRepository(baseURL string) *SimpleMessageQueueRepository {
 	return &SimpleMessageQueueRepository{
 		baseURL: baseURL,

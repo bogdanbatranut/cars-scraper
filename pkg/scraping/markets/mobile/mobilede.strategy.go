@@ -3,6 +3,7 @@ package mobile
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	"carscraper/pkg/scraping/icollector"
 	"fmt"
 	"log"
 	"math"
@@ -23,24 +24,33 @@ func NewMobileDeStrategy(logger logging.ScrapeLoggingService) MobileDeStrategy {
 	}
 }
 
-func (as MobileDeStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
+func (as MobileDeStrategy) Execute(job jobs.SessionJob) icollector.AdsResults {
 	builder := NewURLBuilder(job.Criteria)
 	url := builder.GetPageURL(job.Market.PageNumber)
 	ads, isLastPage, err := getData(url, job.Market.PageNumber, job.Criteria)
-	as.logger.AddPageScrapeEntry(job, len(ads), job.Market.PageNumber, isLastPage, url, err)
+	as.logger.AddPageScrapeEntry(job, len(*ads), job.Market.PageNumber, isLastPage, url, err)
 	if err != nil {
-		return nil, false, err
+
+		return icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: false,
+			Error:      err,
+		} //return nil, false, err
 	}
 
-	//isLastPage = true
-	return ads, isLastPage, nil
+	//return ads, isLastPage, nil
+	return icollector.AdsResults{
+		Ads:        ads,
+		IsLastPage: isLastPage,
+		Error:      nil,
+	}
 }
 
-func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, bool, error) {
+func getData(url string, pageNumber int, criteria jobs.Criteria) (*[]jobs.Ad, bool, error) {
 
 	foundAds := []jobs.Ad{}
 
-	c := colly.NewCollector(
+	collector := colly.NewCollector(
 		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
 	)
 	isLastPage := false
@@ -48,7 +58,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	var executionErr error
 
 	var totalResults float64
-	c.OnHTML("body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > section.result-block-header.g-row > div > h1", func(e *colly.HTMLElement) {
+	collector.OnHTML("body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > section.result-block-header.g-row > div > h1", func(e *colly.HTMLElement) {
 		spaceIndex := strings.Index(e.Text, " ")
 		log.Printf("Total results : %s", e.Text)
 		totalResultsStr := e.Text[:spaceIndex]
@@ -75,7 +85,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 	}
 
 	// On every a element which has href attribute call callback
-	c.OnHTML("article.list-entry.g-row", func(e *colly.HTMLElement) {
+	collector.OnHTML("article.list-entry.g-row", func(e *colly.HTMLElement) {
 		sellerType := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div:nth-child(2) > div.u-text-grey-60.g-col-s-8.g-col-m-9.u-margin-bottom-9").Text()
 		if strings.ContainsAny(sellerType, "dealer") {
 			sellerType = "dealer"
@@ -189,7 +199,7 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		foundAds = append(foundAds, ad)
 	})
 
-	c.OnRequest(func(req *colly.Request) {
+	collector.OnRequest(func(req *colly.Request) {
 		fmt.Println("MOBILE Visiting", req.URL.String())
 		fmt.Println("applying headers")
 		req.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
@@ -210,15 +220,15 @@ func getData(url string, pageNumber int, criteria jobs.Criteria) ([]jobs.Ad, boo
 		return nil, false, executionErr
 	}
 
-	err := c.Visit(url)
+	err := collector.Visit(url)
 	if err != nil {
 		return nil, false, err
 	}
-	c.Wait()
+	collector.Wait()
 	if len(foundAds) == 0 {
 		log.Println("NO MORE RESULTS -> SO RETURN !!!!!")
 		return nil, true, nil
 	}
 	log.Println("MOBILE found ads : ", len(foundAds))
-	return foundAds, isLastPage, nil
+	return &foundAds, isLastPage, nil
 }

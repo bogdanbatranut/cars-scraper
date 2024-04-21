@@ -1,4 +1,4 @@
-package urlbuilder
+package jobs
 
 type PageURL struct {
 	MarketName string

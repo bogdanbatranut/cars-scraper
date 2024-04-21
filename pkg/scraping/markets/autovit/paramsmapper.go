@@ -50,6 +50,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["7-series"] = "seria-7"
 	modelsMap["gle-class"] = "gle"
 	modelsMap["e-class"] = "e"
+	modelsMap["xc40"] = "xc-40"
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc-90"
 	modelsMap["xc60"] = "xc-60"
