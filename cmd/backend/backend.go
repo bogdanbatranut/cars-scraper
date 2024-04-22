@@ -38,7 +38,7 @@ func main() {
 	chartsRepo := repos.NewChartsRepository(cfg)
 	chartsRepo.GetAdsPricesByStep(5000)
 
-	//cleanupPrices(adsRepo)
+	cleanupPrices(adsRepo)
 	cleanupAds(cfg)
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
