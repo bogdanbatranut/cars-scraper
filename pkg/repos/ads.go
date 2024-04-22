@@ -147,20 +147,6 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 
 		adsIds = append(adsIds, dbAd.ID)
 	}
-
-	//
-	//r.db.Session(&gorm.Session{FullSaveAssociations: true})
-	//transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
-	//	var err error
-	//
-	//	if err != nil {
-	//		return err
-	//	}
-	//	return nil
-	//})
-	//if transactionErr != nil {
-	//	return nil, transactionErr
-	//}
 	return &adsIds, nil
 }
 
