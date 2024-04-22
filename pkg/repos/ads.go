@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"fmt"
+	"log"
 	"math"
 	"strings"
 
@@ -61,92 +62,106 @@ func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
 
 func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 	adsIds := []uint{}
-	r.db.Session(&gorm.Session{FullSaveAssociations: true})
-	transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
-		var err error
-		for _, foundAd := range ads {
-			thumbnail := foundAd.Thumbnail
-			foundAdPrice := foundAd.Prices[0].Price
-			foundMarketUUID := foundAd.MarketUUID
-			foundAdKm := foundAd.Km
-			currentPrice := foundAd.CurrentPrice
 
-			tx = r.db.FirstOrCreate(&foundAd, adsdb.Ad{MarketUUID: foundMarketUUID}, adsdb.Ad{Prices: foundAd.Prices}, adsdb.Ad{SellerID: foundAd.SellerID})
+	for _, foundAd := range ads {
+		foundAdPrice := foundAd.Prices[0].Price
+		foundAdKm := foundAd.Km
+
+		var dbAd adsdb.Ad
+		tx := r.db.Raw("SELECT * FROM `ads` WHERE  `ads`.`market_uuid` = ? LIMIT 1 ", foundAd.MarketUUID).Scan(&dbAd)
+		if tx.Error != nil {
+			log.Println(tx.Error)
+			return nil, tx.Error
+		}
+
+		if dbAd.Model == nil {
+			// we have a new ad
+			tx = r.db.Create(&foundAd)
 			if tx.Error != nil {
-				err = tx.Error
+				log.Println(tx.Error)
+				return nil, tx.Error
 			}
-
-			if *foundAd.CurrentPrice != *currentPrice {
-				foundAd.CurrentPrice = currentPrice
-				r.db.Save(&foundAd)
-			}
-
-			//if foundAd.Thumbnail == nil && thumbnail != nil {
-			foundAd.Thumbnail = thumbnail
-			r.db.Save(&foundAd)
-			//}
-			//
-			//if foundAd.Thumbnail != nil && strings.HasPrefix(*foundAd.Thumbnail, "data:image") && *foundAd.Thumbnail != *thumbnail {
-			//	foundAd.Thumbnail = thumbnail
-			//	r.db.Save(&foundAd)
-			//}
-
-			if foundAd.Km != foundAdKm {
-				foundAd.Km = foundAdKm
-				r.db.Save(&foundAd)
-			}
-
-			// get last price id db
-			var lastExistingPrice adsdb.Price
-			tx = r.db.Last(&lastExistingPrice, adsdb.Price{AdID: foundAd.ID})
-			if tx.Error != nil {
-				err = tx.Error
-			}
-
-			if lastExistingPrice.Price != foundAdPrice {
-				// insert new price
-				tx = r.db.Create(&adsdb.Price{Price: foundAdPrice, AdID: foundAd.ID, MarketID: foundAd.MarketID})
+			dbAd = foundAd
+		} else {
+			// we have the ad in the db
+			// if the ad is inactive we must activate
+			if dbAd.Model.DeletedAt.Valid {
+				tx = r.db.Unscoped().Model(&adsdb.Ad{}).Where("id", dbAd.ID).Update("deleted_at", nil)
 				if tx.Error != nil {
-					err = tx.Error
+					log.Println(tx.Error)
+					return nil, tx.Error
 				}
 			}
+			r.db.First(&dbAd, dbAd.ID)
+			// set new values if they exist
+			if foundAd.Km != 0 && foundAd.Km != dbAd.Km {
+				r.db.Model(&dbAd).Update("km", foundAdKm)
+			}
+			if foundAd.Ad_url != "" && foundAd.Ad_url != dbAd.Ad_url {
 
-			if foundAd.MarketID == 11 {
-				if !strings.Contains(foundAd.Ad_url, "www.mobile.de") {
-					tx := r.db.Model(&foundAd).Update("ad_url", fmt.Sprintf("https://www.mobile.de%s", foundAd.Ad_url))
-					if tx.Error != nil {
-						err = tx.Error
+				adURL := foundAd.Ad_url
+				if foundAd.MarketID == 11 {
+					if !strings.Contains(foundAd.Ad_url, "www.mobile.de") {
+						adURL = fmt.Sprintf("https://www.mobile.de%s", adURL)
 					}
 				}
+				if foundAd.MarketID == 12 {
+					if !strings.Contains(foundAd.Ad_url, "www.autoscout24.ro") {
+						adURL = fmt.Sprintf("https://www.autoscout24.ro%s", adURL)
+					}
+				}
+				r.db.Model(&dbAd).Update("ad_url", adURL)
 
 			}
-
-			if foundAd.MarketID == 12 {
-				if !strings.Contains(foundAd.Ad_url, "www.autoscout24.ro") {
-					tx := r.db.Model(&foundAd).Update("ad_url", fmt.Sprintf("https://www.autoscout24.ro%s", foundAd.Ad_url))
-					if tx.Error != nil {
-						err = tx.Error
+			if foundAd.CurrentPrice != nil && foundAd.CurrentPrice != dbAd.CurrentPrice {
+				r.db.Model(&dbAd).Update("current_price", *foundAd.CurrentPrice)
+			}
+			if foundAd.Thumbnail != nil {
+				if dbAd.Thumbnail != nil {
+					if *foundAd.Thumbnail != *dbAd.Thumbnail {
+						r.db.Model(&dbAd).Update("thumbnail", *foundAd.Thumbnail)
 					}
+				} else {
+					r.db.Model(&dbAd).Update("thumbnail", *foundAd.Thumbnail)
 				}
 			}
 
-			//price := foundAd.Prices[0]
-			//price.AdID = foundAd.ID
-			//tx = r.db.Debug().FirstOrCreate(&price, adsdb.Price{Price: foundAdPrice}, adsdb.Price{AdID: foundAd.ID})
-			//if tx.Error != nil {
-			//	err = tx.Error
-			//}
-			adsIds = append(adsIds, foundAd.ID)
 		}
-		if err != nil {
-			return err
+
+		// get last price id db
+		var lastExistingPrice adsdb.Price
+		tx = r.db.Last(&lastExistingPrice, adsdb.Price{AdID: dbAd.ID})
+		if tx.Error != nil {
+			log.Println(tx.Error)
+			return nil, tx.Error
 		}
-		return nil
-	})
-	if transactionErr != nil {
-		return nil, transactionErr
+
+		if lastExistingPrice.Price != foundAdPrice {
+			// insert new price
+			tx = r.db.Create(&adsdb.Price{Price: foundAdPrice, AdID: dbAd.ID, MarketID: dbAd.MarketID})
+			if tx.Error != nil {
+				log.Println(tx.Error)
+				return nil, tx.Error
+			}
+		}
+
+		adsIds = append(adsIds, dbAd.ID)
 	}
-	return &adsIds, transactionErr
+
+	//
+	//r.db.Session(&gorm.Session{FullSaveAssociations: true})
+	//transactionErr := r.db.Transaction(func(tx *gorm.DB) error {
+	//	var err error
+	//
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return nil
+	//})
+	//if transactionErr != nil {
+	//	return nil, transactionErr
+	//}
+	return &adsIds, nil
 }
 
 func (r AdsRepository) DeleteAd(adID uint) {
