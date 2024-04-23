@@ -28,7 +28,9 @@ func (css CollyScrapingService) Start() {
 		for {
 			select {
 			case job := <-css.jobChannel:
-				css.processJob(job)
+				go func() {
+					css.processJob(job)
+				}()
 			case <-css.context.Done():
 				log.Println("Colly Scraping Service Terminating")
 				return

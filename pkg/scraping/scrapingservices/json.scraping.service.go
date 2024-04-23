@@ -28,7 +28,9 @@ func (service JSONScrapingService) Start() {
 		for {
 			select {
 			case job := <-service.jobChannel:
-				service.processJob(job)
+				go func() {
+					service.processJob(job)
+				}()
 			case <-service.context.Done():
 				log.Println("Colly Scraping Service Terminating")
 				return
