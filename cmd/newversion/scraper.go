@@ -56,7 +56,9 @@ func main() {
 		scrapingservices.WithMarketService("autovit", jsonScrapingService),
 		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
 		scrapingservices.WithMarketService("autoscout", rodScrapingService),
-		scrapingservices.WithMarketService("autotracknl", rodScrapingService))
+		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
+		scrapingservices.WithMarketService("olx", jsonScrapingService),
+	)
 
 	sjh.StartWithoutMQ()
 	//

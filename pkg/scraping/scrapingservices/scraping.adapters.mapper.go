@@ -6,6 +6,7 @@ import (
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/markets/autovit"
 	"carscraper/pkg/scraping/markets/mobile"
+	"carscraper/pkg/scraping/markets/olx"
 )
 
 type IScrapingMapper interface {
@@ -30,6 +31,7 @@ func NewScrapingAdaptersMapper() *ScrapingAdaptersMapper {
 	rodAdaptersMap["autotracknl"] = autotrack.NewAutoTrackNLRodAdapter()
 	rodAdaptersMap["autoscout"] = autoscout.NewAutoscoutRodAdapter()
 	jsonAdaptersMap["autovit"] = autovit.NewAutovitJSONAdapter()
+	jsonAdaptersMap["olx"] = olx.NewOLXJSONAdapter()
 
 	return &ScrapingAdaptersMapper{
 		collyAdapters: collyAdaptersMap,

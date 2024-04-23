@@ -30,10 +30,115 @@ type SessionJobHandler struct {
 	//scrapingServices    []IScrapingService
 }
 
+type SessionJobHandlerServiceConfiguration func(sjc *SessionJobHandler)
+
+func WithMarketService(marketName string, service IScrapingService) SessionJobHandlerServiceConfiguration {
+	return func(jobHandler *SessionJobHandler) {
+		jobHandler.marketServiceMapper.AddMarketService(marketName, service)
+	}
+}
+
+// func NewSessionJobHandler(ctx context.Context, cfg amconfig.IConfig, rodScraperService IScrapingService, collyScraperService IScrapingService, jsonScrapingService IScrapingService, cfgs ...SessionJobHandlerServiceConfiguration) *SessionJobHandler {
+func NewSessionJobHandler(ctx context.Context, cfg amconfig.IConfig, cfgs ...SessionJobHandlerServiceConfiguration) *SessionJobHandler {
+	smqHost := cfg.GetString(amconfig.SMQURL)
+	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
+	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+
+	marketServiceMapper := NewScrapingServicesMapper()
+
+	//marketServiceMapper.AddMarketService("autoscout", rodScraperService)
+	//marketServiceMapper.AddMarketService("mobile.de", collyScraperService)
+	//marketServiceMapper.AddMarketService("autotracknl", rodScraperService)
+	//marketServiceMapper.AddMarketService("autovit", jsonScrapingService)
+
+	service := &SessionJobHandler{
+		context:             ctx,
+		resultsChannel:      make(chan jobs.AdsPageJobResult),
+		jobChannel:          make(chan jobs.SessionJob),
+		messageQueue:        smqr,
+		resultsTopicName:    cfg.GetString(amconfig.SMQResultsTopicName),
+		jobsTopicName:       cfg.GetString(amconfig.SMQJobsTopicName),
+		loggingService:      logging.NewScrapeLoggingService(cfg),
+		marketServiceMapper: marketServiceMapper,
+		messageQueueService: mq.NewMessageQueueService(cfg, mq.WithProdMessageQueue()),
+	}
+	for _, cfg := range cfgs {
+		cfg(service)
+	}
+	return service
+}
+
+func JobHandlerWithSimpleMessageQueueRepository(cfg amconfig.IConfig) SessionJobHandlerServiceConfiguration {
+	smqHost := cfg.GetString(amconfig.SMQURL)
+	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
+	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+	return JobHandlerWithMessageQueueRepository(smqr)
+}
+
+func JobHandlerWithMessageQueueRepository(mqr repos.IMessageQueue) SessionJobHandlerServiceConfiguration {
+	return func(cis *SessionJobHandler) {
+		cis.messageQueue = mqr
+	}
+}
+
+func (sjc SessionJobHandler) GetAdsPageJobResult() chan jobs.AdsPageJobResult {
+	return sjc.resultsChannel
+}
+
+func (sjc SessionJobHandler) GetResultsChannel() chan icollector.AdsResults {
+	return sjc.adsResultsChannel
+}
+
+func (sjc SessionJobHandler) StartWithoutMQ() {
+	log.Println("Session Job Handler Starting without MQ")
+	sjc.messageQueueService.Start()
+	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
+		ss := scrapingService
+		//wg.Add(1)
+		go func() {
+			for {
+				tmp := ss.GetResultsChannel()
+				adsResult := <-*tmp
+				sjc.resultsChannel <- adsResult
+			}
+
+		}()
+	}
+
+	//wg.Add(1)
+	go func() {
+		//defer wg.Done()
+		for {
+			select {
+			case job := <-sjc.jobChannel:
+				sjc.AddScrapingJob(job)
+			case res := <-sjc.resultsChannel:
+				go func() {
+					sjc.processResults(res)
+				}()
+			case <-sjc.context.Done():
+				log.Println("Session Job Handler Terminating...")
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			sjc.getJobFromMQ()
+		}
+	}()
+	//wg.Wait()
+}
+
 func (sjc SessionJobHandler) Start() {
 	log.Println("Session Job Handler Service Start")
 
 	log.Println("start waiting for signal")
+
+	sjc.messageQueueService.Start()
 
 	go func() {
 		for {
@@ -65,113 +170,6 @@ func (sjc SessionJobHandler) Start() {
 	}()
 }
 
-type SessionJobHandlerServiceConfiguration func(sjc *SessionJobHandler)
-
-func WithMarketService(marketName string, service IScrapingService) SessionJobHandlerServiceConfiguration {
-	return func(jobHandler *SessionJobHandler) {
-		jobHandler.marketServiceMapper.AddMarketService(marketName, service)
-	}
-}
-
-// func NewSessionJobHandler(ctx context.Context, cfg amconfig.IConfig, rodScraperService IScrapingService, collyScraperService IScrapingService, jsonScrapingService IScrapingService, cfgs ...SessionJobHandlerServiceConfiguration) *SessionJobHandler {
-func NewSessionJobHandler(ctx context.Context, cfg amconfig.IConfig, cfgs ...SessionJobHandlerServiceConfiguration) *SessionJobHandler {
-	smqHost := cfg.GetString(amconfig.SMQURL)
-	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
-	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
-	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
-
-	marketServiceMapper := NewScrapingServicesMapper()
-
-	//marketServiceMapper.AddMarketService("autoscout", rodScraperService)
-	//marketServiceMapper.AddMarketService("mobile.de", collyScraperService)
-	//marketServiceMapper.AddMarketService("autotracknl", rodScraperService)
-	//marketServiceMapper.AddMarketService("autovit", jsonScrapingService)
-
-	service := &SessionJobHandler{
-		context:             ctx,
-		resultsChannel:      make(chan jobs.AdsPageJobResult),
-		messageQueue:        smqr,
-		resultsTopicName:    cfg.GetString(amconfig.SMQResultsTopicName),
-		jobsTopicName:       cfg.GetString(amconfig.SMQJobsTopicName),
-		loggingService:      logging.NewScrapeLoggingService(cfg),
-		marketServiceMapper: marketServiceMapper,
-		messageQueueService: mq.NewMessageQueueService(cfg, mq.WithProdMessageQueue()),
-	}
-	for _, cfg := range cfgs {
-		cfg(service)
-	}
-	return service
-}
-
-func JobHandlerWithSimpleMessageQueueRepository(cfg amconfig.IConfig) SessionJobHandlerServiceConfiguration {
-	smqHost := cfg.GetString(amconfig.SMQURL)
-	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
-	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
-	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
-	return JobHandlerWithMessageQueueRepository(smqr)
-}
-
-func JobHandlerWithMessageQueueRepository(mqr repos.IMessageQueue) SessionJobHandlerServiceConfiguration {
-	return func(cis *SessionJobHandler) {
-		cis.messageQueue = mqr
-	}
-}
-
-func (sjc SessionJobHandler) GetAdsPageJobResult() chan jobs.AdsPageJobResult {
-	return sjc.resultsChannel
-}
-func (sjc SessionJobHandler) GetResultsChannel() chan icollector.AdsResults {
-	return sjc.adsResultsChannel
-}
-
-func (sjc SessionJobHandler) StartWithoutMQ() {
-	log.Println("Session Job Handler Starting without MQ")
-	//done := make(chan bool, 1)
-
-	log.Println("start waiting for cancel")
-
-	//var wg sync.WaitGroup
-
-	sjc.messageQueueService.Start()
-
-	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
-		ss := scrapingService
-		//wg.Add(1)
-		go func() {
-			for {
-				tmp := ss.GetResultsChannel()
-				log.Println("READING FROM CHANNEL")
-				adsResult := <-*tmp
-				log.Println("---------------------------------------")
-				log.Println("Session JOB HANDLER got : ", len(*adsResult.Data))
-				log.Println("---------------------------------------")
-				log.Println("Add results to session handler results channel")
-				sjc.resultsChannel <- adsResult
-			}
-
-		}()
-	}
-
-	//wg.Add(1)
-	go func() {
-		//defer wg.Done()
-		for {
-			select {
-			case job := <-sjc.jobChannel:
-				sjc.AddScrapingJob(job)
-			case res := <-sjc.resultsChannel:
-				go func() {
-					sjc.processResults(res)
-				}()
-			case <-sjc.context.Done():
-				log.Println("Session Job Handler Terminating...")
-				return
-			}
-		}
-	}()
-	//wg.Wait()
-}
-
 func (sjc SessionJobHandler) getJobFromMQ() {
 	// pop message from MQ
 	message := sjc.messageQueue.GetMessageWithDelete(sjc.jobsTopicName)
@@ -184,9 +182,6 @@ func (sjc SessionJobHandler) getJobFromMQ() {
 			sjc.messageQueue.PutMessage(sjc.jobsTopicName, *message)
 			panic(err)
 		}
-		//log.Println("pushing job to jobChannel")
-		//log.Printf("Scraping service GOT job: criteria: %d, market: %d, pageNumber: %d", scrapeJob.CriteriaID, scrapeJob.MarketID, scrapeJob.Market.PageNumber)
-
 		sjc.jobChannel <- scrapeJob
 	}
 }
@@ -208,7 +203,9 @@ func (sjc SessionJobHandler) readResults() {
 }
 
 func (sjc SessionJobHandler) AddScrapingJob(job jobs.SessionJob) {
-	sjc.marketServiceMapper.GetScrapingService(job.Market.Name).AddJob(job)
+	log.Println("Get scraping service for market : ", job.Market.Name)
+	s := sjc.marketServiceMapper.GetScrapingService(job.Market.Name)
+	s.AddJob(job)
 }
 
 func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
@@ -237,7 +234,7 @@ func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
 	//
 	//sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
 
-	//sjc.messageQueueService.PublishResults(result)
+	sjc.messageQueueService.PublishResults(result)
 }
 
 func newFromAd(ad jobs.Ad, brand string, model string, fuel string) jobs.Ad {

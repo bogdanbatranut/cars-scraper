@@ -43,7 +43,17 @@ func main() {
 	collyScrapingService := scrapingservices.NewCollyScrapingService(ctx, scrapingMapper)
 	collyScrapingService.Start()
 
-	sjh := scrapingservices.NewSessionJobHandler(ctx, cfg, rodScrapingService, collyScrapingService)
+	jsonScrapingService := scrapingservices.NewJSONScrapingService(ctx, scrapingMapper)
+	jsonScrapingService.Start()
+
+	//sjh := scrapingservices.NewSessionJobHandler(ctx, cfg, rodScrapingService, collyScrapingService, jsonScrapingService)
+	sjh := scrapingservices.NewSessionJobHandler(ctx, cfg,
+		scrapingservices.WithMarketService("autovit", jsonScrapingService),
+		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
+		scrapingservices.WithMarketService("autoscout", rodScrapingService),
+		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
+		scrapingservices.WithMarketService("olx", jsonScrapingService))
+
 	sjh.StartWithoutMQ()
 
 	<-done

@@ -48,16 +48,6 @@ type RodScrapingService struct {
 }
 
 func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, cfg amconfig.IConfig) *RodScrapingService {
-	//l := launcher.New().
-	//	Headless(true). // false
-	//	Devtools(false) // true shows devtools
-	//lurl := l.MustLaunch()
-	//browser := rod.New().
-	//	ControlURL(lurl).
-	//	Trace(false). // true - shows in console rod actions
-	//	SlowMotion(1 * time.Second).
-	//	MustConnect()
-	//launcher.Open(browser.ServeMonitor(""))
 
 	urlbBuilderMapper := urlbuilder.NewURLBuildMapper()
 
@@ -72,14 +62,10 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 		context:        ctx,
 		jobChannel:     make(chan jobs.SessionJob),
 		scrapingMapper: scrapingMapper,
-		//browser:        rod.New().MustConnect(),
 		browserMapper: MarketBrowserMapper{
-			//marketBrowsers: make(map[string]*rod.Browser)},
 			marketBrowsers: nil},
-		//browserLauncher:  l,
 		resultsChannel:   make(chan jobs.AdsPageJobResult),
 		urlBuilderMapper: *urlbBuilderMapper,
-		//browser:          browser,
 	}
 }
 
@@ -93,23 +79,6 @@ func startBrowser() *rod.Browser {
 
 func (rss RodScrapingService) Start() {
 	log.Println("Rod Scraping Service Start")
-	//path, has := launcher.LookPath()
-	//log.Println("HAS PATH: ", has)
-	//
-	//lWithBin := launcher.New().Bin(path)
-	//
-	//lurl, err := lWithBin.Launch()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//browser := rod.New().
-	//	ControlURL(lurl).
-	//	Trace(false). // true - shows in console rod actions
-	//	SlowMotion(1 * time.Second).
-	//	MustConnect()
-
-	//launcher.Open(browser.ServeMonitor(""))
-
 	rss.browser = startBrowser()
 	//rss.browserLauncher = lWithBin
 	go func() {

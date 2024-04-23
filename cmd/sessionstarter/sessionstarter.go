@@ -31,9 +31,10 @@ func main() {
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")
 
 	appPort := cfg.GetString(amconfig.SessionStarterHTTPPort)
+	log.Printf("HTTP listening on port %s\n", appPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", appPort), r)
 	errorshandler.HandleErr(err)
-	log.Printf("HTTP listening on port %s\n", appPort)
+
 }
 
 func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
