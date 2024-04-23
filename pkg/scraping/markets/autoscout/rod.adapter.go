@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/proto"
 )
 
 type AutoscoutRodAdapter struct {
@@ -30,7 +31,15 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	}
 
 	if cookieBtnFound {
-		accCookiesElem.MustClick()
+		//accCookiesElem.MustClick()
+		err := accCookiesElem.Click(proto.InputMouseButtonLeft, 1)
+		if err != nil {
+			return &icollector.AdsResults{
+				Ads:        nil,
+				IsLastPage: true,
+				Error:      err,
+			}
+		}
 	}
 
 	articles := page.MustElements(".list-page-item")

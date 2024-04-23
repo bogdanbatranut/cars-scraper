@@ -85,9 +85,7 @@ func (rss RodScrapingService) Start() {
 		for {
 			select {
 			case job := <-rss.jobChannel:
-				go func() {
-					rss.processJob(job)
-				}()
+				rss.processJob(job)
 			case <-rss.context.Done():
 				log.Println("Rod Scraping Service Terminating...")
 				return
