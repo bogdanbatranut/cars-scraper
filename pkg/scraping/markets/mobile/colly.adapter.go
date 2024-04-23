@@ -33,6 +33,7 @@ func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsRe
 	// On every a element which has href attribute call callback
 	mobileCollector.OnHTML("article.list-entry.g-row", func(e *colly.HTMLElement) {
 
+		title := getTitle(e)
 		sellerType := getSellerType(e)
 		mobileAdId := getAdId(e)
 		mobileAdHref := getAdHref(e)
@@ -60,8 +61,9 @@ func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsRe
 		ad := jobs.Ad{
 			//Brand:              criteria.Brand,
 			//Model:              criteria.CarModel,
-			Year: year,
-			Km:   km,
+			Title: title,
+			Year:  year,
+			Km:    km,
 			//Fuel:               criteria.Fuel,
 			Price:              grossPrice,
 			AdID:               mobileAdId,
@@ -208,4 +210,14 @@ func getGrossPrice(e *colly.HTMLElement) (int, error) {
 		return 0, err
 	}
 	return grossPrice, nil
+}
+
+func getTitle(e *colly.HTMLElement) *string {
+	var title *string
+	titleText := e.DOM.Find("div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > h3").Text()
+	if titleText != "" {
+		title = &titleText
+	}
+	return title
+	// body > div.g-content > div > div.u-display-flex.u-margin-top-18 > section > div.result-list-section.js-result-list-section.u-clearfix > article:nth-child(3) > div > div.g-row.js-ad-entry > a > div.g-col-s-12.g-col-m-8 > div.vehicle-text.g-row > h3
 }

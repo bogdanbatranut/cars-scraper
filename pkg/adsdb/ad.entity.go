@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type Ad struct {
 	*gorm.Model
+	Title        *string `gorm:"column:title"`
 	Brand        string  `gorm:"not null"`
 	CarModel     string  `gorm:"not null"`
 	Year         int     `gorm:"not null"`

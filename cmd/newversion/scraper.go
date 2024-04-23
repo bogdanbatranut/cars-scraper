@@ -42,8 +42,8 @@ func main() {
 
 	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper()
 
-	rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
-	rodScrapingService.Start()
+	//rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
+	//rodScrapingService.Start()
 
 	collyScrapingService := scrapingservices.NewCollyScrapingService(ctx, scrapingMapper)
 	collyScrapingService.Start()
@@ -55,16 +55,23 @@ func main() {
 	sjh := scrapingservices.NewSessionJobHandler(ctx, cfg,
 		scrapingservices.WithMarketService("autovit", jsonScrapingService),
 		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
-		scrapingservices.WithMarketService("autoscout", rodScrapingService),
-		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
-		scrapingservices.WithMarketService("olx", jsonScrapingService),
+		//scrapingservices.WithMarketService("autoscout", rodScrapingService),
+		//scrapingservices.WithMarketService("autotracknl", rodScrapingService),
+		//scrapingservices.WithMarketService("olx", jsonScrapingService),
 	)
 
 	sjh.StartWithoutMQ()
 	//
 	adapter := NewCriteriasJobsAdapter(cfg)
 	go func() {
-		markets := []uint{9, 11, 12, 13}
+		//9,2023-11-20 00:06:39.350,2024-03-12 19:57:43.954,,autovit,www.autovit.ro,1
+		//10,2023-11-20 00:06:39.350,2024-03-12 19:57:43.963,,webcar,www.webcar.ro,0
+		//11,2023-11-20 00:06:39.350,2024-03-12 19:57:43.972,,mobile.de,www.mobile.de,1
+		//12,2023-11-20 00:06:39.350,2024-03-12 19:57:43.978,,autoscout,www.autoscout24.ro,1
+		//13,2023-11-20 00:06:39.350,2024-03-12 19:57:43.987,,autotracknl,www.autotrack.nl,0
+		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
+
+		markets := []uint{9, 11}
 		criterias := []uint{20, 21}
 		//marketID := uint(9)
 		for _, marketID := range markets {

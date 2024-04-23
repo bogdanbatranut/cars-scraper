@@ -116,6 +116,41 @@ func (sjc SessionJobHandler) StartWithoutMQ() {
 				sjc.AddScrapingJob(job)
 			case res := <-sjc.resultsChannel:
 				go func() {
+					sjc.processResultsNOPublish(res)
+				}()
+			case <-sjc.context.Done():
+				log.Println("Session Job Handler Terminating...")
+				return
+			}
+		}
+	}()
+}
+
+func (sjc SessionJobHandler) Start() {
+	log.Println("Session Job Handler Starting ")
+	sjc.messageQueueService.Start()
+	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
+		ss := scrapingService
+		//wg.Add(1)
+		go func() {
+			for {
+				tmp := ss.GetResultsChannel()
+				adsResult := <-*tmp
+				sjc.resultsChannel <- adsResult
+			}
+
+		}()
+	}
+
+	//wg.Add(1)
+	go func() {
+		//defer wg.Done()
+		for {
+			select {
+			case job := <-sjc.jobChannel:
+				sjc.AddScrapingJob(job)
+			case res := <-sjc.resultsChannel:
+				go func() {
 					sjc.processResults(res)
 				}()
 			case <-sjc.context.Done():
@@ -132,8 +167,7 @@ func (sjc SessionJobHandler) StartWithoutMQ() {
 	}()
 	//wg.Wait()
 }
-
-func (sjc SessionJobHandler) Start() {
+func (sjc SessionJobHandler) Start_old() {
 	log.Println("Session Job Handler Service Start")
 
 	log.Println("start waiting for signal")
@@ -208,6 +242,36 @@ func (sjc SessionJobHandler) AddScrapingJob(job jobs.SessionJob) {
 	s.AddJob(job)
 }
 
+func (sjc SessionJobHandler) processResultsNOPublish(result jobs.AdsPageJobResult) {
+	var foundAds []jobs.Ad
+	for _, res := range *result.Data {
+		fAd := newFromAd(res, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel, result.RequestedScrapingJob.Criteria.Fuel)
+		foundAds = append(foundAds, fAd)
+	}
+
+	result.Data = &foundAds
+
+	// send result to MQ
+	log.Println("Session Job Handler : Processing results")
+	if !result.IsLastPage {
+		newJob := result.RequestedScrapingJob
+		newJob.Market.PageNumber++
+		sjc.AddScrapingJob(newJob)
+	} else {
+		log.Println("Got LAST PAGE")
+	}
+
+	for _, ad := range *result.Data {
+		if ad.Title == nil {
+			log.Println("TITLE NIL")
+		} else {
+			log.Printf("Ad Title: %s", *ad.Title)
+		}
+	}
+	log.Println("Job handler done processing: ", len(*result.Data), " is last page ", result.IsLastPage)
+
+}
+
 func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
 	var foundAds []jobs.Ad
 	for _, res := range *result.Data {
@@ -227,18 +291,13 @@ func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
 		log.Println("Got LAST PAGE")
 	}
 	log.Println("Sending to queue ", len(*result.Data), " is last page ", result.IsLastPage)
-	//resBytes, err := json.Marshal(&result)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//sjc.messageQueue.PutMessage(sjc.resultsTopicName, resBytes)
 
 	sjc.messageQueueService.PublishResults(result)
 }
 
 func newFromAd(ad jobs.Ad, brand string, model string, fuel string) jobs.Ad {
 	newAd := jobs.Ad{
+		Title:              ad.Title,
 		Brand:              brand,
 		Model:              model,
 		Year:               ad.Year,

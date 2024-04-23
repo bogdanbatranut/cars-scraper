@@ -71,6 +71,7 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 			}
 			log.Println("TITLE: ", *articleTitle)
 			ad := jobs.Ad{
+				Title:              articleTitle,
 				Brand:              getBrandFromArticle(article),
 				Model:              *carModel,
 				Year:               getYearFromArticle(article),

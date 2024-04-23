@@ -1,6 +1,7 @@
 package jobs
 
 type Ad struct {
+	Title              *string
 	Brand              string
 	Model              string
 	Year               int

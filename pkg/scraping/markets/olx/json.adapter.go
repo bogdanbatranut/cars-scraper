@@ -89,6 +89,7 @@ func (a OLXJSONAdapter) getAds(response OlxResponse, criteria jobs.Criteria) *[]
 			continue
 		}
 		ad := jobs.Ad{
+			Title:              &olxAd.Title,
 			Brand:              criteria.Brand,
 			Model:              criteria.CarModel,
 			Year:               olxAd.getYear(),

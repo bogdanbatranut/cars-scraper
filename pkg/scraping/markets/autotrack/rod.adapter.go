@@ -195,6 +195,7 @@ func processElements(elements rod.Elements) *[]jobs.Ad {
 		//log.Println("Tumbnail: ", thumbNail)
 
 		ad := jobs.Ad{
+			Title:              &adTitleText,
 			Brand:              "",
 			Model:              "",
 			Year:               *year,

@@ -97,6 +97,11 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			if foundAd.Km != 0 && foundAd.Km != dbAd.Km {
 				r.db.Model(&dbAd).Update("km", foundAdKm)
 			}
+
+			if foundAd.Title != nil {
+				r.db.Model(&dbAd).Update("title", *foundAd.Title)
+			}
+
 			if foundAd.Ad_url != "" && foundAd.Ad_url != dbAd.Ad_url {
 
 				adURL := foundAd.Ad_url

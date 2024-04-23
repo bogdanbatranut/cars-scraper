@@ -190,8 +190,9 @@ func (carnode CarNode) getAutovitID() *int {
 }
 
 func (cn CarNode) ToAd() *jobs.Ad {
-
+	adTitle := cn.Title
 	carAd := jobs.Ad{
+		Title:           &adTitle,
 		AdID:            cn.Id,
 		Brand:           *getMake(cn.Parameters),
 		Model:           *getModel(cn.Parameters),

@@ -54,7 +54,7 @@ func main() {
 		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
 		scrapingservices.WithMarketService("olx", jsonScrapingService))
 
-	sjh.StartWithoutMQ()
+	sjh.Start()
 
 	<-done
 	fmt.Println("exiting")
