@@ -93,6 +93,9 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				}
 			}
 			r.db.First(&dbAd, dbAd.ID)
+			if foundAd.Title != nil {
+				r.db.Model(&dbAd).Update("title", *foundAd.Title)
+			}
 			// set new values if they exist
 			if foundAd.Km != 0 && foundAd.Km != dbAd.Km {
 				r.db.Model(&dbAd).Update("km", foundAdKm)
