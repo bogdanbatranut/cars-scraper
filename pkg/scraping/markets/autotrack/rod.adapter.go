@@ -72,6 +72,7 @@ func getTotalResults(page *rod.Page) (*int, error) {
 }
 
 func (a AutoTrackNLRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
+	log.Println("AutotrackNL ROD Adapter Gettings ads")
 	checkForCookiesAndAccept(page)
 	totalResults, err := getTotalResults(page)
 	if err != nil {
