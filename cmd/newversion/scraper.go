@@ -60,7 +60,7 @@ func main() {
 		//scrapingservices.WithMarketService("olx", jsonScrapingService),
 	)
 
-	sjh.StartWithoutMQ()
+	sjh.Start()
 	//
 	adapter := NewCriteriasJobsAdapter(cfg)
 	go func() {
@@ -72,7 +72,7 @@ func main() {
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
 		markets := []uint{9, 11}
-		criterias := []uint{20, 21}
+		criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
 		//marketID := uint(9)
 		for _, marketID := range markets {
 			if marketID == 10 {
