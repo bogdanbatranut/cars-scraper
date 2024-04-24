@@ -51,6 +51,7 @@ func (adapter AdsResultsAdapter) ToActiveDBAd(ad jobs.Ad, marketID uint, criteri
 	var prices []adsdb.Price
 	prices = append(prices, price)
 	return &adsdb.Ad{
+		Title:      ad.Title,
 		Brand:      ad.Brand,
 		CarModel:   ad.Model,
 		Year:       ad.Year,
