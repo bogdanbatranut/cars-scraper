@@ -73,7 +73,7 @@ func startBrowser() *rod.Browser {
 	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
 	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
 
-	browser := rod.New().Client(l.MustClient()).Trace(false).MustConnect()
+	browser := rod.New().Trace(true).Client(l.MustClient()).Trace(false).MustConnect()
 	return browser
 }
 
