@@ -37,13 +37,10 @@ func main() {
 
 	fmt.Println("awaiting signal")
 
-	//runner := scrapingservices.NewServicesRunner(ctx, cfg)
-	//handler := runner.StartServices()
-
 	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper()
 
-	//rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
-	//rodScrapingService.Start()
+	rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
+	rodScrapingService.Start()
 
 	collyScrapingService := scrapingservices.NewCollyScrapingService(ctx, scrapingMapper)
 	collyScrapingService.Start()
@@ -55,12 +52,12 @@ func main() {
 	sjh := scrapingservices.NewSessionJobHandler(ctx, cfg,
 		scrapingservices.WithMarketService("autovit", jsonScrapingService),
 		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
-		//scrapingservices.WithMarketService("autoscout", rodScrapingService),
-		//scrapingservices.WithMarketService("autotracknl", rodScrapingService),
-		//scrapingservices.WithMarketService("olx", jsonScrapingService),
+		scrapingservices.WithMarketService("autoscout", rodScrapingService),
+		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
+		scrapingservices.WithMarketService("olx", jsonScrapingService),
 	)
 
-	sjh.Start()
+	sjh.StartWithoutMQ()
 	//
 	adapter := NewCriteriasJobsAdapter(cfg)
 	go func() {
@@ -71,8 +68,9 @@ func main() {
 		//13,2023-11-20 00:06:39.350,2024-03-12 19:57:43.987,,autotracknl,www.autotrack.nl,0
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
-		markets := []uint{9, 11}
-		criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
+		markets := []uint{13}
+		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
+		criterias := []uint{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
 		//marketID := uint(9)
 		for _, marketID := range markets {
 			if marketID == 10 {
@@ -88,7 +86,7 @@ func main() {
 				//sjh.AddScrapingJob(*job)
 			}
 		}
-		done <- true
+		//done <- true
 	}()
 
 	<-done

@@ -59,6 +59,13 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	modelMap["x5"] = &bmwx5
 	brandModelsMap["bmw"] = modelMap
 
+	bmwx5m := BrandModelIds{
+		BrandID: bmw,
+		ModelID: "9cd35d47-1efe-4048-83f2-fa34df60c370",
+	}
+	modelMap["x5-m"] = &bmwx5m
+	brandModelsMap["bmw"] = modelMap
+
 	bmwx4 := BrandModelIds{
 		BrandID: bmw,
 		ModelID: "e1a45cec-2cc9-4bfc-879b-becad0313021",

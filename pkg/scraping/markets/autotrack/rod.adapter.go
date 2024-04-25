@@ -11,13 +11,46 @@ import (
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
+	"github.com/go-rod/rod/lib/utils"
+	"github.com/ysmood/gson"
 )
 
 type AutoTrackNLRodAdapter struct{}
 
 func NewAutoTrackNLRodAdapter() *AutoTrackNLRodAdapter { return &AutoTrackNLRodAdapter{} }
 
+func ScreenShot(page *rod.Page) {
+
+	// capture entire browser viewport, returning jpg with quality=90
+	img, err := page.ScrollScreenshot(&rod.ScrollScreenshotOptions{
+		Format:  proto.PageCaptureScreenshotFormatJpeg,
+		Quality: gson.Int(90),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	_ = utils.OutputFile("rod_scraping.jpg", img)
+}
+
+func accessDenied(page *rod.Page) bool {
+	elem, err := page.Element("h1")
+	if err != nil {
+		return false
+	}
+	text := elem.MustText()
+	if strings.Contains(text, "Denied") {
+		return true
+	}
+	return false
+
+}
+
 func checkForCookiesAndAccept(page *rod.Page) {
+	ScreenShot(page)
+	html := page.MustHTML()
+	log.Println(html)
+
 	modalContainer, err := page.Element("#pg-shadow-host")
 	if err != nil {
 		log.Println(err)
@@ -73,6 +106,13 @@ func getTotalResults(page *rod.Page) (*int, error) {
 
 func (a AutoTrackNLRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	log.Println("AutotrackNL ROD Adapter Gettings ads")
+	if accessDenied(page) {
+		return &icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: true,
+			Error:      errors.New("AUTOTRACK PAGE ACCESS DENIED"),
+		}
+	}
 	checkForCookiesAndAccept(page)
 	totalResults, err := getTotalResults(page)
 	if err != nil {
@@ -82,7 +122,7 @@ func (a AutoTrackNLRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 			Error:      nil,
 		}
 	}
-	if totalResults == nil {
+	if totalResults == nil || *totalResults == 0 {
 		return &icollector.AdsResults{
 			Ads:        nil,
 			IsLastPage: true,

@@ -7,6 +7,7 @@ import (
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/urlbuilder"
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -58,6 +59,8 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	autoscoutURLBuilder := autoscout.NewURLBuilder()
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
+	//br := startLocalBrowserWithMonitor()
+	br := startBrowser()
 	return &RodScrapingService{
 		context:        ctx,
 		jobChannel:     make(chan jobs.SessionJob),
@@ -66,21 +69,47 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 			marketBrowsers: nil},
 		resultsChannel:   make(chan jobs.AdsPageJobResult),
 		urlBuilderMapper: *urlbBuilderMapper,
+		browser:          br,
 	}
+}
+
+func startLocalBrowserWithMonitor() *rod.Browser {
+	l := launcher.New().
+		Headless(true).
+		Devtools(false)
+
+	url := l.MustLaunch()
+
+	// Trace shows verbose debug information for each action executed
+	// SlowMotion is a debug related function that waits 2 seconds between
+	// each action, making it easier to inspect what your code is doing.
+	browser := rod.New().
+		ControlURL(url).
+		MustIncognito().
+		Trace(false).
+		//SlowMotion(2 * time.Second).
+		MustConnect()
+
+	// ServeMonitor plays screenshots of each tab. This feature is extremely
+	// useful when debugging with headless mode.
+	// You can also enable it with flag "-rod=monitor"
+
+	return browser
 }
 
 func startBrowser() *rod.Browser {
 	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
-	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+	l.Headless(true).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
 
-	browser := rod.New().Client(l.MustClient()).Trace(true).MustConnect()
+	browser := rod.New().Client(l.MustClient()).MustIncognito().Trace(false).MustConnect()
 	return browser
 }
 
 func (rss RodScrapingService) Start() {
 	log.Println("Rod Scraping Service Start")
-	rss.browser = startBrowser()
-	//rss.browserLauncher = lWithBin
+	//rss.browser = startBrowser()
+
+	//launcher.Open(rss.browser.ServeMonitor(""))
 	go func() {
 		for {
 			select {
@@ -106,8 +135,12 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	//urlBuilder := autoscout.NewURLBuilder(job.Criteria)
 	urlBuilder := rss.urlBuilderMapper.GetURLBuilder(job.Market.Name)
 	url := urlBuilder.GetURL(job)
+	if url == nil {
+		panic(errors.New("could not build url for scraping"))
+	}
 	log.Println("Getting data from URL : ", *url)
 	var page *rod.Page
+	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	adapter := rss.scrapingMapper.GetRodMarketAdsAdapter(job.Market.Name)
 	results := adapter.GetAds(page)

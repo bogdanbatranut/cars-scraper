@@ -116,7 +116,8 @@ func (sjc SessionJobHandler) StartWithoutMQ() {
 				sjc.AddScrapingJob(job)
 			case res := <-sjc.resultsChannel:
 				go func() {
-					sjc.processResultsNOPublish(res)
+					//sjc.processResultsNOPublish(res)
+					sjc.processResults(res)
 				}()
 			case <-sjc.context.Done():
 				log.Println("Session Job Handler Terminating...")
