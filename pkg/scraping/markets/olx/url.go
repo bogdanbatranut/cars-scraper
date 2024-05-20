@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/jobs"
 	"fmt"
 	url2 "net/url"
+	"strings"
 )
 
 type BrandModelIds struct {
@@ -14,13 +15,37 @@ type BrandModelIds struct {
 type URLBuilder struct {
 	criteria        jobs.Criteria
 	brandModelsMapp map[string]map[string]*BrandModelIds
+	fuelsMap        map[string][]string
 }
 
 func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
 	return &URLBuilder{
 		criteria:        criteria,
 		brandModelsMapp: buildBrandModelIDsParams(),
+		fuelsMap:        initFuelsMap(),
 	}
+}
+
+func (b URLBuilder) buildFuelFilters() string {
+	result := ""
+	var individualFilters []string
+	criteriaFuels := b.fuelsMap[b.criteria.Fuel]
+	for idx, fuelType := range criteriaFuels {
+		filterName := url2.QueryEscape(fmt.Sprintf("filter_enum_petrol[%d]", idx))
+		individualFuelFilter := fmt.Sprintf("%s=%s", filterName, fuelType)
+		individualFilters = append(individualFilters, individualFuelFilter)
+	}
+	result = strings.Join(individualFilters, "&")
+	return result
+}
+
+func initFuelsMap() map[string][]string {
+	fuelMap := make(map[string][]string)
+	fuelMap["hybrid"] = []string{"hybrid", "plugin-hybrid"}
+	fuelMap["hybrid-petrol"] = []string{"hybrid", "plugin-hybrid"}
+	fuelMap["diesel"] = []string{"diesel"}
+	fuelMap["petrol"] = []string{"petrol"}
+	return fuelMap
 }
 
 func (b URLBuilder) GetPageURL(pageNumber int) *string {
@@ -28,7 +53,7 @@ func (b URLBuilder) GetPageURL(pageNumber int) *string {
 	limit := 40
 	offset := (pageNumber - 1) * limit
 	kmTo := *b.criteria.KmTo
-	fuel := b.criteria.Fuel
+	//fuel := b.criteria.Fuel
 	yearFrom := *b.criteria.YearFrom
 	if b.brandModelsMapp[b.criteria.Brand][b.criteria.CarModel] == nil {
 		return nil
@@ -39,8 +64,9 @@ func (b URLBuilder) GetPageURL(pageNumber int) *string {
 	fem := url2.QueryEscape("filter_enum_model[0]")
 	filterEnumModel := fmt.Sprintf("%s=%s", fem, model)
 
-	fep := url2.QueryEscape("filter_enum_petrol[0]")
-	filterEnumPetrol := fmt.Sprintf("%s=%s", fep, fuel)
+	//fep := url2.QueryEscape("filter_enum_petrol[0]")
+	//filterEnumPetrol := fmt.Sprintf("%s=%s", fep, fuel)
+	filterEnumPetrol := b.buildFuelFilters()
 
 	ffrp := url2.QueryEscape("filter_float_rulaj_pana:to")
 	kmToStr := fmt.Sprintf("%s=%d", ffrp, kmTo)
@@ -189,6 +215,59 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	}
 	modelMap["s90"] = &s90
 	brandModelsMap["volvo"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	vw := "207"
+	touareg := BrandModelIds{
+		BrandID: vw,
+		ModelID: "touareg",
+	}
+	modelMap["touareg"] = &touareg
+	brandModelsMap["volkswagen"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	toyota := "206"
+	yaris_cross := BrandModelIds{
+		BrandID: toyota,
+		ModelID: "yaris-cross",
+	}
+	modelMap["yaris-cross"] = &yaris_cross
+	brandModelsMap["toyota"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	audi := "182"
+
+	a6 := BrandModelIds{
+		BrandID: audi,
+		ModelID: "a6",
+	}
+	modelMap["a6"] = &a6
+
+	q8 := BrandModelIds{
+		BrandID: audi,
+		ModelID: "q8",
+	}
+	modelMap["q8"] = &q8
+
+	q7 := BrandModelIds{
+		BrandID: audi,
+		ModelID: "q7",
+	}
+	modelMap["q7"] = &q7
+
+	q5 := BrandModelIds{
+		BrandID: audi,
+		ModelID: "q5",
+	}
+	modelMap["q5"] = &q5
+
+	q3 := BrandModelIds{
+		BrandID: audi,
+		ModelID: "q3",
+	}
+	modelMap["q3"] = &q3
+
+	brandModelsMap["audi"] = modelMap
 
 	return brandModelsMap
 }

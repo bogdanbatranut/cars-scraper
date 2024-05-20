@@ -3,11 +3,13 @@ package autotrack
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/scraping/icollector"
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
@@ -34,11 +36,24 @@ func ScreenShot(page *rod.Page) {
 }
 
 func accessDenied(page *rod.Page) bool {
-	elem, err := page.Element("h1")
+	ctx, cancel := context.WithCancel(context.Background())
+	pageWithCancel := page.Context(ctx)
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		cancel()
+	}()
+
+	elem, err := pageWithCancel.Element("h1")
 	if err != nil {
 		return false
 	}
-	text := elem.MustText()
+	//text := elem.MustText()
+	text, err := elem.Text()
+	if err != nil {
+		log.Println("access denied ")
+		return false
+	}
 	if strings.Contains(text, "Denied") {
 		return true
 	}
@@ -47,9 +62,9 @@ func accessDenied(page *rod.Page) bool {
 }
 
 func checkForCookiesAndAccept(page *rod.Page) {
-	ScreenShot(page)
-	html := page.MustHTML()
-	log.Println(html)
+	//ScreenShot(page)
+	//html := page.MustHTML()
+	//log.Println(html)
 
 	modalContainer, err := page.Element("#pg-shadow-host")
 	if err != nil {
@@ -64,7 +79,7 @@ func checkForCookiesAndAccept(page *rod.Page) {
 	log.Println("MODAL SHADOW ROOT FOUND")
 	acceptCookiesBtn, err := modal.Element("#pg-accept-btn")
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "AUTOTRACK.NL accept cookie button")
 		return
 	}
 	log.Println("ACCEPT COOKIE BUTTON FOUND")
@@ -105,8 +120,9 @@ func getTotalResults(page *rod.Page) (*int, error) {
 }
 
 func (a AutoTrackNLRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
-	log.Println("AutotrackNL ROD Adapter Gettings ads")
+
 	if accessDenied(page) {
+		ScreenShot(page)
 		return &icollector.AdsResults{
 			Ads:        nil,
 			IsLastPage: true,
@@ -138,7 +154,7 @@ func (a AutoTrackNLRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 			Error:      nil,
 		}
 	}
-	if len(articles) > 0 && len(articles) <= 30 {
+	if len(articles) > 0 && len(articles) < 30 {
 		return &icollector.AdsResults{
 			Ads:        processElements(articles),
 			IsLastPage: true,
@@ -172,18 +188,18 @@ func processElements(elements rod.Elements) *[]jobs.Ad {
 	var ads []jobs.Ad
 	for _, element := range elements {
 		soldElement, err := element.Element("span.ItemTag__ItemTagStatusLabel-sc-hnf0c8-4.ItemTag__VerkochtStatus-sc-hnf0c8-5.SKbfR.ipKrWP")
-		if err != nil {
-			log.Println("First sold element")
-			log.Println(err.Error())
-		}
+		//if err != nil {
+		//	log.Println("First sold element")
+		//	log.Println(err.Error())
+		//}
 		if soldElement != nil {
 			continue
 		}
 		soldElement, err = element.Element("div.StyledItemContent__StyleItemContentContainer-sc-1fqlnst-1.hzyHqR > div > div > div.StyledItemTags-sc-46f8tm-0.hRDWcg > span")
-		if err != nil {
-			log.Println("Second sold element")
-			log.Println(err.Error())
-		}
+		//if err != nil {
+		//	log.Println("Second sold element")
+		//	log.Println(err.Error())
+		//}
 		if soldElement != nil {
 			continue
 		}
@@ -200,7 +216,6 @@ func processElements(elements rod.Elements) *[]jobs.Ad {
 			}
 		}
 		adTitleText := adTitle.MustText()
-		log.Println("Title: ", adTitleText)
 		href, err := getHref(element)
 		if err != nil {
 			panic(err)
@@ -340,12 +355,23 @@ func getPrice(element *rod.Element) (*int, error) {
 		return nil, errors.New(fmt.Sprintf("Something wrong with the price %s", priceStr))
 	}
 	//log.Println(priceStr)
-	priceStr = priceStr[4:leng]
 	priceStr = strings.Replace(priceStr, ".", "", -1)
+
 	price, err := strconv.Atoi(priceStr)
+	if err != nil {
+		log.Println("cannot convert pricestr ", priceStr)
+	}
+	if err == nil {
+		return &price, nil
+	}
+
+	priceStr = priceStr[4:leng]
+
+	price, err = strconv.Atoi(priceStr)
 	if err != nil {
 		return nil, err
 	}
+
 	return &price, nil
 }
 

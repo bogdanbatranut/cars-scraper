@@ -49,13 +49,24 @@ type VariablesParam struct {
 type URLBuilder struct {
 	criteria     jobs.Criteria
 	paramsMapper ParamsMapper
+	fuelsMap     map[string][]string
 }
 
 func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
 	return &URLBuilder{
 		criteria:     criteria,
 		paramsMapper: NewParamsMapper(),
+		fuelsMap:     initFuelsMap(),
 	}
+}
+
+func initFuelsMap() map[string][]string {
+	fuelMap := make(map[string][]string)
+	fuelMap["hybrid"] = []string{"hybrid", "plugin-hybrid"}
+	fuelMap["hybrid-petrol"] = []string{"hybrid", "plugin-hybrid"}
+	fuelMap["diesel"] = []string{"diesel"}
+	fuelMap["petrol"] = []string{"petrol"}
+	return fuelMap
 }
 
 func (b URLBuilder) GetPageURL(pageNumber int) string {
@@ -79,6 +90,10 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 }
 
 func (b URLBuilder) createVariablesParam(page int) VariablesParam {
+	parameters := []string{"make", "vat", "mileage", "engine_capacity", "engine_code", "engine_power", "first_registration_year", "model", "version", "year"}
+	if b.criteria.Fuel != "" {
+		parameters = append(parameters, "fuel_type")
+	}
 	return VariablesParam{
 		Click2BuyExperimentId:      "",
 		Click2BuyExperimentVariant: "",
@@ -92,9 +107,10 @@ func (b URLBuilder) createVariablesParam(page int) VariablesParam {
 		IncludeSortOptions:         false,
 		MaxAge:                     60,
 		Page:                       page,
-		Parameters:                 []string{"make", "vat", "fuel_type", "mileage", "engine_capacity", "engine_code", "engine_power", "first_registration_year", "model", "version", "year"},
+		Parameters:                 parameters,
 		SearchTerms:                nil,
 		SortBy:                     "filter_float_price:asc",
+		//Parameters:                 []string{"make", "vat", "fuel_type", "mileage", "engine_capacity", "engine_code", "engine_power", "first_registration_year", "model", "version", "year"},
 	}
 
 }
@@ -113,6 +129,19 @@ func (b URLBuilder) createExperiments() []Experiment {
 	return ex
 }
 
+func (b URLBuilder) createFuelFilters() []Filters {
+	var fuelFilters []Filters
+	criteriaFuels := b.fuelsMap[b.criteria.Fuel]
+	for _, fuelType := range criteriaFuels {
+		fuelFilter := Filters{
+			Name:  "filter_enum_fuel_type",
+			Value: fuelType,
+		}
+		fuelFilters = append(fuelFilters, fuelFilter)
+	}
+	return fuelFilters
+}
+
 func (b URLBuilder) createFiltersFromCriteria() []Filters {
 	f := []Filters{
 		{
@@ -123,10 +152,10 @@ func (b URLBuilder) createFiltersFromCriteria() []Filters {
 			Name:  "filter_enum_model",
 			Value: b.paramsMapper.GetModelParamValue(b.criteria.CarModel),
 		},
-		{
-			Name:  "filter_enum_fuel_type",
-			Value: b.criteria.Fuel,
-		},
+		//{
+		//	Name:  "filter_enum_fuel_type",
+		//	Value: b.criteria.Fuel,
+		//},
 		{
 			Name:  "filter_float_year:from",
 			Value: strconv.Itoa(*b.criteria.YearFrom),
@@ -140,6 +169,15 @@ func (b URLBuilder) createFiltersFromCriteria() []Filters {
 			Value: "29",
 		},
 	}
+
+	f = append(f, b.createFuelFilters()...)
+
+	//if b.criteria.Fuel != "" {
+	//	f = append(f, Filters{
+	//		Name:  "filter_enum_fuel_type",
+	//		Value: b.criteria.Fuel,
+	//	})
+	//}
 
 	return f
 }

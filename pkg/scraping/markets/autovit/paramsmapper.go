@@ -60,6 +60,13 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["octavia"] = "octavia"
 	modelsMap["superb"] = "superb"
 	modelsMap["mokka"] = "mokka"
+	modelsMap["yaris-cross"] = "mokka"
+	modelsMap["touareg"] = "touareg"
+	modelsMap["a6"] = "a6"
+	modelsMap["q8"] = "q8"
+	modelsMap["q7"] = "q7"
+	modelsMap["q5"] = "q5"
+	modelsMap["q3"] = "q3"
 
 	return modelsMap
 }

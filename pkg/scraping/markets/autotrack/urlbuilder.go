@@ -21,6 +21,7 @@ func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	fuels := make(map[string]string)
 	fuels["diesel"] = "DIESEL"
 	fuels["petrol"] = "BENZINE"
+	fuels["hybrid-petrol"] = "HYBRIDE_BENZINE"
 
 	bm := b.brandModels[job.Criteria.Brand][job.Criteria.CarModel]
 	if bm == nil {
@@ -28,7 +29,7 @@ func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	}
 	pr := bm.asQueryParams()
 	url := fmt.Sprintf(
-		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=30&sortering=PRIJS_OPLOPEND",
+		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&beschikbaarheidsStatus=beschikbaar&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=30&sortering=PRIJS_OPLOPEND",
 		*job.Criteria.YearFrom,
 		*job.Criteria.KmTo,
 		fuels[job.Criteria.Fuel],
@@ -192,6 +193,60 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	}
 	modelMap["xc40"] = &xc40
 	brandModelsMap["volvo"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+
+	yarisCross := BrandModelIds{
+		BrandID: "adc46765-6df3-4825-bdd2-0c6d427eaa41",
+		ModelID: "bf2fdb16-bf85-4d19-9739-92ba48102aa0",
+	}
+
+	modelMap["yaris-cross"] = &yarisCross
+	brandModelsMap["toyota"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	vwTouareg := BrandModelIds{
+		BrandID: "008d8fc3-b882-4657-9229-4239d5f7e469",
+		ModelID: "f74be334-7f97-496e-9bc6-2c2111237461",
+	}
+	modelMap["touareg"] = &vwTouareg
+	brandModelsMap["volkswagen"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	audiQ7 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "392e2478-d2bb-499c-8fb2-5a5d5cbb1581",
+	}
+	modelMap["q7"] = &audiQ7
+	brandModelsMap["audi"] = modelMap
+
+	audiQ5 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "59ca586c-75ca-4554-94a3-e66be9c6f475",
+	}
+	modelMap["q5"] = &audiQ5
+	brandModelsMap["audi"] = modelMap
+
+	audiA6 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "871154e5-19a7-4190-90ee-89a7a8e00fca",
+	}
+	modelMap["a6"] = &audiA6
+	brandModelsMap["audi"] = modelMap
+
+	audiQ3 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "43aea38c-b114-4469-9b5b-0de166864247",
+	}
+	modelMap["q3"] = &audiQ3
+	brandModelsMap["audi"] = modelMap
+
+	audiQ8 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "c3df76bd-8e5b-40e6-a187-15074ff92524",
+	}
+	modelMap["q8"] = &audiQ8
+	brandModelsMap["audi"] = modelMap
 
 	return brandModelsMap
 }

@@ -3,7 +3,6 @@ package autoscout
 import (
 	"carscraper/pkg/jobs"
 	"fmt"
-	"log"
 	"net/url"
 )
 
@@ -43,7 +42,6 @@ func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	fuel := b.fuelsMap[job.Criteria.Fuel]
 	cyParam := url.QueryEscape("D,A,B,E,F,I,L,NL")
 	ustateParam := url.QueryEscape("N,U")
-	log.Println("AUTOSCOUT Fuel: ", job.Criteria.Fuel)
 	// https://www.autoscout24.ro/lst/mercedes-benz/gle-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2019&kmto=125000&powertype=kw&search_id=21p91bbp3zv&sort=standard&source=detailsearch&ustate=N%2CU
 	//https://www.autoscout24.ro/lst/mercedes-benz/glc-(toate)/ft_motorina?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2019&kmto=125000&powertype=kw&regfrom=2019&search_id=1kf3w3r2bjf&sort=price&source=detailsearch&ustate=N%2CU
 	url := fmt.Sprintf("https://www.autoscout24.ro/lst/%s/%s/%s?atype=C&cy=%s&damaged_listing=exclude&desc=0&fregfrom=%d&kmto=%d&page=%d&powertype=kw&regfrom=%d&sort=price&source=detailsearch&ustate=%s", brand, model, fuel, cyParam, *job.Criteria.YearFrom, *job.Criteria.KmTo, job.Market.PageNumber, *job.Criteria.YearFrom, ustateParam)
@@ -54,6 +52,7 @@ func initFuelsMap() map[string]string {
 	fuelsMap := make(map[string]string)
 	fuelsMap["diesel"] = "ft_motorina"
 	fuelsMap["petrol"] = "ft_benzină"
+	fuelsMap["hybrid-petrol"] = "ft_electric%2Fbenzină"
 	return fuelsMap
 }
 
@@ -80,6 +79,16 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["octavia"] = "octavia"
 	modelsMap["superb"] = "superb"
 	modelsMap["mokka"] = "mokka"
+	modelsMap["yaris-cross"] = "yaris-cross"
+	modelsMap["touareg"] = "touareg"
+	modelsMap["a6"] = "a6"
+	modelsMap["q8"] = "q8"
+	modelsMap["q7"] = "q7"
+	modelsMap["q5"] = "q5"
+	modelsMap["q3"] = "q3"
 
 	return modelsMap
 }
+
+// https://www.autoscout24.ro/lst/toyota//ft_benzină?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2019&kmto=125000&page=3&powertype=kw&regfrom=2019&sort=price&source=detailsearch&ustate=N%2CU
+// https://www.autoscout24.ro/lst/toyota/yaris-cross/ft_benzin%C4%83?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2019&kmto=125000&powertype=kw&regfrom=2019&search_id=10tl4d5e8eu&sort=price&source=detailsearch&ustate=N%2CU&zipr=200

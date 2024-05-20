@@ -2,15 +2,19 @@ package scrapingservices
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/scraping/icollector"
 	"context"
+	"errors"
 	"log"
+	"time"
 )
 
 type CollyScrapingService struct {
-	context        context.Context
-	jobChannel     chan jobs.SessionJob
-	resultsChannel chan jobs.AdsPageJobResult
-	scrapingMapper IScrapingMapper
+	context                       context.Context
+	jobChannel                    chan jobs.SessionJob
+	resultsChannel                chan jobs.AdsPageJobResult
+	scrapingMapper                IScrapingMapper
+	currentJobAvailabilityChannel chan bool
 }
 
 func NewCollyScrapingService(ctx context.Context, scrapingMapper IScrapingMapper) *CollyScrapingService {
@@ -20,6 +24,45 @@ func NewCollyScrapingService(ctx context.Context, scrapingMapper IScrapingMapper
 		resultsChannel: make(chan jobs.AdsPageJobResult, 1),
 		scrapingMapper: scrapingMapper,
 	}
+}
+
+func (css CollyScrapingService) StartFake() {
+	log.Println("Colly Scraping Service Start FAKE")
+	go func() {
+		for {
+			select {
+			case job := <-css.jobChannel:
+				go func() {
+					css.processFakeJob(job)
+				}()
+			case <-css.context.Done():
+				log.Println("Colly Scraping Service Terminating")
+				return
+			}
+		}
+	}()
+}
+
+func (css CollyScrapingService) processFakeJob(job jobs.SessionJob) {
+	log.Println("COLLY SLEEPING")
+	time.Sleep(2 * time.Second)
+	isLastPage := job.Market.PageNumber > 2
+	results := icollector.AdsResults{
+		Ads:        nil,
+		IsLastPage: isLastPage,
+		Error:      errors.New("FAKE JOB"),
+	}
+	adResult := jobs.AdsPageJobResult{
+		RequestedScrapingJob: job,
+		PageNumber:           job.Market.PageNumber,
+		IsLastPage:           results.IsLastPage,
+		Success:              results.Error == nil,
+		Data:                 results.Ads,
+	}
+	go func() {
+		css.pushResultsToChannel(adResult)
+	}()
+
 }
 
 func (css CollyScrapingService) Start() {
@@ -48,6 +91,10 @@ func (css CollyScrapingService) GetResultsChannel() *chan jobs.AdsPageJobResult 
 	return &tmp
 }
 
+func (css CollyScrapingService) GetCurrentJobExecutionAvailabilityChannel() chan bool {
+	return css.currentJobAvailabilityChannel
+}
+
 func (css CollyScrapingService) processJob(job jobs.SessionJob) {
 	adapter := css.scrapingMapper.GetCollyMarketAdsAdapter(job.Market.Name)
 	results := adapter.GetAds(job)
@@ -58,10 +105,17 @@ func (css CollyScrapingService) processJob(job jobs.SessionJob) {
 		Success:              results.Error == nil,
 		Data:                 results.Ads,
 	}
-	if results.Ads == nil {
+	if results.Ads == nil && !results.IsLastPage {
 		return
 	}
-	log.Println("Colly service DONE job . Found ", len(*results.Ads), "ads")
+	if results.Ads != nil {
+		log.Println("Colly service DONE job . Found ", len(*results.Ads), "ads")
+
+	} else {
+		if results.IsLastPage {
+			log.Println("LAST PAGE WITH NO RESULTS !!!")
+		}
+	}
 	go func() {
 		css.pushResultsToChannel(adResult)
 	}()

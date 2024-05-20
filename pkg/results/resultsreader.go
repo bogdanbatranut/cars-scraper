@@ -123,6 +123,8 @@ func (rcs ResultsConsumerService) processResults() {
 			continue
 		}
 
+		log.Printf("Got %d ads for market: %s ==> %s %s", len(*result.Data), result.RequestedScrapingJob.Market.Name, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
+
 		// TODO results.Data might be null... this happens on mobile when traversing pages... at some point you just get an empty page..
 
 		if result.Data == nil || len(*result.Data) == 0 {

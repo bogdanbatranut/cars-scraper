@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -31,6 +33,11 @@ type SessionJob struct {
 	MarketID   uint
 	Criteria   Criteria
 	Market     Market
+}
+
+func (job SessionJob) ToString() string {
+	return fmt.Sprintf("JOB | Market: %s | Brand: %s | Model: %s | Fuel: %s | Page : %d",
+		job.Market.Name, job.Criteria.Brand, job.Criteria.CarModel, job.Criteria.Fuel, job.Market.PageNumber)
 }
 
 type ScrapeResult struct {

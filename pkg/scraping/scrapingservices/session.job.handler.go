@@ -83,43 +83,50 @@ func JobHandlerWithMessageQueueRepository(mqr repos.IMessageQueue) SessionJobHan
 	}
 }
 
-func (sjc SessionJobHandler) GetAdsPageJobResult() chan jobs.AdsPageJobResult {
-	return sjc.resultsChannel
+func (service SessionJobHandler) GetAdsPageJobResult() chan jobs.AdsPageJobResult {
+	return service.resultsChannel
 }
 
-func (sjc SessionJobHandler) GetResultsChannel() chan icollector.AdsResults {
-	return sjc.adsResultsChannel
+func (service SessionJobHandler) GetResultsChannel() chan icollector.AdsResults {
+	return service.adsResultsChannel
 }
 
-func (sjc SessionJobHandler) StartWithoutMQ() {
+func (service SessionJobHandler) readResultsFromServices() {
+	for _, scrapingService := range service.marketServiceMapper.GetAllServices() {
+		ss := scrapingService
+		//wg.Add(1)
+		go func() {
+			for {
+				adsResult := <-*ss.GetResultsChannel()
+				service.resultsChannel <- adsResult
+			}
+
+		}()
+	}
+}
+
+func (service SessionJobHandler) StartWithoutMQ() {
 	log.Println("Session Job Handler Starting without MQ")
-	sjc.messageQueueService.Start()
-	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
-		ss := scrapingService
-		//wg.Add(1)
-		go func() {
-			for {
-				tmp := ss.GetResultsChannel()
-				adsResult := <-*tmp
-				sjc.resultsChannel <- adsResult
-			}
-
-		}()
-	}
+	//service.messageQueueService.Start()
+	// read results from services
+	service.assignJobsToServices()
+	service.readResultsFromServices()
 
 	//wg.Add(1)
 	go func() {
 		//defer wg.Done()
 		for {
 			select {
-			case job := <-sjc.jobChannel:
-				sjc.AddScrapingJob(job)
-			case res := <-sjc.resultsChannel:
+			case job := <-service.jobChannel:
+				//service.AddScrapingJobToScrapingService(job)
+				service.AddScrapingJob(job)
+			case res := <-service.resultsChannel:
 				go func() {
-					//sjc.processResultsNOPublish(res)
-					sjc.processResults(res)
+					//service.processResultsNOPublish(res)
+					//service.processResults(res)
+					service.processResultsAndAddInternal(res)
 				}()
-			case <-sjc.context.Done():
+			case <-service.context.Done():
 				log.Println("Session Job Handler Terminating...")
 				return
 			}
@@ -127,34 +134,33 @@ func (sjc SessionJobHandler) StartWithoutMQ() {
 	}()
 }
 
-func (sjc SessionJobHandler) Start() {
+func (service SessionJobHandler) Start() {
 	log.Println("Session Job Handler Starting ")
-	sjc.messageQueueService.Start()
-	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
+	service.messageQueueService.Start()
+	service.assignJobsToServices()
+	for _, scrapingService := range service.marketServiceMapper.GetAllServices() {
 		ss := scrapingService
 		//wg.Add(1)
 		go func() {
 			for {
 				tmp := ss.GetResultsChannel()
 				adsResult := <-*tmp
-				sjc.resultsChannel <- adsResult
+				service.resultsChannel <- adsResult
 			}
 
 		}()
 	}
-
-	//wg.Add(1)
 	go func() {
-		//defer wg.Done()
 		for {
 			select {
-			case job := <-sjc.jobChannel:
-				sjc.AddScrapingJob(job)
-			case res := <-sjc.resultsChannel:
+			case job := <-service.jobChannel:
+				//service.AddScrapingJobToScrapingService(job)
+				service.AddScrapingJob(job)
+			case res := <-service.resultsChannel:
 				go func() {
-					sjc.processResults(res)
+					service.processResults(res)
 				}()
-			case <-sjc.context.Done():
+			case <-service.context.Done():
 				log.Println("Session Job Handler Terminating...")
 				return
 			}
@@ -163,40 +169,40 @@ func (sjc SessionJobHandler) Start() {
 
 	go func() {
 		for {
-			sjc.getJobFromMQ()
+			service.getJobFromMQ()
 		}
 	}()
-	//wg.Wait()
 }
-func (sjc SessionJobHandler) Start_old() {
+
+func (service SessionJobHandler) Start_old() {
 	log.Println("Session Job Handler Service Start")
 
 	log.Println("start waiting for signal")
 
-	sjc.messageQueueService.Start()
+	service.messageQueueService.Start()
 
 	go func() {
 		for {
-			sjc.getJobFromMQ()
+			service.getJobFromMQ()
 		}
 	}()
 
 	go func() {
 		for {
-			//sjc.processJob()
+			//service.processJob()
 		}
 	}()
 
 	go func() {
 		for {
-			//sjc.sendResults()
+			//service.sendResults()
 		}
 	}()
 
 	go func() {
 		for {
 			select {
-			case <-sjc.context.Done():
+			case <-service.context.Done():
 				log.Println("Session Job Handler Terminating...")
 				return
 
@@ -205,75 +211,47 @@ func (sjc SessionJobHandler) Start_old() {
 	}()
 }
 
-func (sjc SessionJobHandler) getJobFromMQ() {
+func (service SessionJobHandler) getJobFromMQ() {
 	// pop message from MQ
-	message := sjc.messageQueue.GetMessageWithDelete(sjc.jobsTopicName)
+	message := service.messageQueue.GetMessageWithDelete(service.jobsTopicName)
 	var scrapeJob jobs.SessionJob
 	if len(*message) > 0 {
-		log.Printf("got message from the message queue")
 		err := json.Unmarshal(*message, &scrapeJob)
 		if err != nil {
 			// push message back in the queue
-			sjc.messageQueue.PutMessage(sjc.jobsTopicName, *message)
+			service.messageQueue.PutMessage(service.jobsTopicName, *message)
 			panic(err)
 		}
-		sjc.jobChannel <- scrapeJob
+		service.jobChannel <- scrapeJob
 	}
+
 }
 
-func (sjc SessionJobHandler) readResults() {
-	for _, scrapingService := range sjc.marketServiceMapper.GetAllServices() {
-		ss := scrapingService
-		go func() {
-			for {
-				log.Println("Waiting for results ....")
-				adsResult := <-*ss.GetResultsChannel()
-				log.Println("Add results to session handler results channel")
-				sjc.resultsChannel <- adsResult
-			}
-		}()
-
-	}
-	//log.Println("DONE READING ?????")
+// AddScrapingJob adds the job to the session handler jobs channel
+func (service SessionJobHandler) AddScrapingJob(job jobs.SessionJob) {
+	service.jobChannel <- job
 }
 
-func (sjc SessionJobHandler) AddScrapingJob(job jobs.SessionJob) {
-	log.Println("Get scraping service for market : ", job.Market.Name)
-	s := sjc.marketServiceMapper.GetScrapingService(job.Market.Name)
-	s.AddJob(job)
-}
-
-func (sjc SessionJobHandler) processResultsNOPublish(result jobs.AdsPageJobResult) {
-	var foundAds []jobs.Ad
-	for _, res := range *result.Data {
-		fAd := newFromAd(res, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel, result.RequestedScrapingJob.Criteria.Fuel)
-		foundAds = append(foundAds, fAd)
-	}
-
-	result.Data = &foundAds
-
-	// send result to MQ
-	log.Println("Session Job Handler : Processing results")
-	if !result.IsLastPage {
-		newJob := result.RequestedScrapingJob
-		newJob.Market.PageNumber++
-		sjc.AddScrapingJob(newJob)
-	} else {
-		log.Println("Got LAST PAGE")
-	}
-
-	for _, ad := range *result.Data {
-		if ad.Title == nil {
-			log.Println("TITLE NIL")
-		} else {
-			log.Printf("Ad Title: %s", *ad.Title)
+func (service SessionJobHandler) assignJobsToServices() {
+	go func() {
+		for {
+			job := <-service.jobChannel
+			scrapingService := service.marketServiceMapper.GetScrapingService(job.Market.Name)
+			go func() {
+				//log.Printf("ASSIGN JOB TO SCRAPING SERVICE : %s ", job.Market.Name)
+				scrapingService.AddJob(job)
+			}()
 		}
-	}
-	log.Println("Job handler done processing: ", len(*result.Data), " is last page ", result.IsLastPage)
-
+	}()
 }
 
-func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
+//func (service SessionJobHandler) AddScrapingJobToScrapingService(job jobs.SessionJob) {
+//	log.Println("Get scraping service for market : ", job.Market.Name)
+//	s := service.marketServiceMapper.GetScrapingService(job.Market.Name)
+//	s.AddJob(job)
+//}
+
+func (service SessionJobHandler) processResultsNOPublish(result jobs.AdsPageJobResult) {
 	var foundAds []jobs.Ad
 	for _, res := range *result.Data {
 		fAd := newFromAd(res, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel, result.RequestedScrapingJob.Criteria.Fuel)
@@ -283,17 +261,73 @@ func (sjc SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
 	result.Data = &foundAds
 
 	// send result to MQ
-	log.Println("Session Job Handler : Processing results")
 	if !result.IsLastPage {
 		newJob := result.RequestedScrapingJob
 		newJob.Market.PageNumber++
-		sjc.AddScrapingJob(newJob)
+		//service.AddScrapingJobToScrapingService(newJob)
+		service.AddScrapingJob(newJob)
 	} else {
 		log.Println("Got LAST PAGE")
 	}
-	log.Println("Sending to queue ", len(*result.Data), " is last page ", result.IsLastPage)
 
-	sjc.messageQueueService.PublishResults(result)
+	//log.Println("Job handler done processing: ", len(*result.Data), " is last page ", result.IsLastPage)
+
+}
+
+func (service SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
+	var foundAds []jobs.Ad
+	if result.Data != nil {
+		for _, res := range *result.Data {
+			fAd := newFromAd(res, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel, result.RequestedScrapingJob.Criteria.Fuel)
+			foundAds = append(foundAds, fAd)
+		}
+
+		result.Data = &foundAds
+	}
+
+	// send result to MQ
+	if !result.IsLastPage {
+		newJob := service.createNewJobFromResult(result)
+		//service.AddScrapingJobToScrapingService(newJob)
+		service.pushSessionJobToMQ(newJob)
+	} else {
+		log.Println("Got LAST PAGE")
+	}
+	//log.Println("Sending to queue ", len(*result.Data), " is last page ", result.IsLastPage, " JOB: ", result.RequestedScrapingJob.ToString())
+
+	service.messageQueueService.PublishResults(result)
+}
+
+func (service SessionJobHandler) processResultsAndAddInternal(result jobs.AdsPageJobResult) {
+	var foundAds []jobs.Ad
+	if result.Data == nil {
+		fakeData := []jobs.Ad{}
+		result.Data = &fakeData
+	}
+	for _, res := range *result.Data {
+		fAd := newFromAd(res, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel, result.RequestedScrapingJob.Criteria.Fuel)
+		foundAds = append(foundAds, fAd)
+	}
+
+	result.Data = &foundAds
+
+	// send result to MQ
+	if !result.IsLastPage {
+		newJob := service.createNewJobFromResult(result)
+		//service.AddScrapingJobToScrapingService(newJob)
+		service.AddScrapingJob(newJob)
+	} else {
+		log.Println("Got LAST PAGE")
+	}
+	log.Println("Sending to queue ", len(*result.Data), " is last page ", result.IsLastPage, " JOB ", result.RequestedScrapingJob.ToString())
+
+	service.messageQueueService.PublishResults(result)
+}
+
+func (service SessionJobHandler) createNewJobFromResult(result jobs.AdsPageJobResult) jobs.SessionJob {
+	newJob := result.RequestedScrapingJob
+	newJob.Market.PageNumber++
+	return newJob
 }
 
 func newFromAd(ad jobs.Ad, brand string, model string, fuel string) jobs.Ad {
@@ -317,12 +351,21 @@ func newFromAd(ad jobs.Ad, brand string, model string, fuel string) jobs.Ad {
 	return newAd
 }
 
-func (sjc SessionJobHandler) listResults(res jobs.AdsPageJobResult) {
+func (service SessionJobHandler) listResults(res jobs.AdsPageJobResult) {
 
-	//res := <-sjc.resultsChannel
+	//res := <-service.resultsChannel
 	log.Println("Showing page : ", res.PageNumber)
 	log.Println("Is Last page : ", res.IsLastPage)
 	//for _, ad := range *res.Data {
 	//	log.Printf("%+v", ad)
 	//}
+}
+
+func (service SessionJobHandler) pushSessionJobToMQ(job jobs.SessionJob) {
+	jobBytes, err := json.Marshal(&job)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("SESSION HANDLER : PUSHING JOB %s", job.ToString())
+	service.messageQueue.PutMessage(service.jobsTopicName, jobBytes)
 }

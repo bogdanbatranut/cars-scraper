@@ -3,6 +3,7 @@ package scrapingservices
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/scraping/icollector"
 	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/urlbuilder"
@@ -38,14 +39,15 @@ func (mapper MarketBrowserMapper) getMarketBrowser(market string) *rod.Browser {
 }
 
 type RodScrapingService struct {
-	context          context.Context
-	jobChannel       chan jobs.SessionJob
-	resultsChannel   chan jobs.AdsPageJobResult
-	scrapingMapper   IScrapingMapper
-	browserMapper    MarketBrowserMapper
-	browserLauncher  *launcher.Launcher
-	urlBuilderMapper urlbuilder.URLBuilderMapper
-	browser          *rod.Browser
+	context                       context.Context
+	jobChannel                    chan jobs.SessionJob
+	resultsChannel                chan jobs.AdsPageJobResult
+	scrapingMapper                IScrapingMapper
+	browserMapper                 MarketBrowserMapper
+	browserLauncher               *launcher.Launcher
+	urlBuilderMapper              urlbuilder.URLBuilderMapper
+	browser                       *rod.Browser
+	currentJobAvailabilityChannel chan bool
 }
 
 func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, cfg amconfig.IConfig) *RodScrapingService {
@@ -59,18 +61,22 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	autoscoutURLBuilder := autoscout.NewURLBuilder()
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
-	//br := startLocalBrowserWithMonitor()
-	br := startBrowser()
+	br := startLocalBrowserWithMonitor()
+	//br := startBrowser()
 	return &RodScrapingService{
-		context:        ctx,
-		jobChannel:     make(chan jobs.SessionJob),
-		scrapingMapper: scrapingMapper,
-		browserMapper: MarketBrowserMapper{
-			marketBrowsers: nil},
-		resultsChannel:   make(chan jobs.AdsPageJobResult),
-		urlBuilderMapper: *urlbBuilderMapper,
-		browser:          br,
+		context:                       ctx,
+		jobChannel:                    make(chan jobs.SessionJob),
+		scrapingMapper:                scrapingMapper,
+		browserMapper:                 MarketBrowserMapper{marketBrowsers: nil},
+		resultsChannel:                make(chan jobs.AdsPageJobResult),
+		urlBuilderMapper:              *urlbBuilderMapper,
+		browser:                       br,
+		currentJobAvailabilityChannel: make(chan bool),
 	}
+}
+
+func (rss RodScrapingService) GetCurrentJobExecutionAvailabilityChannel() chan bool {
+	return rss.currentJobAvailabilityChannel
 }
 
 func startLocalBrowserWithMonitor() *rod.Browser {
@@ -85,7 +91,7 @@ func startLocalBrowserWithMonitor() *rod.Browser {
 	// each action, making it easier to inspect what your code is doing.
 	browser := rod.New().
 		ControlURL(url).
-		MustIncognito().
+		//MustIncognito().
 		Trace(false).
 		//SlowMotion(2 * time.Second).
 		MustConnect()
@@ -98,18 +104,38 @@ func startLocalBrowserWithMonitor() *rod.Browser {
 }
 
 func startBrowser() *rod.Browser {
-	l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
-	l.Headless(true).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+	//l := launcher.MustNewManaged("http://dev.auto-mall.ro:7317")
+	l, err := launcher.NewManaged("http://dev.auto-mall.ro:7317")
+	if err != nil {
+		panic(err)
+	}
+	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
 
-	browser := rod.New().Client(l.MustClient()).MustIncognito().Trace(false).MustConnect()
+	browser := rod.New().Client(l.MustClient()).Trace(false).MustConnect()
 	return browser
+}
+
+func (rss RodScrapingService) StartFake() {
+	log.Println("Rod Scraping Service Fake Start")
+	//rss.browser = startBrowser()
+
+	//launcher.Open(rss.browser.ServeMonitor(""))
+	go func() {
+		for {
+			select {
+			case job := <-rss.jobChannel:
+				rss.processFakeJob(job)
+			case <-rss.context.Done():
+				log.Println("Rod Scraping Service Fake Terminating...")
+				return
+			}
+		}
+	}()
 }
 
 func (rss RodScrapingService) Start() {
 	log.Println("Rod Scraping Service Start")
-	//rss.browser = startBrowser()
 
-	//launcher.Open(rss.browser.ServeMonitor(""))
 	go func() {
 		for {
 			select {
@@ -131,20 +157,67 @@ func (rss RodScrapingService) GetResultsChannel() *chan jobs.AdsPageJobResult {
 	return &rss.resultsChannel
 }
 
+func (rss RodScrapingService) processFakeJob(job jobs.SessionJob) {
+	log.Println("ROD SLEEPING")
+	time.Sleep(2 * time.Second)
+
+	isLastPage := job.Market.PageNumber > 2
+
+	results := icollector.AdsResults{
+		Ads:        nil,
+		IsLastPage: isLastPage,
+		Error:      errors.New("FAKE JOB"),
+	}
+
+	adResult := jobs.AdsPageJobResult{
+		RequestedScrapingJob: job,
+		PageNumber:           job.Market.PageNumber,
+		IsLastPage:           results.IsLastPage,
+		Success:              results.Error == nil,
+		Data:                 results.Ads,
+	}
+
+	if adResult.IsLastPage {
+		err := closeAllPages(rss.browser)
+		if err != nil {
+			panic(err)
+		}
+	}
+	go func(res jobs.AdsPageJobResult) {
+		go func(tmpch chan jobs.AdsPageJobResult, r jobs.AdsPageJobResult) {
+			tmpch <- r
+		}(rss.resultsChannel, res)
+	}(adResult)
+}
+
 func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	//urlBuilder := autoscout.NewURLBuilder(job.Criteria)
+	log.Println("ROD Executing :", job.ToString())
 	urlBuilder := rss.urlBuilderMapper.GetURLBuilder(job.Market.Name)
 	url := urlBuilder.GetURL(job)
 	if url == nil {
 		panic(errors.New("could not build url for scraping"))
 	}
-	log.Println("Getting data from URL : ", *url)
+	log.Println("ROD Getting data from URL : ", *url)
 	var page *rod.Page
 	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
-	page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
+	page, err := rss.browser.Page(proto.TargetCreateTarget{
+		URL:                     *url,
+		Width:                   nil,
+		Height:                  nil,
+		BrowserContextID:        "",
+		EnableBeginFrameControl: false,
+		NewWindow:               false,
+		Background:              false,
+		ForTab:                  false,
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	adapter := rss.scrapingMapper.GetRodMarketAdsAdapter(job.Market.Name)
 	results := adapter.GetAds(page)
-	err := page.Close()
+	err = page.Close()
 	if err != nil {
 		log.Println(err)
 		//return
@@ -170,9 +243,6 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 			tmpch <- r
 		}(rss.resultsChannel, res)
 	}(adResult)
-
-	log.Println("ROD pushed results to channel")
-
 }
 
 func closeAllPages(browser *rod.Browser) error {

@@ -33,10 +33,10 @@ func main() {
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
 
-	chartsRepo := repos.NewChartsRepository(cfg)
-	chartsRepo.GetAdsPricesByStep(5000)
+	//chartsRepo := repos.NewChartsRepository(cfg)
+	//chartsRepo.GetAdsPricesByStep(5000)
 
-	cleanupPrices(adsRepo)
+	//cleanupPrices(adsRepo)
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 

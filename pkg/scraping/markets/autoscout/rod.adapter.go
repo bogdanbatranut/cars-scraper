@@ -42,7 +42,11 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 		}
 	}
 
-	articles := page.MustElements(".list-page-item")
+	//articles := page.MustElements(".list-page-item")
+	articles, err := page.MustWaitDOMStable().Elements(".list-page-item")
+	if err != nil {
+		println(err)
+	}
 
 	var ads []jobs.Ad
 	if len(articles) == 0 {
@@ -69,7 +73,6 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 					Error:      err,
 				}
 			}
-			log.Println("TITLE: ", *articleTitle)
 			ad := jobs.Ad{
 				Title:              articleTitle,
 				Brand:              getBrandFromArticle(article),
@@ -179,12 +182,19 @@ func getYearFromArticle(article *rod.Element) int {
 	if err != nil {
 		panic(err)
 	}
-	if *yearStr == "new" {
+	if *yearStr == "new" || *yearStr == "unknown" {
 		return time.Now().Year()
 	}
 	year, err := strconv.Atoi((*yearStr)[3:])
 	if err != nil {
-		panic(err)
+		initialErr := err
+		articleId, err := article.Attribute("id")
+		if err != nil {
+			log.Println("cannot get article ID")
+		}
+		log.Println("cannot get year from article ")
+		log.Println(*articleId)
+		panic(initialErr)
 	}
 	return year
 }
@@ -219,9 +229,9 @@ func getThumbNailFromArticle(article *rod.Element) *string {
 	imgElement, err := article.Element("div.ListItem_wrapper__TxHWu > div.Gallery_wrapper__iqp3u > section > div:nth-child(1) > picture > img")
 
 	if err != nil {
-		log.Println("-> ", article.MustText())
 		log.Println(err.Error())
 		if err.Error() == "cannot find element" {
+			log.Println("Could not find image ")
 			return nil
 		}
 	}

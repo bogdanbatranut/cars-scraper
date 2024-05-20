@@ -20,7 +20,7 @@ type SessionStarterService struct {
 	logger                     logging.ScrapeLoggingService
 	requesteScrapingJobs       []jobs.Session
 	urlComposerImplementations *url.URLComposerImplementations
-	criteriasTopicName         string
+	jobsTopicName              string
 }
 
 type CrawlinglInitiatorServiceConfiguration func(cisc *SessionStarterService)
@@ -29,7 +29,7 @@ func NewSessionStarterService(cfgs ...CrawlinglInitiatorServiceConfiguration) *S
 
 	mqs := &SessionStarterService{
 		urlComposerImplementations: url.NewURLComposerImplementations(),
-		criteriasTopicName:         "jobs",
+		jobsTopicName:              "jobs",
 	}
 	for _, cfg := range cfgs {
 		cfg(mqs)
@@ -150,7 +150,7 @@ func (sss SessionStarterService) pushSessionJobs(jobs []jobs.SessionJob) {
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("Pushing job: criteria: %d, market: %d, pageNumber: %d", job.CriteriaID, job.MarketID, job.Market.PageNumber)
-		sss.messagesQueue.PutMessage(sss.criteriasTopicName, jobBytes)
+		log.Printf("SESSION STARTER - Pushing job %s", job.ToString())
+		sss.messagesQueue.PutMessage(sss.jobsTopicName, jobBytes)
 	}
 }

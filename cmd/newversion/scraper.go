@@ -56,8 +56,10 @@ func main() {
 		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
 		scrapingservices.WithMarketService("olx", jsonScrapingService),
 	)
+	sjh.Start()
 
-	sjh.StartWithoutMQ()
+	//https: //www.autotrack.nl/aanbod?minimumbouwjaar=2019&maximumkilometerstand=125000&brandstofsoorten=BENZINE&merkIds=7ccf5430-eafb-4042-82c0-43ce39ba1b02&modelIds=85e7360a-cee0-4ae0-85e0-0b595df99471&beschikbaarheidsStatus=beschikbaar&paginanummer=1&paginagrootte=30&sortering=PRIJS_OPLOPEND
+	//https://www.autotrack.nl/aanbod?minimumbouwjaar=2019&maximumkilometerstand=125000&brandstofsoorten=BENZINE&modelIds=85e7360a-cee0-4ae0-85e0-0b595df99471&merkIds=7ccf5430-eafb-4042-82c0-43ce39ba1b02&                                    paginanummer=6&paginagrootte=30&sortering=PRIJS_OPLOPEND	sjh.StartWithoutMQ()
 	//
 	adapter := NewCriteriasJobsAdapter(cfg)
 	go func() {
@@ -68,9 +70,11 @@ func main() {
 		//13,2023-11-20 00:06:39.350,2024-03-12 19:57:43.987,,autotracknl,www.autotrack.nl,0
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
-		markets := []uint{13}
-		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
-		criterias := []uint{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
+		//markets := []uint{9, 11, 12, 13, 14}
+		markets := []uint{11}
+		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}
+		criterias := []uint{27}
+		//criterias := []uint{22}
 		//marketID := uint(9)
 		for _, marketID := range markets {
 			if marketID == 10 {
@@ -81,9 +85,10 @@ func main() {
 				// criteria 7 volvo s90
 				// criteria 6 bmw 7 series
 				job := adapter.CreateJob(uuid.New(), criteriaID, marketID)
+				//sjh.AddScrapingJobToScrapingService(*job)
 				sjh.AddScrapingJob(*job)
 				//job = adapter.CreateJob(uuid.New(), 8, marketID)
-				//sjh.AddScrapingJob(*job)
+				//sjh.AddScrapingJobToScrapingService(*job)
 			}
 		}
 		//done <- true
