@@ -2,11 +2,16 @@ package scrapingservices
 
 import (
 	"carscraper/pkg/scraping/marketadapters"
+	"carscraper/pkg/scraping/markets/autoklass"
 	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/markets/autovit"
+	mercedes_benz_de "carscraper/pkg/scraping/markets/mercedes-benz_de"
+	mercedes_benz_ro "carscraper/pkg/scraping/markets/mercedes-benz_ro"
 	"carscraper/pkg/scraping/markets/mobile"
+	"carscraper/pkg/scraping/markets/oferte_bmw"
 	"carscraper/pkg/scraping/markets/olx"
+	"carscraper/pkg/scraping/markets/tiriacauto"
 )
 
 type IScrapingMapper interface {
@@ -32,6 +37,11 @@ func NewScrapingAdaptersMapper() *ScrapingAdaptersMapper {
 	rodAdaptersMap["autoscout"] = autoscout.NewAutoscoutRodAdapter()
 	jsonAdaptersMap["autovit"] = autovit.NewAutovitJSONAdapter()
 	jsonAdaptersMap["olx"] = olx.NewOLXJSONAdapter()
+	jsonAdaptersMap["oferte_bmw"] = oferte_bmw.NewOferteBMWAdapter()
+	jsonAdaptersMap["mercedes-benz.ro"] = mercedes_benz_ro.NewMercedesBenzRoAdapter()
+	jsonAdaptersMap["mercedes-benz.de"] = mercedes_benz_de.NewMercedesBenzDEAdapter()
+	collyAdaptersMap["tiriacauto"] = tiriacauto.NewTiriacAutoCollyMarketAdapter()
+	jsonAdaptersMap["autoklass.ro"] = autoklass.NewAutoklassRoAdapter()
 
 	return &ScrapingAdaptersMapper{
 		collyAdapters: collyAdaptersMap,

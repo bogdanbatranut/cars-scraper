@@ -3,12 +3,15 @@ module carscraper
 go 1.19
 
 require (
+	github.com/go-rod/rod v0.114.7
 	github.com/gocolly/colly v1.2.0
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/viper v1.17.0
+	github.com/ysmood/gson v0.7.3
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.4
+	gorm.io/plugin/dbresolver v1.5.1
 )
 
 require (
@@ -18,7 +21,6 @@ require (
 	github.com/antchfx/xmlquery v1.3.18 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/go-rod/rod v0.114.7 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -42,7 +44,6 @@ require (
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.34.1 // indirect
-	github.com/ysmood/gson v0.7.3 // indirect
 	github.com/ysmood/leakless v0.8.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

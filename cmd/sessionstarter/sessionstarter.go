@@ -25,7 +25,7 @@ func main() {
 		sessionstarter.WithLogging(cfg),
 	)
 
-	log.Println("sessionstarter service init...")
+	log.Println("sessionstarter service initialization...")
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")

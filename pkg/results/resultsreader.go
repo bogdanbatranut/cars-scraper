@@ -182,7 +182,10 @@ func (rcs ResultsConsumerService) processResults() {
 			if err != nil {
 				errStr = err.Error()
 			}
-			rcs.logger.AddCriteriaEntry(result.RequestedScrapingJob, len(*exsitingAdsIDs), errStr, true)
+			err = rcs.logger.AddCriteriaEntry(result.RequestedScrapingJob, len(*exsitingAdsIDs), errStr, true)
+			if err != nil {
+				log.Println(err)
+			}
 
 			for _, exsitingAdID := range *exsitingAdsIDs {
 				found := false

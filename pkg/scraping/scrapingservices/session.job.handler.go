@@ -369,3 +369,7 @@ func (service SessionJobHandler) pushSessionJobToMQ(job jobs.SessionJob) {
 	log.Printf("SESSION HANDLER : PUSHING JOB %s", job.ToString())
 	service.messageQueue.PutMessage(service.jobsTopicName, jobBytes)
 }
+
+func (service SessionJobHandler) AddJobToMQ(job jobs.SessionJob) {
+	service.pushSessionJobToMQ(job)
+}

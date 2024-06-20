@@ -62,7 +62,9 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
 	br := startLocalBrowserWithMonitor()
+	//br := connectToDockerBrowser()
 	//br := startBrowser()
+
 	return &RodScrapingService{
 		context:                       ctx,
 		jobChannel:                    make(chan jobs.SessionJob),
@@ -77,6 +79,33 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 
 func (rss RodScrapingService) GetCurrentJobExecutionAvailabilityChannel() chan bool {
 	return rss.currentJobAvailabilityChannel
+}
+
+func connectToDockerBrowser() *rod.Browser {
+	//l, err := launcher.NewManaged("pensive_mendel")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+	//log.Println("connecting to docker")
+	//u, err := launcher.ResolveURL("")
+	//if err != nil {
+	//	log.Println(" -------- ")
+	//	panic(err)
+	//}
+	//
+	//browser := rod.New().ControlURL(u).MustConnect()
+	//return browser
+
+	l, err := launcher.NewManaged("http://rod-chromium:7317")
+	if err != nil {
+		panic(err)
+	}
+	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+
+	browser := rod.New().Client(l.MustClient()).Trace(false).MustConnect()
+	return browser
+
 }
 
 func startLocalBrowserWithMonitor() *rod.Browser {

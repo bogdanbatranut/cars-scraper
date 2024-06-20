@@ -41,6 +41,6 @@ func (repo SQLMarketsRepository) GetAll() *[]adsdb.Market {
 
 func (repo SQLMarketsRepository) GetMarketByID(id uint) *adsdb.Market {
 	var market adsdb.Market
-	repo.db.First(&market, id)
+	repo.db.Debug().First(&market, id)
 	return &market
 }

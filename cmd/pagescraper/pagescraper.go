@@ -52,7 +52,13 @@ func main() {
 		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
 		scrapingservices.WithMarketService("autoscout", rodScrapingService),
 		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
-		scrapingservices.WithMarketService("olx", jsonScrapingService))
+		scrapingservices.WithMarketService("olx", jsonScrapingService),
+		scrapingservices.WithMarketService("oferte_bmw", jsonScrapingService),
+		scrapingservices.WithMarketService("tiriacauto", collyScrapingService),
+		scrapingservices.WithMarketService("mercedes-benz.ro", jsonScrapingService),
+		scrapingservices.WithMarketService("mercedes-benz.de", jsonScrapingService),
+		scrapingservices.WithMarketService("autoklass.ro", jsonScrapingService),
+	)
 
 	sjh.Start()
 

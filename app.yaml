@@ -8,6 +8,7 @@ app:
     pass: "siana1316"
     name: "automall"
     host: "dev.auto-mall.ro"
+    vehicles: "vehicles"
 #    host: "65.108.215.227"
 service:
   sessionstarter:

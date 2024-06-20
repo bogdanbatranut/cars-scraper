@@ -13,18 +13,21 @@ const (
 	SessionStarterHTTPPort = "service.sessionstarter.http.port"
 	BackendServiceHTTPPort = "service.backend.http.port"
 
-	AppBaseURL    = "app.baseurl"
-	AppDBUser     = "app.db.user"
-	AppDBPass     = "app.db.pass"
-	AppDBName     = "app.db.name"
-	AppTestDBName = "app.test.db.name"
-	AppDBHost     = "app.db.host"
-	SMQHTTPPort   = "smq.http.port"
-	SMQURL        = "smq.url"
-	MockHTTPPort  = "mock.http.port"
+	AppBaseURL        = "app.baseurl"
+	AppDBUser         = "app.db.user"
+	AppDBPass         = "app.db.pass"
+	AppDBName         = "app.db.name"
+	AppDBVehiclesName = "app.db.vehicles"
+	AppTestDBName     = "app.test.db.name"
+	AppDBHost         = "app.db.host"
+	SMQHTTPPort       = "smq.http.port"
+	SMQURL            = "smq.url"
+	MockHTTPPort      = "mock.http.port"
 
 	SMQJobsTopicName    = "smq.jobs.topic.name"
 	SMQResultsTopicName = "smq.results.topic.name"
+
+	TestVar = "test.var"
 )
 
 type IConfig interface {
@@ -83,6 +86,7 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(AppDBUser, "APP_DB_USER")
 	_ = viper.BindEnv(AppDBPass, "APP_DB_PASS")
 	_ = viper.BindEnv(AppDBName, "APP_DB_NAME")
+	_ = viper.BindEnv(AppDBVehiclesName, "APP_DB_VEHICLES")
 	_ = viper.BindEnv(AppDBHost, "APP_DB_HOST")
 
 	_ = viper.BindEnv(SMQHTTPPort, "SMQ_HTTP_PORT")
@@ -91,6 +95,8 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(SMQResultsTopicName, "SMQ_RESULTS_TOPIC_NAME")
 
 	_ = viper.BindEnv(MockHTTPPort, "MOCK_HTTP_PORT")
+
+	_ = viper.BindEnv(TestVar, "TEST_VAR")
 
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()

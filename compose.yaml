@@ -1,3 +1,4 @@
+name: car-mall
 services:
   backend:
     build:
@@ -13,6 +14,8 @@ services:
       - APP_DB_HOST=dev.auto-mall.ro
       - SMQ_URL=dev.auto-mall.ro
       - BACKEND_HTTP_PORT=8080
+    profiles:
+      - prod
   sessionstarter:
     build:
       context: ./
@@ -29,6 +32,18 @@ services:
       - SMQ_URL=dev.auto-mall.ro
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME="jobs"
+    profiles:
+      - prod
+  chromium:
+    container_name: "rod-chromium"
+    ports:
+      - "7317:7317"
+    image: "ghcr.io/go-rod/rod"
+    profiles:
+      - localdev
+      - prod
+    networks:
+      - localdev
   pagescraper:
     build:
       context: ./
@@ -44,6 +59,11 @@ services:
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME=jobs
       - SMQ_RESULTS_TOPIC_NAME=results
+    profiles:
+      - prod
+      - localdev
+    networks:
+      - localdev
   resultsconsumer:
     build:
       context: ./
@@ -60,3 +80,15 @@ services:
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME=jobs
       - SMQ_RESULTS_TOPIC_NAME=results
+    profiles:
+      - prod
+  envtest:
+    build:
+      context: ./
+      dockerfile: cmd/envtest/Dockerfile
+    profiles:
+        - envtest
+    environment:
+        - TEST_VAR=${TEST_VAR}
+networks:
+  localdev:
