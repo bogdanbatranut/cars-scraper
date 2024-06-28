@@ -23,7 +23,7 @@ type Pagination struct {
 type IAdsRepository interface {
 	GetAll() (*[]adsdb.Ad, error)
 	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
-	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad
+	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad
 	GetAdsForCriteriaPaginated(pagination *Pagination, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) (*[]adsdb.Ad, *Pagination)
 	Upsert(ads []adsdb.Ad) (*[]uint, error)
 	DeleteAd(adID uint)
@@ -183,9 +183,15 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 	return &adsIDs
 }
 
-func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad {
+func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
-	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	//r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	tx := r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+	if years != nil {
+		//tx = tx.Where("Year IN (?)", years)
+		tx = tx.Where("year", *years)
+	}
+	tx.Find(&ads)
 	return &ads
 }
 

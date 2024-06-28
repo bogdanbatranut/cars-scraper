@@ -281,6 +281,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		limitLowStr := r.URL.Query().Get("limitLow")
 		limitHighStr := r.URL.Query().Get("limitHigh")
 		groupingOption := r.URL.Query().Get("groupingOption")
+		yearsStr := r.URL.Query().Get("years")
 
 		//var lowLimit *int
 
@@ -298,8 +299,22 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 
 		markets := strings.Split(marketsStr, ",")
 
+		var years []string
+		if yearsStr != "" {
+			yearsArr := strings.Split(yearsStr, ",")
+			for _, yearStr := range yearsArr {
+				//year, err := strconv.Atoi(yearStr)
+				//if err != nil {
+				//	panic(err)
+				//}
+				years = append(years, yearStr)
+			}
+		}
+
+		years = strings.Split(yearsStr, ",")
+
 		var ads []Ad
-		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit, &years)
 		//var ads []Ad
 		type GroupedAds struct {
 			Discounted []Ad
@@ -406,6 +421,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 		groupingOption := r.URL.Query().Get("groupingOption")
 		limitStr := r.URL.Query().Get("limit")
 		pageStr := r.URL.Query().Get("page")
+		yearsStr := r.URL.Query().Get("years")
 
 		limit, err := strconv.Atoi(limitStr)
 		if err != nil {
@@ -442,8 +458,22 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 
 		var ads []Ad
 
+		var years []string
+		if yearsStr != "" {
+			yearsArr := strings.Split(yearsStr, ",")
+			for _, yearStr := range yearsArr {
+				//year, err := strconv.Atoi(yearStr)
+				//if err != nil {
+				//	panic(err)
+				//}
+				years = append(years, yearStr)
+			}
+		}
+		years = strings.Split(yearsStr, ",")
+
 		//dbAds, pagination := repo.GetAdsForCriteriaPaginated(&requestPagination, uint(id), markets, nil, nil, lowLimit, highLimit)
-		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit, &years)
+
 		//var ads []Ad
 		type GroupedAds struct {
 			Discounted []Ad
