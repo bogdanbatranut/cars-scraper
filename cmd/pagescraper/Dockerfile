@@ -4,7 +4,8 @@ FROM golang:alpine as builder
 # Install Essentials
 RUN apk update \
     && apk add -U --no-cache ca-certificates \
-    && update-ca-certificates
+    && update-ca-certificates \
+RUN apk add chromium
 # Set the Current Working Directory inside the container
 WORKDIR /app
 

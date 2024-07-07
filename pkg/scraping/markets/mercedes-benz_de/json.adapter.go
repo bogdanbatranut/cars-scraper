@@ -67,7 +67,7 @@ func (a MercedesBenzDEAdapter) processResponse(response Response, criteria jobs.
 				Fuel:               criteria.Fuel,
 				Price:              int(math.Round(vehicle.PriceInformation.OfferPrice.TotalPrice)),
 				AdID:               vehicle.Id,
-				Ad_url:             fmt.Sprintf("https://www.mercedes-benz.ro/passengercars/buy/used-car-search.html/u/used-vehicles/d/details?id=%s", vehicle.Id),
+				Ad_url:             fmt.Sprintf("https://www.mercedes-benz.de/passengercars/buy/used-car-search.html/u/used-vehicles/d/details?id=%s", vehicle.Id),
 				SellerType:         "dealer",
 				SellerName:         &vehicle.VehicleLocation.Formatted.Nameline1,
 				SellerNameInMarket: &vehicle.VehicleLocation.Formatted.Nameline1,
