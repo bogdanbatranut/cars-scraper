@@ -61,8 +61,8 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	autoscoutURLBuilder := autoscout.NewURLBuilder()
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
-	//br := startLocalBrowserWithMonitor()
-	br := connectToDockerBrowser()
+	br := startLocalBrowserWithMonitor()
+	//br := connectToDockerBrowser()
 	//br := startBrowser()
 
 	return &RodScrapingService{
@@ -97,7 +97,8 @@ func connectToDockerBrowser() *rod.Browser {
 	//browser := rod.New().ControlURL(u).MustConnect()
 	//return browser
 
-	l, err := launcher.NewManaged("http://rod-chromium:7317")
+	//l, err := launcher.NewManaged("http://rod-chromium:7317")
+	l, err := launcher.NewManaged("http://dev.auto-mall.ro:7317")
 	if err != nil {
 		panic(err)
 	}
