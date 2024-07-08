@@ -22,6 +22,7 @@ func main() {
 	sessionService := sessionstarter.NewSessionStarterService(
 		sessionstarter.WithSimpleMessageQueueRepository(cfg),
 		sessionstarter.WithCriteriaSQLRepository(cfg),
+		sessionstarter.WithMarketsSQLRepository(cfg),
 		sessionstarter.WithLogging(cfg),
 	)
 

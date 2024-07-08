@@ -61,8 +61,8 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	autoscoutURLBuilder := autoscout.NewURLBuilder()
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
-	br := startLocalBrowserWithMonitor()
-	//br := connectToDockerBrowser()
+	//br := startLocalBrowserWithMonitor()
+	br := connectToDockerBrowser()
 	//br := startBrowser()
 
 	return &RodScrapingService{
