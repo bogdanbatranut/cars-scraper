@@ -495,13 +495,6 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 			Ads:        nil,
 		}}
 		for _, dbAd := range *dbAds {
-			//if index < (page-1)*limit {
-			//	continue
-			//}
-			//
-			//if index > page*limit {
-			//	break
-			//}
 
 			if !inPriceRange(lowLimit, highLimit, dbAd) {
 				continue
@@ -510,13 +503,14 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
 					discountVal, discountPercent := computeDiscount(dbAd)
-
+					discountDailyAmount := computeDailyDiscount(dbAd)
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
-							Ad:              dbAd,
-							Age:             computeAge(dbAd),
-							DiscountValue:   discountVal,
-							DiscountPercent: discountPercent,
+							Ad:                   dbAd,
+							Age:                  computeAge(dbAd),
+							DiscountValue:        discountVal,
+							DiscountPercent:      discountPercent,
+							DailyDiscountAmmount: discountDailyAmount,
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
@@ -631,6 +625,13 @@ func sortAds(ads []Ad, sortOption string, sortOptionDirection string) {
 			sort.Sort(ByDiscountPercent(ads))
 		}
 	}
+	if sortOption == "byDailyDiscountAmount" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByDailyDiscountAmountDesc(ads))
+		} else {
+			sort.Sort(ByDiscountPercent(ads))
+		}
+	}
 
 }
 
@@ -648,6 +649,14 @@ func computeDiscount(ad adsdb.Ad) (int, float64) {
 	return discVal, ro
 }
 
+func computeDailyDiscount(ad adsdb.Ad) float64 {
+	firstPrice := ad.Prices[0].Price
+	lastPrice := ad.Prices[len(ad.Prices)-1].Price
+	adDuration := computeAge(ad)
+	discountAvgAmount := (firstPrice - lastPrice) / adDuration
+	return toFixed(float64(discountAvgAmount), 2)
+}
+
 func round(num float64) int {
 	return int(num + math.Copysign(0.5, num))
 }
@@ -659,9 +668,10 @@ func toFixed(num float64, precision int) float64 {
 
 type Ad struct {
 	adsdb.Ad
-	Age             int
-	DiscountValue   int
-	DiscountPercent float64
+	Age                  int
+	DiscountValue        int
+	DiscountPercent      float64
+	DailyDiscountAmmount float64
 }
 
 type ByPrice []Ad
@@ -674,9 +684,23 @@ type ByDiscount []Ad
 type ByDiscountDesc []Ad
 type ByDiscountPercent []Ad
 type ByDiscountPercentDesc []Ad
+type ByDailyDiscountAmountDesc []Ad
+type ByDailyDiscountAmount []Ad
 
 func sortAdsByPrice(ads *[]Ad) {
 	sort.Sort(ByPrice(*ads))
+}
+
+func (a ByDailyDiscountAmountDesc) Len() int      { return len(a) }
+func (a ByDailyDiscountAmountDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDailyDiscountAmountDesc) Less(i, j int) bool {
+	return a[i].DailyDiscountAmmount > a[j].DailyDiscountAmmount
+}
+
+func (a ByDailyDiscountAmount) Len() int      { return len(a) }
+func (a ByDailyDiscountAmount) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDailyDiscountAmount) Less(i, j int) bool {
+	return a[i].DailyDiscountAmmount < a[j].DailyDiscountAmmount
 }
 
 func (a ByDiscountPercent) Len() int      { return len(a) }
