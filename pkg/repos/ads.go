@@ -30,6 +30,7 @@ type IAdsRepository interface {
 	DeletePrice(priceID uint)
 	GetAdPrices(adID uint) []adsdb.Price
 	UpdateCurrentPrice(adID uint)
+	GetSellerAds(dealerID uint) *[]adsdb.Ad
 }
 
 type AdsRepository struct {
@@ -49,6 +50,13 @@ func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
 	return &AdsRepository{
 		db: db,
 	}
+}
+
+func (r AdsRepository) GetSellerAds(dealerID uint) *[]adsdb.Ad {
+	var ads []adsdb.Ad
+	tx := r.db.Unscoped().Preload("Seller").Preload("Prices").Where("seller_id = ?", dealerID).Find(&ads)
+	tx.Find(&ads)
+	return &ads
 }
 
 func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
@@ -186,7 +194,7 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
 	//r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
-	tx := r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+	tx := r.db.Preload("Prices").Preload("Market").Preload("Seller").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
 	if years != nil {
 		//tx = tx.Where("Year IN (?)", years)
 		tx = tx.Where("year", *years)

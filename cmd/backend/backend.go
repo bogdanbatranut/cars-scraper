@@ -5,6 +5,8 @@ import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/repos"
+	"carscraper/pkg/statistics/calculators/age"
+	"carscraper/pkg/statistics/calculators/discount"
 	"carscraper/pkg/valueobjects"
 	"encoding/json"
 	"fmt"
@@ -15,7 +17,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -332,19 +333,19 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			}
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent := computeDiscount(dbAd)
+					discountVal, discountPercent := discount.CalculateAdDiscount(dbAd)
 
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
 							Ad:              dbAd,
-							Age:             computeAge(dbAd),
+							Age:             age.CalculateAdAge(dbAd),
 							DiscountValue:   discountVal,
 							DiscountPercent: discountPercent,
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
 							Ad:              dbAd,
-							Age:             computeAge(dbAd),
+							Age:             age.CalculateAdAge(dbAd),
 							DiscountValue:   discountVal,
 							DiscountPercent: discountPercent,
 						})
@@ -353,7 +354,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 				} else {
 					groupedAds.Rest = append(groupedAds.Rest, Ad{
 						Ad:              dbAd,
-						Age:             computeAge(dbAd),
+						Age:             age.CalculateAdAge(dbAd),
 						DiscountValue:   0,
 						DiscountPercent: 0,
 					})
@@ -366,11 +367,11 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 				discountVal := 0
 				discountPercent := float64(0)
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent = computeDiscount(dbAd)
+					discountVal, discountPercent = discount.CalculateAdDiscount(dbAd)
 				}
 				ads = append(ads, Ad{
 					Ad:              dbAd,
-					Age:             computeAge(dbAd),
+					Age:             age.CalculateAdAge(dbAd),
 					DiscountValue:   discountVal,
 					DiscountPercent: discountPercent,
 				})
@@ -494,6 +495,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 			Pagination: requestPagination,
 			Ads:        nil,
 		}}
+
 		for _, dbAd := range *dbAds {
 
 			if !inPriceRange(lowLimit, highLimit, dbAd) {
@@ -502,31 +504,34 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent := computeDiscount(dbAd)
-					discountDailyAmount := computeDailyDiscount(dbAd)
+					discountVal, discountPercent := discount.CalculateAdDiscount(dbAd)
+					discountDailyAmount := discount.CalculateDailyDiscount(dbAd)
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
-							Ad:                   dbAd,
-							Age:                  computeAge(dbAd),
-							DiscountValue:        discountVal,
-							DiscountPercent:      discountPercent,
-							DailyDiscountAmmount: discountDailyAmount,
+							Ad:                    dbAd,
+							Age:                   age.CalculateAdAge(dbAd),
+							DiscountValue:         discountVal,
+							DiscountPercent:       discountPercent,
+							DailyDiscountAmmount:  discountDailyAmount,
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
-							Ad:              dbAd,
-							Age:             computeAge(dbAd),
-							DiscountValue:   discountVal,
-							DiscountPercent: discountPercent,
+							Ad:                    dbAd,
+							Age:                   age.CalculateAdAge(dbAd),
+							DiscountValue:         discountVal,
+							DiscountPercent:       discountPercent,
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
 						})
 					}
 
 				} else {
 					groupedAds.Rest = append(groupedAds.Rest, Ad{
-						Ad:              dbAd,
-						Age:             computeAge(dbAd),
-						DiscountValue:   0,
-						DiscountPercent: 0,
+						Ad:                    dbAd,
+						Age:                   age.CalculateAdAge(dbAd),
+						DiscountValue:         0,
+						DiscountPercent:       0,
+						DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
 					})
 				}
 
@@ -537,13 +542,14 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 				discountVal := 0
 				discountPercent := float64(0)
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent = computeDiscount(dbAd)
+					discountVal, discountPercent = discount.CalculateAdDiscount(dbAd)
 				}
 				ads = append(ads, Ad{
-					Ad:              dbAd,
-					Age:             computeAge(dbAd),
-					DiscountValue:   discountVal,
-					DiscountPercent: discountPercent,
+					Ad:                    dbAd,
+					Age:                   age.CalculateAdAge(dbAd),
+					DiscountValue:         discountVal,
+					DiscountPercent:       discountPercent,
+					DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
 				})
 
 			}
@@ -635,43 +641,13 @@ func sortAds(ads []Ad, sortOption string, sortOptionDirection string) {
 
 }
 
-func computeAge(ad adsdb.Ad) int {
-	currentTime := time.Now()
-	adFirstSeenTime := ad.CreatedAt
-	diff := currentTime.Sub(adFirstSeenTime)
-	return int(diff.Hours() / 24)
-}
-
-func computeDiscount(ad adsdb.Ad) (int, float64) {
-	discVal := ad.Prices[0].Price - ad.Prices[len(ad.Prices)-1].Price
-	discPercent := float64(discVal) / float64(ad.Prices[0].Price) * 100
-	ro := toFixed(discPercent, 2)
-	return discVal, ro
-}
-
-func computeDailyDiscount(ad adsdb.Ad) float64 {
-	firstPrice := ad.Prices[0].Price
-	lastPrice := ad.Prices[len(ad.Prices)-1].Price
-	adDuration := computeAge(ad)
-	discountAvgAmount := (firstPrice - lastPrice) / adDuration
-	return toFixed(float64(discountAvgAmount), 2)
-}
-
-func round(num float64) int {
-	return int(num + math.Copysign(0.5, num))
-}
-
-func toFixed(num float64, precision int) float64 {
-	output := math.Pow(10, float64(precision))
-	return float64(round(num*output)) / output
-}
-
 type Ad struct {
 	adsdb.Ad
-	Age                  int
-	DiscountValue        int
-	DiscountPercent      float64
-	DailyDiscountAmmount float64
+	Age                   int
+	DiscountValue         int
+	DiscountPercent       float64
+	DailyDiscountAmmount  float64
+	DealerAverageDiscount float64
 }
 
 type ByPrice []Ad
