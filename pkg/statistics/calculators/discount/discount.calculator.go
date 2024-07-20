@@ -5,22 +5,26 @@ import (
 	"carscraper/pkg/repos"
 	"carscraper/pkg/statistics/calculators/age"
 	"carscraper/pkg/statistics/calculators/helpers"
+	"carscraper/pkg/utils"
 )
 
-func GetCalculatedAverageDealerDiscountPercent(repo repos.IAdsRepository, sellerID uint) float64 {
-	return 0
-	//sellerAds := repo.GetSellerAds(sellerID)
-	//if sellerAds == nil || len(*sellerAds) == 0 {
-	//	return 0
-	//}
-	//var total float64
-	//for _, sellerAd := range *sellerAds {
-	//	_, discountPercent := CalculateAdDiscount(sellerAd)
-	//	total += discountPercent
-	//	// for each ad, calulate avg discount percent
-	//}
-	//avg := total / float64(len(*sellerAds))
-	//return helpers.ToFixed(avg, 2)
+func GetCalculatedAverageDealerDiscountPercent(repo repos.IAdsRepository, sellerID uint, market uint) float64 {
+	restrictedMarkets := []string{"10", "11", "12", "14"}
+	if utils.InArrayStr(string(market), restrictedMarkets) {
+		return 0
+	}
+	sellerAds := repo.GetSellerAds(sellerID)
+	if sellerAds == nil || len(*sellerAds) == 0 {
+		return 0
+	}
+	var total float64
+	for _, sellerAd := range *sellerAds {
+		_, discountPercent := CalculateAdDiscount(sellerAd)
+		total += discountPercent
+		// for each ad, calulate avg discount percent
+	}
+	avg := total / float64(len(*sellerAds))
+	return helpers.ToFixed(avg, 2)
 }
 
 func CalculateAverageDealersDiscount(ads []adsdb.Ad) map[uint]float64 {

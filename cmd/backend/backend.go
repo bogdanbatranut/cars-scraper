@@ -513,7 +513,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 							DiscountValue:         discountVal,
 							DiscountPercent:       discountPercent,
 							DailyDiscountAmmount:  discountDailyAmount,
-							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
@@ -521,7 +521,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 							Age:                   age.CalculateAdAge(dbAd),
 							DiscountValue:         discountVal,
 							DiscountPercent:       discountPercent,
-							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 						})
 					}
 
@@ -531,7 +531,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 						Age:                   age.CalculateAdAge(dbAd),
 						DiscountValue:         0,
 						DiscountPercent:       0,
-						DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
+						DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 					})
 				}
 
@@ -549,7 +549,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 					Age:                   age.CalculateAdAge(dbAd),
 					DiscountValue:         discountVal,
 					DiscountPercent:       discountPercent,
-					DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID),
+					DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 				})
 
 			}
