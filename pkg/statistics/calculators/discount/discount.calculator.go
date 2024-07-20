@@ -51,6 +51,9 @@ func CalculateDailyDiscount(ad adsdb.Ad) float64 {
 }
 
 func CalculateAdDiscount(ad adsdb.Ad) (int, float64) {
+	if len(ad.Prices) == 0 {
+		return 0, 0
+	}
 	discVal := ad.Prices[0].Price - ad.Prices[len(ad.Prices)-1].Price
 	discPercent := float64(discVal) / float64(ad.Prices[0].Price) * 100
 	ro := helpers.ToFixed(discPercent, 2)
