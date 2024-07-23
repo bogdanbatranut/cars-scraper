@@ -6,11 +6,12 @@ import (
 	"carscraper/pkg/statistics/calculators/age"
 	"carscraper/pkg/statistics/calculators/helpers"
 	"carscraper/pkg/utils"
+	"strconv"
 )
 
 func GetCalculatedAverageDealerDiscountPercent(repo repos.IAdsRepository, sellerID uint, market uint) float64 {
 	restrictedMarkets := []string{"10", "11", "12", "14"}
-	if utils.InArrayStr(string(market), restrictedMarkets) {
+	if utils.InArrayStr(strconv.Itoa(int(market)), restrictedMarkets) {
 		return 0
 	}
 	sellerAds := repo.GetSellerAds(sellerID)
