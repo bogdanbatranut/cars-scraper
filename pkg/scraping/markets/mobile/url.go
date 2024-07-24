@@ -64,7 +64,8 @@ func initFuelParams() map[string]string {
 	fuelMap := make(map[string]string)
 	fuelMap["diesel"] = "diesel"
 	fuelMap["petrol"] = "petrol"
-	fuelMap["hybrid-petrol"] = "hybrid"
+	fuelMap["hybrid-petrol"] = "hybrid_petrol"
+	fuelMap["hybrid-diesel"] = "hybrid_diesel"
 	fuelMap["hybrid"] = "hybrid"
 	return fuelMap
 }
@@ -99,6 +100,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["q7"] = "q7"
 	modelsMap["q5"] = "q5"
 	modelsMap["q3"] = "q3"
+	modelsMap["cx-60"] = "cx-60"
 	return modelsMap
 }
 
@@ -288,5 +290,14 @@ func initParamNames() map[string]map[string]BrandModelValues {
 	audiModelsMap["q3"] = q3
 
 	params["audi"] = audiModelsMap
+
+	mazdaModelsMap := map[string]BrandModelValues{}
+	cx60 := BrandModelValues{
+		Brand: "16800",
+		Model: "63",
+	}
+	mazdaModelsMap["cx-60"] = cx60
+	params["mazda"] = mazdaModelsMap
+
 	return params
 }

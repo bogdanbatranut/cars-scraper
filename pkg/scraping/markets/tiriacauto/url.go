@@ -21,6 +21,7 @@ func initBrandNamesMap() map[string]string {
 	brandsMap["toyota"] = "toyota"
 	brandsMap["volkswagen"] = "volkswagen"
 	brandsMap["audi"] = "audi"
+	brandsMap["mazda"] = "mazda"
 
 	return brandsMap
 }
@@ -55,6 +56,7 @@ func initModelsMap() map[string]string {
 	modelsMap["q7"] = "q7"
 	modelsMap["q5"] = "q5"
 	modelsMap["q3"] = "q3"
+	modelsMap["cx-60"] = "cx-60"
 	return modelsMap
 }
 

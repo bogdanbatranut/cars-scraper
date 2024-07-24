@@ -248,5 +248,13 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	modelMap["q8"] = &audiQ8
 	brandModelsMap["audi"] = modelMap
 
+	modelMap = make(map[string]*BrandModelIds)
+	mazdacx60 := BrandModelIds{
+		BrandID: "112c997b-b9b4-4369-ad2f-c1238d709134",
+		ModelID: "8c5d3470-7895-41cd-bed8-bd08e62506d6",
+	}
+	modelMap["cx-60"] = &mazdacx60
+	brandModelsMap["mazda"] = modelMap
+
 	return brandModelsMap
 }

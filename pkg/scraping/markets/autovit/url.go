@@ -66,6 +66,7 @@ func initFuelsMap() map[string][]string {
 	fuelMap["hybrid-petrol"] = []string{"hybrid", "plugin-hybrid"}
 	fuelMap["diesel"] = []string{"diesel"}
 	fuelMap["petrol"] = []string{"petrol"}
+	fuelMap["hybrid-diesel"] = []string{"hybrid", "plugin-hybrid"}
 	return fuelMap
 }
 

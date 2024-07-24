@@ -53,6 +53,7 @@ func initFuelsMap() map[string]string {
 	fuelsMap["diesel"] = "ft_motorina"
 	fuelsMap["petrol"] = "ft_benzină"
 	fuelsMap["hybrid-petrol"] = "ft_electric%2Fbenzină"
+	fuelsMap["hybrid-diesel"] = "ft_electric%2Fmotorină"
 	return fuelsMap
 }
 
@@ -86,6 +87,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["q7"] = "q7"
 	modelsMap["q5"] = "q5"
 	modelsMap["q3"] = "q3"
+	modelsMap["cx-60"] = "cx-60"
 
 	return modelsMap
 }
