@@ -52,6 +52,9 @@ func CalculateDailyDiscount(ad adsdb.Ad) float64 {
 	firstPrice := ad.Prices[0].Price
 	lastPrice := ad.Prices[len(ad.Prices)-1].Price
 	adDuration := age.CalculateAdAge(ad)
+	if adDuration == 0 {
+		return 0
+	}
 	discountAvgAmount := (firstPrice - lastPrice) / adDuration
 	return helpers.ToFixed(float64(discountAvgAmount), 2)
 }
