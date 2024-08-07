@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/repos"
 	"carscraper/pkg/scraping/scrapingservices"
 	"context"
@@ -37,7 +38,9 @@ func main() {
 
 	fmt.Println("awaiting signal")
 
-	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper()
+	loggingService := logging.NewScrapeLoggingService(cfg)
+
+	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper(loggingService)
 
 	rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
 	rodScrapingService.Start()
@@ -77,9 +80,9 @@ func main() {
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
 		markets := []uint{9, 11, 12, 13, 14, 15, 16, 17, 18, 19}
-		criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
-		//markets := []uint{17}
-		//criterias := []uint{3}
+		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
+		//markets := []uint{18}
+		criterias := []uint{7}
 
 		//markets := []uint{16}
 		//criterias := []uint{2, 4, 5, 6, 12, 13}
@@ -88,6 +91,13 @@ func main() {
 
 		allowedMarketAutoklassCriterias := []uint{8, 9, 24, 6, 13, 4, 1, 5, 27, 25, 28, 3, 10, 11, 19, 14}
 		allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19}
+		//allowedBMWCriterias := []uint{1, 2, 4, 5, 6, 12, 13}
+
+		newSessionUUID := uuid.New()
+		logSession, err := loggingService.CreateSession(newSessionUUID)
+		if err != nil {
+			panic(err)
+		}
 
 		for _, marketID := range markets {
 			if marketID == 10 {
@@ -97,11 +107,16 @@ func main() {
 			for _, criteriaID := range criterias {
 				// criteria 7 volvo s90
 				// criteria 6 bmw 7 series
-				job := adapter.CreateJob(uuid.New(), criteriaID, marketID)
+				job := adapter.CreateJob(newSessionUUID, criteriaID, marketID)
+
 				// do not scrape other brands for ofertebmw
 				if job.Criteria.Brand != "bmw" && marketID == 15 {
 					continue
 				}
+
+				//if marketID == 15 && !=inArrayUINT(criteriaID, allowedBMWCriterias) {
+				//	continue
+				//}
 
 				if marketID == 18 && !inArrayUINT(criteriaID, allowedMarketAutoklassCriterias) {
 					continue
@@ -118,6 +133,10 @@ func main() {
 				}
 
 				//sjh.AddJobToMQ(*job)
+				_, err := loggingService.CreateCriteriaLog(*logSession, *job)
+				if err != nil {
+					panic(err)
+				}
 
 				sjh.AddScrapingJob(*job)
 			}

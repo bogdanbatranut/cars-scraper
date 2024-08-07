@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type ResultsConsumerService struct {
@@ -20,7 +21,7 @@ type ResultsConsumerService struct {
 	scrapeResults    SessionCriteriaMarketResultsHandler
 	pageAdsChannel   chan jobs.AdsPageJobResult
 	resultsWriter    ResultsWriter
-	logger           logging.ScrapeLoggingService
+	logger           *logging.ScrapeLoggingService
 }
 
 type ResultsReaderServiceConfiguration func(rcs *ResultsConsumerService)
@@ -47,7 +48,9 @@ func WithLogger(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
 func WithResultsMQRepository(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
 	smqHost := cfg.GetString(amconfig.SMQURL)
 	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
-	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+	mqHost := fmt.Sprintf("http://%s:%s", smqHost, smqPort)
+	log.Println("MQ HOST: ", mqHost)
+	smqr := repos.NewSimpleMessageQueueRepository(mqHost)
 	return WithMessageQueueRepository(smqr)
 }
 
@@ -82,8 +85,8 @@ func (rcs ResultsConsumerService) Start() {
 
 	go func() {
 		for {
+			time.Sleep(30 * time.Second)
 			rcs.getResultsFromMQ()
-			//time.Sleep(2 * time.Second)
 		}
 	}()
 
@@ -118,12 +121,31 @@ func (rcs ResultsConsumerService) getResultsFromMQ() {
 func (rcs ResultsConsumerService) processResults() {
 	for {
 		result := <-rcs.pageAdsChannel
+
+		criteriaLog, err := rcs.logger.GetCriteriaLog(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID)
+		if err != nil {
+			log.Println(err)
+		}
+
+		pageLog := rcs.logger.GetPageLog(result.RequestedScrapingJob.SessionID,
+			result.RequestedScrapingJob.JobID,
+			criteriaLog.ID,
+			result.RequestedScrapingJob.MarketID,
+			result.RequestedScrapingJob.Market.PageNumber,
+		)
+
 		if !result.Success {
 			// TODO implement error in result...
+			rcs.logger.PageLogSetError(pageLog, "NOT SUCCESSFUL")
 			continue
 		}
 
-		log.Printf("Got %d ads for market: %s ==> %s %s", len(*result.Data), result.RequestedScrapingJob.Market.Name, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
+		if result.Data != nil {
+			log.Printf("Got %d ads for market: %s ==> %s %s", len(*result.Data), result.RequestedScrapingJob.Market.Name, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
+
+		} else {
+			log.Println("The found ads are nil")
+		}
 
 		// TODO results.Data might be null... this happens on mobile when traversing pages... at some point you just get an empty page..
 
@@ -149,13 +171,11 @@ func (rcs ResultsConsumerService) processResults() {
 		}
 
 		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
-		//rcs.scrapeResults.Print()
-		//log.Printf("Results for sessionID: %s Make: %s Model: %s TOTAL in MEM: %d",
-		//	result.RequestedScrapingJob.SessionID.String(),
-		//	result.RequestedScrapingJob.Criteria.Brand,
-		//	result.RequestedScrapingJob.Criteria.CarModel,
-		//	len(rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].adsInPage))
-
+		err = rcs.logger.PageLogSetConsumed(pageLog)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		rcs.logger.CriteriaLogAddNumberOfAds(*criteriaLog, len(*result.Data))
 		complete := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
 		if complete {
 			brand := result.RequestedScrapingJob.Criteria.Brand
@@ -178,15 +198,6 @@ func (rcs ResultsConsumerService) processResults() {
 			}
 			exsitingAdsIDs := rcs.resultsWriter.GetAllAdsIDs(marketID, criteriaID)
 
-			errStr := ""
-			if err != nil {
-				errStr = err.Error()
-			}
-			err = rcs.logger.AddCriteriaEntry(result.RequestedScrapingJob, len(*exsitingAdsIDs), errStr, true)
-			if err != nil {
-				log.Println(err)
-			}
-
 			for _, exsitingAdID := range *exsitingAdsIDs {
 				found := false
 				for _, upsertedAdID := range *upsertedAdsIDs {
@@ -200,7 +211,8 @@ func (rcs ResultsConsumerService) processResults() {
 					//log.Printf("Deleted record with ID: %d", exsitingAdID)
 				}
 			}
-
+			rcs.logger.CriteriaLogSetAsFinished(*criteriaLog)
+			rcs.logger.CriteriaLogSetSuccessful(*criteriaLog)
 		}
 	}
 }

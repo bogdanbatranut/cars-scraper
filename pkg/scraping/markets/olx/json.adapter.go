@@ -2,74 +2,111 @@ package olx
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"encoding/json"
+	"log"
 	"strconv"
 )
 
 type OLXJSONAdapter struct {
+	loggingService *logging.ScrapeLoggingService
 }
 
-func NewOLXJSONAdapter() *OLXJSONAdapter {
-	return &OLXJSONAdapter{}
+func NewOLXJSONAdapter(loggingService *logging.ScrapeLoggingService) *OLXJSONAdapter {
+	return &OLXJSONAdapter{
+		loggingService: loggingService,
+	}
 }
 
 func (a OLXJSONAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
 	var ads *[]jobs.Ad
 
+	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	if err != nil {
+		panic(err)
+	}
+	pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	if err != nil {
+		panic(err)
+	}
+
 	request := NewRequest()
 	urlBuilder := NewURLBuilder(job.Criteria)
 	url := urlBuilder.GetPageURL(job.Market.PageNumber)
 
+	err = a.loggingService.PageLogSetVisitURL(pageLog, *url)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	adsResults := icollector.AdsResults{
+		Ads:        nil,
+		IsLastPage: false,
+		Error:      nil,
+	}
+
 	if url == nil {
-		//return ads, true, nil
-		return icollector.AdsResults{
-			Ads:        ads,
-			IsLastPage: true,
-			Error:      nil,
-		}
+		adsResults.Ads = ads
+		//return icollector.AdsResults{
+		//	Ads:        ads,
+		//	IsLastPage: true,
+		//	Error:      nil,
+		//}
 	} else {
 		data, err := request.GetPage(*url)
 		if err != nil {
 			//return nil, true, err
-			return icollector.AdsResults{
-				Ads:        nil,
-				IsLastPage: true,
-				Error:      err,
-			}
+			adsResults.IsLastPage = true
+			adsResults.Error = err
+			//return icollector.AdsResults{
+			//	Ads:        nil,
+			//	IsLastPage: true,
+			//	Error:      err,
+			//}
 		}
 		response, err := a.toStruct(data)
 		if err != nil {
-			//return ads, true, err
-			return icollector.AdsResults{
-				Ads:        ads,
-				IsLastPage: true,
-				Error:      err,
-			}
+			adsResults.Ads = ads
+			adsResults.IsLastPage = true
+			//return icollector.AdsResults{
+			//	Ads:        ads,
+			//	IsLastPage: true,
+			//	Error:      err,
+			//}
 		}
 		ads = a.getAds(*response, job.Criteria)
 		if response.Links.Next == nil {
-			//return ads, true, nil
-			return icollector.AdsResults{
-				Ads:        ads,
-				IsLastPage: true,
-				Error:      nil,
-			}
+			adsResults.Ads = ads
+			adsResults.IsLastPage = true
+
+			//return icollector.AdsResults{
+			//	Ads:        ads,
+			//	IsLastPage: true,
+			//	Error:      nil,
+			//}
 		} else {
-			//return ads, false, nil
-			return icollector.AdsResults{
-				Ads:        ads,
-				IsLastPage: false,
-				Error:      nil,
-			}
+			adsResults.Ads = ads
+			adsResults.IsLastPage = false
+			//return icollector.AdsResults{
+			//	Ads:        ads,
+			//	IsLastPage: false,
+			//	Error:      nil,
+			//}
 		}
 	}
+
+	adsResults.Ads = ads
+	adsResults.IsLastPage = true
 	//return ads, true, nil
-	return icollector.AdsResults{
-		Ads:        ads,
-		IsLastPage: true,
-		Error:      nil,
+
+	err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(*adsResults.Ads), adsResults.IsLastPage)
+
+	if err2 != nil {
+		log.Println(err2.Error())
 	}
+
+	return adsResults
 }
 
 func (a OLXJSONAdapter) toStruct(bytes []byte) (*OlxResponse, error) {

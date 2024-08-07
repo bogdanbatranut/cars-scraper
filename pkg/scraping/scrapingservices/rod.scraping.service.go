@@ -3,6 +3,7 @@ package scrapingservices
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autotrack"
@@ -48,6 +49,7 @@ type RodScrapingService struct {
 	urlBuilderMapper              urlbuilder.URLBuilderMapper
 	browser                       *rod.Browser
 	currentJobAvailabilityChannel chan bool
+	loggingService                *logging.ScrapeLoggingService
 }
 
 func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, cfg amconfig.IConfig) *RodScrapingService {
@@ -61,8 +63,14 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	autoscoutURLBuilder := autoscout.NewURLBuilder()
 	urlbBuilderMapper.AddBuilder("autoscout", autoscoutURLBuilder)
 
-	//br := startLocalBrowserWithMonitor()
-	br := connectToDockerBrowser()
+	var br *rod.Browser
+
+	isProd := cfg.GetBool(amconfig.AppIsProd)
+	if isProd {
+		br = connectToDockerBrowser()
+	} else {
+		br = startLocalBrowserWithMonitor()
+	}
 	//br := startBrowser()
 
 	return &RodScrapingService{
@@ -74,6 +82,7 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 		urlBuilderMapper:              *urlbBuilderMapper,
 		browser:                       br,
 		currentJobAvailabilityChannel: make(chan bool),
+		loggingService:                logging.NewScrapeLoggingService(cfg),
 	}
 }
 
@@ -222,6 +231,14 @@ func (rss RodScrapingService) processFakeJob(job jobs.SessionJob) {
 
 func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	//urlBuilder := autoscout.NewURLBuilder(job.Criteria)
+	criteriaLog, err := rss.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	pageLog, err := rss.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	if err != nil {
+		panic(err)
+	}
 	log.Println("ROD Executing :", job.ToString())
 	urlBuilder := rss.urlBuilderMapper.GetURLBuilder(job.Market.Name)
 	url := urlBuilder.GetURL(job)
@@ -229,9 +246,13 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		panic(errors.New("could not build url for scraping"))
 	}
 	log.Println("ROD Getting data from URL : ", *url)
+	err = rss.loggingService.PageLogSetVisitURL(pageLog, *url)
+	if err != nil {
+		panic(err)
+	}
 	var page *rod.Page
 	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
-	page, err := rss.browser.Page(proto.TargetCreateTarget{
+	page, err = rss.browser.Page(proto.TargetCreateTarget{
 		URL:                     *url,
 		Width:                   nil,
 		Height:                  nil,
@@ -246,6 +267,10 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	}
 	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	adapter := rss.scrapingMapper.GetRodMarketAdsAdapter(job.Market.Name)
+	if err != nil {
+		panic(err)
+	}
+
 	results := adapter.GetAds(page)
 	err = page.Close()
 	if err != nil {
@@ -262,12 +287,23 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	if results.Ads == nil {
 		return
 	}
+
 	if adResult.IsLastPage {
 		err := closeAllPages(rss.browser)
 		if err != nil {
 			panic(err)
 		}
+
+		if err != nil {
+			return
+		}
 	}
+
+	err2 := rss.loggingService.PageLogSetPageScraped(pageLog, len(*adResult.Data), adResult.IsLastPage)
+	if err2 != nil {
+		log.Println(err2.Error())
+	}
+
 	go func(res jobs.AdsPageJobResult) {
 		go func(tmpch chan jobs.AdsPageJobResult, r jobs.AdsPageJobResult) {
 			tmpch <- r

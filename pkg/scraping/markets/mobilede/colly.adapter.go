@@ -1,12 +1,12 @@
-package mobile
+package mobilede
 
 import (
 	"carscraper/pkg/jobs"
-	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"carscraper/pkg/scraping/markets/mobile/mobiledecollycollector"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -15,41 +15,37 @@ import (
 )
 
 type MobileDECollyMarketAdapter struct {
-	loggingService *logging.ScrapeLoggingService
 }
 
-func NewMobileDECollyMarketAdapter(logingService *logging.ScrapeLoggingService) *MobileDECollyMarketAdapter {
-	return &MobileDECollyMarketAdapter{
-		loggingService: logingService,
-	}
+func NewMobileDECollyMarketAdapter() *MobileDECollyMarketAdapter {
+	return &MobileDECollyMarketAdapter{}
 }
 
 func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
-	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
-	if err != nil {
-		panic(err)
-	}
-	pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
-	if err != nil {
-		panic(err)
-	}
-
 	builder := NewURLBuilder(job.Criteria)
-	url := builder.GetPageURL(job.Market.PageNumber)
-
-	err = a.loggingService.PageLogSetVisitURL(pageLog, url)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
+	//url := builder.GetPageURL(job.Market.PageNumber)
+	url := builder.GetMobileDEPageURL(job.Market.PageNumber)
 	mobileCollector := mobiledecollycollector.NewMobileDECollyCollector().GetCollyCollector(job)
 
 	foundAds := []jobs.Ad{}
 
 	var executionErr error
 
+	mobileCollector.OnResponse(func(response *colly.Response) {
+		log.Println(response.StatusCode)
+		log.Printf("%v", *response.Headers)
+		for k, v := range *response.Headers {
+			log.Println(k, v)
+		}
+
+		err := os.WriteFile("mobilede.html", response.Body, 0644)
+		if err != nil {
+			panic(err)
+		}
+	})
+
 	// On every a element which has href attribute call callback
-	mobileCollector.OnHTML("article.list-entry.g-row", func(e *colly.HTMLElement) {
+	mobileCollector.OnHTML("article > div.mN_WC", func(e *colly.HTMLElement) {
 
 		title := getTitle(e)
 		sellerType := getSellerType(e)
@@ -107,11 +103,6 @@ func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsRe
 	}
 	if len(foundAds) == 0 {
 		log.Println("NO MORE RESULTS -> SO RETURN !!!!!")
-		err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(foundAds), true)
-
-		if err2 != nil {
-			log.Println(err2.Error())
-		}
 		return icollector.AdsResults{
 			Ads:        nil,
 			IsLastPage: true,
@@ -120,11 +111,6 @@ func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsRe
 	}
 
 	if len(foundAds) < 50 {
-		err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(foundAds), true)
-
-		if err2 != nil {
-			log.Println(err2.Error())
-		}
 		return icollector.AdsResults{
 			Ads:        &foundAds,
 			IsLastPage: true,
@@ -133,12 +119,6 @@ func (a MobileDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsRe
 	}
 
 	log.Println("MOBILE found ads : ", len(foundAds))
-
-	err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(foundAds), false)
-
-	if err2 != nil {
-		log.Println(err2.Error())
-	}
 
 	return icollector.AdsResults{
 		Ads:        &foundAds,

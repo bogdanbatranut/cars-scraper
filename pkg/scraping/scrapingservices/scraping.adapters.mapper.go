@@ -1,6 +1,7 @@
 package scrapingservices
 
 import (
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/marketadapters"
 	"carscraper/pkg/scraping/markets/autoklass"
 	"carscraper/pkg/scraping/markets/autoscout"
@@ -24,24 +25,25 @@ type ScrapingAdaptersMapper struct {
 	collyAdapters map[string]marketadapters.ICollyMarketAdsAdapter
 	rodAdapters   map[string]marketadapters.IRodMarketAdsAdapter
 	jsonAdapters  map[string]marketadapters.IJSONMarketAdsAdapter
+	//loggingService *logging.ScrapeLoggingService
 }
 
-func NewScrapingAdaptersMapper() *ScrapingAdaptersMapper {
+func NewScrapingAdaptersMapper(loggingService *logging.ScrapeLoggingService) *ScrapingAdaptersMapper {
 
 	collyAdaptersMap := make(map[string]marketadapters.ICollyMarketAdsAdapter)
 	rodAdaptersMap := make(map[string]marketadapters.IRodMarketAdsAdapter)
 	jsonAdaptersMap := make(map[string]marketadapters.IJSONMarketAdsAdapter)
 
-	collyAdaptersMap["mobile.de"] = mobile.NewMobileDECollyMarketAdapter()
+	collyAdaptersMap["mobile.de"] = mobile.NewMobileDECollyMarketAdapter(loggingService)
 	rodAdaptersMap["autotracknl"] = autotrack.NewAutoTrackNLRodAdapter()
 	rodAdaptersMap["autoscout"] = autoscout.NewAutoscoutRodAdapter()
-	jsonAdaptersMap["autovit"] = autovit.NewAutovitJSONAdapter()
-	jsonAdaptersMap["olx"] = olx.NewOLXJSONAdapter()
-	jsonAdaptersMap["oferte_bmw"] = oferte_bmw.NewOferteBMWAdapter()
-	jsonAdaptersMap["mercedes-benz.ro"] = mercedes_benz_ro.NewMercedesBenzRoAdapter()
-	jsonAdaptersMap["mercedes-benz.de"] = mercedes_benz_de.NewMercedesBenzDEAdapter()
-	collyAdaptersMap["tiriacauto"] = tiriacauto.NewTiriacAutoCollyMarketAdapter()
-	jsonAdaptersMap["autoklass.ro"] = autoklass.NewAutoklassRoAdapter()
+	jsonAdaptersMap["autovit"] = autovit.NewAutovitJSONAdapter(loggingService)
+	jsonAdaptersMap["olx"] = olx.NewOLXJSONAdapter(loggingService)
+	jsonAdaptersMap["oferte_bmw"] = oferte_bmw.NewOferteBMWAdapter(loggingService)
+	jsonAdaptersMap["mercedes-benz.ro"] = mercedes_benz_ro.NewMercedesBenzRoAdapter(loggingService)
+	jsonAdaptersMap["mercedes-benz.de"] = mercedes_benz_de.NewMercedesBenzDEAdapter(loggingService)
+	collyAdaptersMap["tiriacauto"] = tiriacauto.NewTiriacAutoCollyMarketAdapter(loggingService)
+	jsonAdaptersMap["autoklass.ro"] = autoklass.NewAutoklassRoAdapter(loggingService)
 
 	return &ScrapingAdaptersMapper{
 		collyAdapters: collyAdaptersMap,

@@ -2,6 +2,7 @@ package tiriacauto
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"log"
 	"os"
@@ -13,16 +14,46 @@ import (
 )
 
 type TiriacAutoCollyMarketAdapter struct {
+	loggingService *logging.ScrapeLoggingService
 }
 
-func NewTiriacAutoCollyMarketAdapter() *TiriacAutoCollyMarketAdapter {
-	return &TiriacAutoCollyMarketAdapter{}
+func NewTiriacAutoCollyMarketAdapter(loggingService *logging.ScrapeLoggingService) *TiriacAutoCollyMarketAdapter {
+	return &TiriacAutoCollyMarketAdapter{
+		loggingService: loggingService,
+	}
 }
 
 func (a TiriacAutoCollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
+
+	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	if err != nil {
+		panic(err)
+	}
+	pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	if err != nil {
+		panic(err)
+	}
+
 	builder := NewTiriacAutoURLBuilder()
 	url := builder.GetURL(job)
+
+	err = a.loggingService.PageLogSetVisitURL(pageLog, *url)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
 	foundAds := a.findAds(*url, job.Criteria)
+
+	if foundAds.Error != nil {
+		a.loggingService.PageLogSetError(pageLog, foundAds.Error.Error())
+	} else {
+		err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(*foundAds.Ads), foundAds.IsLastPage)
+
+		if err2 != nil {
+			log.Println(err2.Error())
+		}
+	}
+
 	return foundAds
 }
 
@@ -50,7 +81,8 @@ func (a TiriacAutoCollyMarketAdapter) findAds(url string, criteria jobs.Criteria
 
 	foundAds := []jobs.Ad{}
 	adsCollector.OnResponse(func(response *colly.Response) {
-		log.Println(response.StatusCode)
+
+		log.Println("Response from tiriac auto", response.StatusCode)
 		if response.StatusCode == 429 {
 			log.Println("TOO MANY REQUESTS !!!")
 		}
@@ -60,8 +92,8 @@ func (a TiriacAutoCollyMarketAdapter) findAds(url string, criteria jobs.Criteria
 			check(err)
 		}
 	})
-
-	selector := "body  > div:nth-child(4) > div > div.row > div.scrollable.col-12.col-md-8.pl-md-0.col-sm-12.tar-search-container > div > div.row"
+	//body > div:nth-child(4) > div > div.row > div.scrollable.col-12.col-md-8.pl-md-0.col-sm-12.tar-search-container > div > div:nth-child(4) > div:nth-child(1) > div
+	selector := "body > div:nth-child(4) > div > div.row > div.scrollable.col-12.col-md-8.pl-md-0.col-sm-12.tar-search-container > div > div.row"
 	adsCollector.OnHTML(selector, func(e *colly.HTMLElement) {
 
 		e.ForEach("div.carItem", func(index int, e *colly.HTMLElement) {
@@ -151,7 +183,7 @@ func (a TiriacAutoCollyMarketAdapter) findAds(url string, criteria jobs.Criteria
 
 	err := adsCollector.Visit(url)
 	if err != nil {
-		return icollector.AdsResults{
+		adsResults = icollector.AdsResults{
 			Ads:        nil,
 			IsLastPage: true,
 			Error:      err,

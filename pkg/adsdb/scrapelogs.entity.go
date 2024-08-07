@@ -5,32 +5,49 @@ import (
 	"gorm.io/gorm"
 )
 
-type ScrapeLog struct {
+type SessionLog struct {
 	*gorm.Model
-	SessionID   uuid.UUID
-	JobID       uuid.UUID
-	VisitURL    string
-	Brand       string
-	CarModel    string
-	MarketName  string
-	NumberOfAds int
-	PageNumber  int
-	IsLastPage  bool
-	Error       string
+	SessionID    uuid.UUID
+	PageLogs     []PageLog
+	CriteriaLogs []CriteriaLog
 }
 
 type CriteriaLog struct {
 	*gorm.Model
-	SessionID   uuid.UUID
+	SessionID    uuid.UUID
+	SessionLogID uint
+	SessionLog   SessionLog
+	CriteriaID   uint
+	MarketID     uint
+	//Market       Market
+	//Criteria     Criteria
 	Brand       string
 	CarModel    string
 	MarketName  string
 	NumberOfAds int
-	Error       string
 	Success     bool
+	Finished    bool
+	PageLogs    []PageLog
 }
 
-type SessionLog struct {
+type PageLog struct {
 	*gorm.Model
-	SessionID uuid.UUID
+	SessionLogID  uint
+	SessionID     uuid.UUID
+	SessionLog    SessionLog
+	JobID         uuid.UUID
+	CriteriaLogID uint
+	CriteriaLog   CriteriaLog
+	VisitURL      string
+	Brand         string
+	CarModel      string
+	MarketName    string
+	MarketID      uint
+	//Market        Market
+	NumberOfAds int
+	PageNumber  int
+	IsLastPage  bool
+	Error       string
+	Scraped     bool
+	Consumed    bool
 }

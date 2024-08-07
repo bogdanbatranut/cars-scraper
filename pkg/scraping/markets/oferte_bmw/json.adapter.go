@@ -2,6 +2,7 @@ package oferte_bmw
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"fmt"
 	"log"
@@ -9,35 +10,64 @@ import (
 )
 
 type OferteBMWAdapter struct {
+	loggingService *logging.ScrapeLoggingService
 }
 
-func NewOferteBMWAdapter() *OferteBMWAdapter {
-	return &OferteBMWAdapter{}
+func NewOferteBMWAdapter(loggingService *logging.ScrapeLoggingService) *OferteBMWAdapter {
+	return &OferteBMWAdapter{
+		loggingService: loggingService,
+	}
 }
 
 func (a OferteBMWAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
 	request := NewRequest()
+
+	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	if err != nil {
+		panic(err)
+	}
+	pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	if err != nil {
+		panic(err)
+	}
+
 	urlBuilder := NewOferteBMWURLBuilder()
 	url := urlBuilder.GetURL(job)
 	//url := "https://oferte.bmw.ro/rulate/api/v1/ems/bmw-used-ro_RO/search"
 
+	err = a.loggingService.PageLogSetVisitURL(pageLog, *url)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
 	requestBody := createRequestBody(job)
 
 	data, err := request.DoPOSTRequest(*url, requestBody)
-	if err != nil {
-		log.Println(err)
-		return icollector.AdsResults{
-			Ads:        nil,
-			IsLastPage: true,
-			Error:      err,
-		}
-	}
-	ads := a.getAds(*data, job.Criteria)
-	return icollector.AdsResults{
-		Ads:        ads,
-		IsLastPage: true,
+
+	adsResults := icollector.AdsResults{
+		Ads:        nil,
+		IsLastPage: false,
 		Error:      nil,
 	}
+
+	if err != nil {
+		log.Println(err)
+		adsResults.IsLastPage = true
+		adsResults.Error = err
+		return adsResults
+	}
+
+	ads := a.getAds(*data, job.Criteria)
+	adsResults.Ads = ads
+	adsResults.IsLastPage = true
+
+	err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(*adsResults.Ads), adsResults.IsLastPage)
+
+	if err2 != nil {
+		log.Println(err2.Error())
+	}
+
+	return adsResults
 }
 
 func (a OferteBMWAdapter) getAds(response OferteBMWResponse, criteria jobs.Criteria) *[]jobs.Ad {

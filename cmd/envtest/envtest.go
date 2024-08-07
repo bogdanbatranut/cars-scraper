@@ -32,6 +32,10 @@ func main() {
 	fmt.Println("awaiting signal")
 
 	testvar := cfg.GetString(amconfig.TestVar)
+
 	log.Println("testvar :", testvar)
+
+	log.Println("Is Dev: ", cfg.GetBool(amconfig.AppIsDev))
+	log.Println("IS PROD", cfg.GetBool(amconfig.AppIsProd))
 
 }

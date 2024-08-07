@@ -24,7 +24,7 @@ type SessionJobHandler struct {
 	adsResultsChannel   chan icollector.AdsResults
 	resultsTopicName    string
 	jobsTopicName       string
-	loggingService      logging.ScrapeLoggingService
+	loggingService      *logging.ScrapeLoggingService
 	marketServiceMapper IScrapingServicesMapper
 	messageQueueService *mq.MessageQueueService
 	//scrapingServices    []IScrapingService
@@ -42,6 +42,7 @@ func WithMarketService(marketName string, service IScrapingService) SessionJobHa
 func NewSessionJobHandler(ctx context.Context, cfg amconfig.IConfig, cfgs ...SessionJobHandlerServiceConfiguration) *SessionJobHandler {
 	smqHost := cfg.GetString(amconfig.SMQURL)
 	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
+	log.Printf("SMQ HOST: %s:%s ", smqHost, smqPort)
 	smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
 	log.Println("Message Queue URL : ", fmt.Sprintf("http://%s:%s", smqHost, smqPort))
 
@@ -216,7 +217,9 @@ func (service SessionJobHandler) getJobFromMQ() {
 	message := service.messageQueue.GetMessageWithDelete(service.jobsTopicName)
 	var scrapeJob jobs.SessionJob
 	if len(*message) > 0 {
+		log.Println("GOT MESSAGE FROM MQ ")
 		err := json.Unmarshal(*message, &scrapeJob)
+		log.Println("JOB FROM MQ: ", scrapeJob.ToString())
 		if err != nil {
 			// push message back in the queue
 			service.messageQueue.PutMessage(service.jobsTopicName, *message)

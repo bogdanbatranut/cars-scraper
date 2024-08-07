@@ -2,6 +2,7 @@ package amconfig
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,11 +14,14 @@ const (
 	SessionStarterHTTPPort = "service.sessionstarter.http.port"
 	BackendServiceHTTPPort = "service.backend.http.port"
 
+	AppIsProd         = "app.prod"
+	AppIsDev          = "app.dev"
 	AppBaseURL        = "app.baseurl"
 	AppDBUser         = "app.db.user"
 	AppDBPass         = "app.db.pass"
 	AppDBName         = "app.db.name"
 	AppDBVehiclesName = "app.db.vehicles"
+	AppDBMapperName   = "app.db.mapper"
 	AppTestDBName     = "app.test.db.name"
 	AppDBHost         = "app.db.host"
 	SMQHTTPPort       = "smq.http.port"
@@ -72,12 +76,21 @@ func createViperConfig() (IConfig, error) {
 	if err != nil {
 		log.Println("No configuration folder found")
 	}
+	log.Println(*path)
 
-	viper.SetConfigName("app")
+	if hasDevelopmentConfigFile(path) {
+		viper.SetConfigName("app_dev")
+	} else {
+		viper.SetConfigName("app")
+	}
+	viper.SetConfigName("app_dev")
 	viper.AddConfigPath(*path)
 	viper.AddConfigPath(".")
 
 	// ----- Env bindings -----
+	_ = viper.BindEnv(AppIsDev, "APP_DEV")
+	_ = viper.BindEnv(AppIsProd, "APP_PROD")
+
 	_ = viper.BindEnv(SessionStarterHTTPPort, "SESSIONSTARTER_HTTP_PORT")
 	_ = viper.BindEnv(BackendServiceHTTPPort, "BACKEND_HTTP_PORT")
 
@@ -87,6 +100,7 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(AppDBPass, "APP_DB_PASS")
 	_ = viper.BindEnv(AppDBName, "APP_DB_NAME")
 	_ = viper.BindEnv(AppDBVehiclesName, "APP_DB_VEHICLES")
+	_ = viper.BindEnv(AppDBMapperName, "APP_DB_MAPPER")
 	_ = viper.BindEnv(AppDBHost, "APP_DB_HOST")
 
 	_ = viper.BindEnv(SMQHTTPPort, "SMQ_HTTP_PORT")
@@ -110,6 +124,18 @@ func createViperConfig() (IConfig, error) {
 	return viper.GetViper(), nil
 }
 
+func hasDevelopmentConfigFile(path *string) bool {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return false
+	}
+	_, err = os.Stat(fmt.Sprintf("%s/app_dev.yaml", currentDir))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func getConfigFileDir() (*string, error) {
 	ex, err := os.Executable()
 	if err != nil {
@@ -120,5 +146,6 @@ func getConfigFileDir() (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &dir, err
 }

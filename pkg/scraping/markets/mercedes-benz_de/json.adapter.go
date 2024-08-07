@@ -2,6 +2,7 @@ package mercedes_benz_de
 
 import (
 	"carscraper/pkg/jobs"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"fmt"
 	"log"
@@ -13,9 +14,10 @@ type MercedesBenzDEAdapter struct {
 	request        *Request
 	requestBuilder *RequestBuilder
 	urlBuilder     *MercedesBenzRoURLBuilder
+	loggingService *logging.ScrapeLoggingService
 }
 
-func NewMercedesBenzDEAdapter() *MercedesBenzDEAdapter {
+func NewMercedesBenzDEAdapter(logingService *logging.ScrapeLoggingService) *MercedesBenzDEAdapter {
 	r := NewRequest()
 	rb := NewRequestBuilder()
 	b := NewMercedesBenzRoURLBuilder()
@@ -23,11 +25,26 @@ func NewMercedesBenzDEAdapter() *MercedesBenzDEAdapter {
 		request:        r,
 		requestBuilder: rb,
 		urlBuilder:     b,
+		loggingService: logingService,
 	}
 }
 
 func (a MercedesBenzDEAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
+	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	if err != nil {
+		panic(err)
+	}
+	pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	if err != nil {
+		panic(err)
+	}
+
 	url := a.urlBuilder.GetURL(job)
+
+	err = a.loggingService.PageLogSetVisitURL(pageLog, url)
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	requestBody := a.requestBuilder.GetRequestBody(job)
 	response, err := a.request.MakeRequest(url, requestBody)
@@ -46,8 +63,15 @@ func (a MercedesBenzDEAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults
 			Error:      nil,
 		}
 	}
+	adsResults := a.processResponse(*response, job.Criteria)
 
-	return a.processResponse(*response, job.Criteria)
+	err2 := a.loggingService.PageLogSetPageScraped(pageLog, len(*adsResults.Ads), adsResults.IsLastPage)
+
+	if err2 != nil {
+		log.Println(err2.Error())
+	}
+
+	return adsResults
 }
 
 func (a MercedesBenzDEAdapter) processResponse(response Response, criteria jobs.Criteria) icollector.AdsResults {

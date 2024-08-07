@@ -20,7 +20,7 @@ func main() {
 		//&adsdb.Price{},
 		//&adsdb.SellerMarkets{},
 		//&adsdb.CriteriaMarkets{},
-		//&adsdb.ScrapeLog{},
+		//&adsdb.PageLog{},
 		//&adsdb.CriteriaLog{},
 		&adsdb.SessionLog{},
 	)

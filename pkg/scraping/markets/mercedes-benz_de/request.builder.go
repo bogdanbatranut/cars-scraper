@@ -15,17 +15,7 @@ func NewRequestBuilder() *RequestBuilder {
 
 func (b RequestBuilder) GetRequestBody(job jobs.SessionJob) Search {
 	pageIndex := job.Market.PageNumber - 1
-	//yearFrom := *job.Criteria.YearFrom
-	//yearFrom = yearFrom * 10000
-	//yearFrom = yearFrom + 101
-	//year, month, day := time.Now().Date()
-	//yearToStr := fmt.Sprintf("%d%02d%02d", year, month, day)
-	//yearTo, err := strconv.Atoi(yearToStr)
-	//if err != nil {
-	//	panic(err)
-	//}
 	return b.newBuildRequest(job.Criteria, pageIndex)
-	//return b.buildRequest(job.Criteria.CarModel, job.Criteria.Fuel, yearFrom, yearTo, pageIndex)
 }
 
 func (b RequestBuilder) newBuildRequest(criteria jobs.Criteria, pageIndex int) Search {
