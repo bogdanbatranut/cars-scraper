@@ -38,7 +38,7 @@ func initAppDB(cfg amconfig.IConfig) (*gorm.DB, error) {
 }
 
 func createAppDsn(cfg amconfig.IConfig) string {
-	databaseName := cfg.GetString(amconfig.AppDBVehiclesName)
+	databaseName := cfg.GetString(amconfig.AppDBLogsName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
 	dbUser := cfg.GetString(amconfig.AppDBUser)
 	dbPass := cfg.GetString(amconfig.AppDBPass)
