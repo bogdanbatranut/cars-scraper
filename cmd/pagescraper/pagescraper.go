@@ -3,6 +3,7 @@ package main
 import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
+	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/scrapingservices"
 	"context"
 	"fmt"
@@ -35,7 +36,9 @@ func main() {
 
 	fmt.Println("awaiting signal")
 
-	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper()
+	loggingService := logging.NewScrapeLoggingService(cfg)
+
+	scrapingMapper := scrapingservices.NewScrapingAdaptersMapper(loggingService)
 
 	rodScrapingService := scrapingservices.NewRodScrapingService(ctx, scrapingMapper, cfg)
 	rodScrapingService.Start()

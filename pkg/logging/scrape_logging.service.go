@@ -21,7 +21,7 @@ type LogsRepository struct {
 }
 
 func NewLogsRepository(cfg amconfig.IConfig) *LogsRepository {
-	databaseName := cfg.GetString(amconfig.AppDBVehiclesName)
+	databaseName := cfg.GetString(amconfig.AppDBLogsName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
 	dbUser := cfg.GetString(amconfig.AppDBUser)
 	dbPass := cfg.GetString(amconfig.AppDBPass)

@@ -20,6 +20,7 @@ services:
       - APP_DB_PASS=siana1316
       - APP_DB_NAME=automall
       - APP_DB_VEHICLES=vehicles
+      - APP_DB_LOGS=logs
       - APP_DB_HOST=dev.auto-mall.ro
       - SMQ_URL=smq-smq-1
       - SMQ_HTTP_PORT=3113
@@ -29,7 +30,24 @@ services:
       - prod
     networks:
       - automall-dev
-
+  pagescraper:
+    build:
+      context: ./
+      dockerfile: cmd/pagescraper/Dockerfile
+    ports:
+      - "3993:3993"
+    environment:
+      - APP_DB_USER=dev
+      - APP_DB_PASS=siana1316
+      - APP_DB_NAME=automall
+      - APP_DB_LOGS=logs
+      - APP_DB_HOST=dev.auto-mall.ro
+      - SMQ_URL=127.0.0.1
+      - SMQ_HTTP_PORT=3113
+      - SMQ_JOBS_TOPIC_NAME=jobs
+      - SMQ_RESULTS_TOPIC_NAME=results
+    networks:
+      - automall-dev
 networks:
   automall-dev:
     driver: bridge

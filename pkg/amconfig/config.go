@@ -21,6 +21,7 @@ const (
 	AppDBPass         = "app.db.pass"
 	AppDBName         = "app.db.name"
 	AppDBVehiclesName = "app.db.vehicles"
+	AppDBLogsName     = "app.db.logs"
 	AppDBMapperName   = "app.db.mapper"
 	AppTestDBName     = "app.test.db.name"
 	AppDBHost         = "app.db.host"
@@ -99,7 +100,10 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(AppDBUser, "APP_DB_USER")
 	_ = viper.BindEnv(AppDBPass, "APP_DB_PASS")
 	_ = viper.BindEnv(AppDBName, "APP_DB_NAME")
+
 	_ = viper.BindEnv(AppDBVehiclesName, "APP_DB_VEHICLES")
+	_ = viper.BindEnv(AppDBLogsName, "APP_DB_LOGS")
+
 	_ = viper.BindEnv(AppDBMapperName, "APP_DB_MAPPER")
 	_ = viper.BindEnv(AppDBHost, "APP_DB_HOST")
 
