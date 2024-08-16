@@ -79,7 +79,7 @@ func WithMessageQueueRepository(mqr repos.IMessageQueue) CrawlinglInitiatorServi
 func (sss SessionStarterService) Start() {
 	// create and push jobs to queue
 	session := sss.newSession()
-	sss.logger.AddSession(session)
+
 	sss.pushSessionJobs(session.Jobs)
 	log.Printf("Pushed session %+v", session.SessionID)
 
@@ -117,6 +117,11 @@ func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.S
 	allowedMarketAutoklassCriterias := []uint{8, 9, 24, 6, 13, 4, 1, 5, 27, 25, 28, 3, 10, 11, 19, 14}
 	allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19}
 
+	createSession, err := sss.logger.CreateSession(sessionID)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, marketID := range markets {
 		if marketID == 10 {
 			marketID++
@@ -146,6 +151,10 @@ func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.S
 			}
 			log.Println(" APPENDING JOB : ", job.ToString())
 			sessionJobs = append(sessionJobs, job)
+			_, err := sss.logger.CreateCriteriaLog(*createSession, job)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 	return sessionJobs
