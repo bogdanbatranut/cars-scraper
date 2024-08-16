@@ -105,15 +105,15 @@ services:
       - SMQ_RESULTS_TOPIC_NAME=results
     profiles:
       - prod
-  envtest:
-    build:
-      context: ./
-      dockerfile: cmd/envtest/Dockerfile
-#    profiles:
-#         ["dev", "prod"]
-#    environment:
-#        - TEST_VAR=${TEST_VAR}
-    env_file:
-      - development.env
+#  envtest:
+#    build:
+#      context: ./
+#      dockerfile: cmd/envtest/Dockerfile
+##    profiles:
+##         ["dev", "prod"]
+##    environment:
+##        - TEST_VAR=${TEST_VAR}
+#    env_file:
+#      - development.env
 networks:
   localdev:
