@@ -16,8 +16,6 @@ services:
       - SMQ_URL=dev.auto-mall.ro
       - BACKEND_HTTP_PORT=8080
       - APP_BACKENDLOGS_PORT=8088
-    profiles:
-      - prod
   backend:
     build:
       context: ./
@@ -32,8 +30,6 @@ services:
       - APP_DB_HOST=dev.auto-mall.ro
       - SMQ_URL=dev.auto-mall.ro
       - BACKEND_HTTP_PORT=8080
-    profiles:
-      - prod
   sessionstarter:
     build:
       context: ./
@@ -50,16 +46,11 @@ services:
       - SMQ_URL=dev.auto-mall.ro
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME="jobs"
-    profiles:
-      - prod
   chromium:
     container_name: "rod-chromium"
     ports:
       - "7317:7317"
     image: "ghcr.io/go-rod/rod"
-    profiles:
-      - localdev
-      - prod
     networks:
       - localdev
   pagescraper:
@@ -80,9 +71,6 @@ services:
       - SMQ_RESULTS_TOPIC_NAME=results
       - PAGESCRAPER_USE_DOCKER_ROD=true
       - PAGESCRAPER_DOCKER_CONTAINER_URL=http://dev.auto-mall.ro:7317
-    profiles:
-      - prod
-      - localdev
     networks:
       - localdev
   resultsconsumer:
@@ -103,7 +91,5 @@ services:
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME=jobs
       - SMQ_RESULTS_TOPIC_NAME=results
-    profiles:
-      - prod
 networks:
   localdev:
