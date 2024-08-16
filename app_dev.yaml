@@ -1,8 +1,8 @@
 app:
   backendlogs:
     port: "8088"
-  prod: "true"
-  dev : "false"
+  prod: "false"
+  dev : "true"
   baseurl: "dev.auto-mall.ro"
   test:
     db:
@@ -26,7 +26,7 @@ service:
 smq:
   http:
     port: "3113"
-  url: "dev.auto-mall.ro"
+  url: "127.0.0.1"
   jobs:
     topic:
       name: "jobs"

@@ -1,5 +1,23 @@
 name: car-mall
 services:
+  backend_logs:
+    build:
+      context: ./
+      dockerfile: cmd/backend-logs/Dockerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - APP_BASE_URL=dev.auto-mall.ro
+      - APP_DB_USER=dev
+      - APP_DB_PASS=siana1316
+      - APP_DB_NAME=automall
+      - APP_DB_LOGS=logs
+      - APP_DB_HOST=dev.auto-mall.ro
+      - SMQ_URL=dev.auto-mall.ro
+      - BACKEND_HTTP_PORT=8080
+      - APP_BACKENDLOGS_PORT=8088
+    profiles:
+      - prod
   backend:
     build:
       context: ./
@@ -60,6 +78,8 @@ services:
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME=jobs
       - SMQ_RESULTS_TOPIC_NAME=results
+      - PAGESCRAPER_USE_DOCKER_ROD=true
+      - PAGESCRAPER_DOCKER_CONTAINER_URL=http://dev.auto-mall.ro:7317
     profiles:
       - prod
       - localdev

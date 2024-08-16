@@ -18,7 +18,7 @@ type SessionStarterService struct {
 	messagesQueue              repos.IMessageQueue
 	criteriasRepository        repos.ICriteriaRepository
 	marketsRepository          repos.IMarketsRepository
-	logger                     logging.ScrapeLoggingService
+	logger                     *logging.ScrapeLoggingService
 	requesteScrapingJobs       []jobs.Session
 	urlComposerImplementations *url.URLComposerImplementations
 	jobsTopicName              string
@@ -179,10 +179,11 @@ func (sss SessionStarterService) newJobsFromCriteriaMarkets(criteria adsdb.Crite
 		log.Println("Market :", market.Name)
 		//url := sss.urlComposerImplementations.GetComposerImplementation(market.Name).Create(criteria)
 		rsj := jobs.SessionJob{
-			SessionID:  sessionID,
-			JobID:      uuid.New(),
-			CriteriaID: criteria.ID,
-			MarketID:   market.ID,
+			AllowIncrementPage: true,
+			SessionID:          sessionID,
+			JobID:              uuid.New(),
+			CriteriaID:         criteria.ID,
+			MarketID:           market.ID,
 			Criteria: jobs.Criteria{
 				Brand:    criteria.Brand,
 				CarModel: criteria.CarModel,
@@ -207,10 +208,11 @@ func (sss SessionStarterService) createJob(sessionID uuid.UUID, criteriaID uint,
 	criteria := sss.criteriasRepository.GetCriteriaByID(criteriaID)
 	market := sss.marketsRepository.GetMarketByID(marketID)
 	rsj := jobs.SessionJob{
-		SessionID:  sessionID,
-		JobID:      uuid.New(),
-		CriteriaID: criteriaID,
-		MarketID:   marketID,
+		AllowIncrementPage: true,
+		SessionID:          sessionID,
+		JobID:              uuid.New(),
+		CriteriaID:         criteriaID,
+		MarketID:           marketID,
 		Criteria: jobs.Criteria{
 			Brand:    criteria.Brand,
 			CarModel: criteria.CarModel,

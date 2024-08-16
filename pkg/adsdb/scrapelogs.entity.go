@@ -21,6 +21,7 @@ type CriteriaLog struct {
 	MarketID     uint
 	//Market       Market
 	//Criteria     Criteria
+	Fuel        string
 	Brand       string
 	CarModel    string
 	MarketName  string

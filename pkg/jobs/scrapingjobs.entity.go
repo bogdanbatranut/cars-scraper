@@ -27,12 +27,13 @@ type Session struct {
 }
 
 type SessionJob struct {
-	SessionID  uuid.UUID
-	JobID      uuid.UUID
-	CriteriaID uint
-	MarketID   uint
-	Criteria   Criteria
-	Market     Market
+	SessionID          uuid.UUID
+	JobID              uuid.UUID
+	CriteriaID         uint
+	MarketID           uint
+	Criteria           Criteria
+	Market             Market
+	AllowIncrementPage bool
 }
 
 func (job SessionJob) ToString() string {

@@ -5,6 +5,7 @@ import (
 	"carscraper/pkg/logging"
 	"carscraper/pkg/scraping/icollector"
 	"encoding/json"
+	"errors"
 	"log"
 	"strconv"
 )
@@ -34,7 +35,17 @@ func (a OLXJSONAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
 	request := NewRequest()
 	urlBuilder := NewURLBuilder(job.Criteria)
 	url := urlBuilder.GetPageURL(job.Market.PageNumber)
+	if url == nil {
+		return icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: true,
+			Error:      errors.New("Couldn't get url"),
+		}
+	}
 
+	if a.loggingService == nil {
+		log.Println("Logging service null")
+	}
 	err = a.loggingService.PageLogSetVisitURL(pageLog, *url)
 	if err != nil {
 		log.Println(err.Error())

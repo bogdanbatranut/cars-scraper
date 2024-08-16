@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
+	"errors"
 	"fmt"
 	"log"
 
@@ -59,6 +60,7 @@ func (sls ScrapeLoggingService) CreateCriteriaLog(sessionLog adsdb.SessionLog, j
 		NumberOfAds:  0,
 		Success:      false,
 		Finished:     false,
+		Fuel:         job.Criteria.Fuel,
 	}
 
 	tx := sls.repo.db.Create(&c)
@@ -69,30 +71,56 @@ func (sls ScrapeLoggingService) CreateCriteriaLog(sessionLog adsdb.SessionLog, j
 }
 
 func (sls ScrapeLoggingService) CreatePageLog(criteriaLog *adsdb.CriteriaLog, job jobs.SessionJob, visitURL string, pageNumber int) (*adsdb.PageLog, error) {
-	p := adsdb.PageLog{
-		SessionLogID:  criteriaLog.SessionLogID,
-		SessionID:     job.SessionID,
-		SessionLog:    adsdb.SessionLog{},
-		JobID:         job.JobID,
-		CriteriaLogID: criteriaLog.ID,
-		CriteriaLog:   adsdb.CriteriaLog{},
-		VisitURL:      visitURL,
-		Brand:         criteriaLog.Brand,
-		CarModel:      criteriaLog.CarModel,
-		MarketName:    criteriaLog.MarketName,
-		MarketID:      job.MarketID,
-		NumberOfAds:   0,
-		PageNumber:    pageNumber,
-		IsLastPage:    false,
-		Error:         "",
-		Scraped:       false,
-		Consumed:      false,
-	}
-	tx := sls.repo.db.Create(&p)
+	var existingPageLog adsdb.PageLog
+	tx := sls.repo.db.Debug().Where("session_id = ? ", job.SessionID.String()).
+		Where("criteria_log_id = ? ", criteriaLog.ID).
+		Where("page_number = ? ", job.Market.PageNumber).
+		First(&existingPageLog)
+
 	if tx.Error != nil {
-		return nil, tx.Error
+		if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, tx.Error
+		}
 	}
-	return &p, nil
+
+	if existingPageLog.Model == nil {
+		existingPageLog = adsdb.PageLog{
+			SessionLogID:  criteriaLog.SessionLogID,
+			SessionID:     job.SessionID,
+			SessionLog:    adsdb.SessionLog{},
+			JobID:         job.JobID,
+			CriteriaLogID: criteriaLog.ID,
+			CriteriaLog:   adsdb.CriteriaLog{},
+			VisitURL:      visitURL,
+			Brand:         criteriaLog.Brand,
+			CarModel:      criteriaLog.CarModel,
+			MarketName:    criteriaLog.MarketName,
+			MarketID:      job.MarketID,
+			NumberOfAds:   0,
+			PageNumber:    pageNumber,
+			IsLastPage:    false,
+			Error:         "",
+			Scraped:       false,
+			Consumed:      false,
+		}
+		tx := sls.repo.db.Create(&existingPageLog)
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+	} else {
+		existingPageLog.IsLastPage = false
+		existingPageLog.Error = ""
+		existingPageLog.NumberOfAds = 0
+		existingPageLog.Consumed = false
+		existingPageLog.VisitURL = visitURL
+		existingPageLog.Scraped = false
+
+		tx := sls.repo.db.Save(&existingPageLog)
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+	}
+	return &existingPageLog, nil
 }
 
 func (sls ScrapeLoggingService) PageLogSetVisitURL(pageLog *adsdb.PageLog, visitURL string) error {

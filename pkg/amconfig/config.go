@@ -14,20 +14,25 @@ const (
 	SessionStarterHTTPPort = "service.sessionstarter.http.port"
 	BackendServiceHTTPPort = "service.backend.http.port"
 
-	AppIsProd         = "app.prod"
-	AppIsDev          = "app.dev"
-	AppBaseURL        = "app.baseurl"
-	AppDBUser         = "app.db.user"
-	AppDBPass         = "app.db.pass"
-	AppDBName         = "app.db.name"
-	AppDBVehiclesName = "app.db.vehicles"
-	AppDBLogsName     = "app.db.logs"
-	AppDBMapperName   = "app.db.mapper"
-	AppTestDBName     = "app.test.db.name"
-	AppDBHost         = "app.db.host"
-	SMQHTTPPort       = "smq.http.port"
-	SMQURL            = "smq.url"
-	MockHTTPPort      = "mock.http.port"
+	AppIsProd                     = "app.prod"
+	AppIsDev                      = "app.dev"
+	AppBaseURL                    = "app.baseurl"
+	AppDBUser                     = "app.db.user"
+	AppDBPass                     = "app.db.pass"
+	AppDBName                     = "app.db.name"
+	AppDBVehiclesName             = "app.db.vehicles"
+	AppDBLogsName                 = "app.db.logs"
+	AppDBMapperName               = "app.db.mapper"
+	AppTestDBName                 = "app.test.db.name"
+	AppDBHost                     = "app.db.host"
+	SMQHTTPPort                   = "smq.http.port"
+	SMQURL                        = "smq.url"
+	AppBackendLogsPort            = "app.backendlogs.port"
+	MockHTTPPort                  = "mock.http.port"
+	PageScraperUseDockerRod       = "pagescraper.use.docker.rod"
+	PageScraperDockerContainerURL = "pagescraper.docker.container.url"
+	//- PAGESCRAPER_USE_DOCKER_ROD = true
+	//- PAGESCRAPER_DOCKER_CONTAINER_URL = "http://dev.auto-mall.ro:7317
 
 	SMQJobsTopicName    = "smq.jobs.topic.name"
 	SMQResultsTopicName = "smq.results.topic.name"
@@ -113,8 +118,12 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(SMQResultsTopicName, "SMQ_RESULTS_TOPIC_NAME")
 
 	_ = viper.BindEnv(MockHTTPPort, "MOCK_HTTP_PORT")
+	_ = viper.BindEnv(AppBackendLogsPort, "APP_BACKENDLOGS_PORT")
 
 	_ = viper.BindEnv(TestVar, "TEST_VAR")
+
+	_ = viper.BindEnv(PageScraperUseDockerRod, "PAGESCRAPER_USE_DOCKER_ROD")
+	_ = viper.BindEnv(PageScraperDockerContainerURL, "PAGESCRAPER_DOCKER_CONTAINER_URL")
 
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()

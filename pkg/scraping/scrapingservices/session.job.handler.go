@@ -265,10 +265,13 @@ func (service SessionJobHandler) processResultsNOPublish(result jobs.AdsPageJobR
 
 	// send result to MQ
 	if !result.IsLastPage {
-		newJob := result.RequestedScrapingJob
-		newJob.Market.PageNumber++
-		//service.AddScrapingJobToScrapingService(newJob)
-		service.AddScrapingJob(newJob)
+		if result.RequestedScrapingJob.AllowIncrementPage {
+			newJob := result.RequestedScrapingJob
+			newJob.Market.PageNumber++
+			//service.AddScrapingJobToScrapingService(newJob)
+			service.AddScrapingJob(newJob)
+		}
+
 	} else {
 		log.Println("Got LAST PAGE")
 	}
@@ -290,9 +293,13 @@ func (service SessionJobHandler) processResults(result jobs.AdsPageJobResult) {
 
 	// send result to MQ
 	if !result.IsLastPage {
-		newJob := service.createNewJobFromResult(result)
-		//service.AddScrapingJobToScrapingService(newJob)
-		service.pushSessionJobToMQ(newJob)
+		if result.RequestedScrapingJob.AllowIncrementPage {
+			newJob := service.createNewJobFromResult(result)
+			//service.AddScrapingJobToScrapingService(newJob)
+
+			service.pushSessionJobToMQ(newJob)
+		}
+
 	} else {
 		log.Println("Got LAST PAGE")
 	}

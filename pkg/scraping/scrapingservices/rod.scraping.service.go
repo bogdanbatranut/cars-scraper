@@ -50,6 +50,8 @@ type RodScrapingService struct {
 	browser                       *rod.Browser
 	currentJobAvailabilityChannel chan bool
 	loggingService                *logging.ScrapeLoggingService
+	dockerBrowserURL              string
+	useDockerBrowser              bool
 }
 
 func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, cfg amconfig.IConfig) *RodScrapingService {
@@ -65,10 +67,14 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 
 	var br *rod.Browser
 
-	isProd := cfg.GetBool(amconfig.AppIsProd)
-	if isProd {
-		br = connectToDockerBrowser()
+	//isProd := cfg.GetBool(amconfig.AppIsProd)
+	useDockerBrowser := cfg.GetBool(amconfig.PageScraperUseDockerRod)
+	dockerBrowserURL := cfg.GetString(amconfig.PageScraperDockerContainerURL)
+	if useDockerBrowser {
+		log.Println("Using docker browser at ", dockerBrowserURL)
+		br = connectToDockerBrowser(dockerBrowserURL)
 	} else {
+		log.Println("Using local browser")
 		br = startLocalBrowserWithMonitor()
 	}
 	//br := startBrowser()
@@ -90,7 +96,7 @@ func (rss RodScrapingService) GetCurrentJobExecutionAvailabilityChannel() chan b
 	return rss.currentJobAvailabilityChannel
 }
 
-func connectToDockerBrowser() *rod.Browser {
+func connectToDockerBrowser(url string) *rod.Browser {
 	//l, err := launcher.NewManaged("pensive_mendel")
 	//if err != nil {
 	//	panic(err)
@@ -107,7 +113,8 @@ func connectToDockerBrowser() *rod.Browser {
 	//return browser
 
 	//l, err := launcher.NewManaged("http://rod-chromium:7317")
-	l, err := launcher.NewManaged("http://dev.auto-mall.ro:7317")
+	//l, err := launcher.NewManaged("http://dev.auto-mall.ro:7317")
+	l, err := launcher.NewManaged(url)
 	if err != nil {
 		panic(err)
 	}

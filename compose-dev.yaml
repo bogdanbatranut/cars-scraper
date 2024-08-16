@@ -1,13 +1,13 @@
 name: auto-mall-dev
 services:
-  envtest:
-    build:
-      context: ./
-      dockerfile: cmd/envtest/Dockerfile
-#    environment:
-#      - TEST_VAR=${TEST_VAR}
-    env_file:
-      - dev.env
+#  envtest:
+#    build:
+#      context: ./
+#      dockerfile: cmd/envtest/Dockerfile
+##    environment:
+##      - TEST_VAR=${TEST_VAR}
+#    env_file:
+#      - dev.env
   resultsconsumer:
     build:
       context: ./
@@ -37,15 +37,44 @@ services:
     ports:
       - "3993:3993"
     environment:
+      - PAGESCRAPER_USE_DOCKER_ROD=true
+      - PAGESCRAPER_DOCKER_CONTAINER_URL=http://auto-mall-dev-chromium-1:7317
       - APP_DB_USER=dev
       - APP_DB_PASS=siana1316
       - APP_DB_NAME=automall
       - APP_DB_LOGS=logs
       - APP_DB_HOST=dev.auto-mall.ro
-      - SMQ_URL=127.0.0.1
+#      - SMQ_URL=127.0.0.1
+      - SMQ_URL=host.docker.internal
       - SMQ_HTTP_PORT=3113
       - SMQ_JOBS_TOPIC_NAME=jobs
       - SMQ_RESULTS_TOPIC_NAME=results
+    networks:
+      - automall-dev
+  chromium:
+    image: ghcr.io/go-rod/rod
+    ports:
+      - "7317:7317"
+    networks:
+      - automall-dev
+  backend_logs:
+    build:
+      context: ./
+      dockerfile: cmd/backend-logs/Dockerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - APP_BASE_URL=dev.auto-mall.ro
+      - APP_DB_USER=dev
+      - APP_DB_PASS=siana1316
+      - APP_DB_NAME=automall
+      - APP_DB_LOGS=logs
+      - APP_DB_HOST=dev.auto-mall.ro
+      - SMQ_URL=dev.auto-mall.ro
+      - BACKEND_HTTP_PORT=8080
+      - APP_BACKENDLOGS_PORT=8088
+    profiles:
+      - prod
     networks:
       - automall-dev
 networks:
