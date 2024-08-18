@@ -4,7 +4,7 @@ import "carscraper/pkg/adsdb"
 
 func (repo LogsRepository) GetSessions() (*[]adsdb.SessionLog, error) {
 	var sessions []adsdb.SessionLog
-	tx := repo.db.Find(&sessions)
+	tx := repo.db.Debug().Order("id asc").Find(&sessions)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
