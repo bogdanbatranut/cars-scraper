@@ -34,7 +34,6 @@ func (a BMWDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResul
 
 	builder := NewURLBuilder()
 	url := builder.GetPageURL(job)
-	log.Println("URL : ", url)
 
 	err = a.loggingService.PageLogSetVisitURL(pageLog, url)
 	if err != nil {
@@ -146,7 +145,6 @@ func getGrossPrice(e *colly.HTMLElement) int {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("P", price)
 	return price
 }
 
@@ -184,12 +182,7 @@ func getKm(e *colly.HTMLElement, pageurl string) int {
 	kmStr = strings.Replace(kmStr, ".", "", -1)
 	km, err := strconv.Atoi(kmStr)
 
-	log.Println("KM STR ", kmStr)
 	if err != nil {
-		//log.Println("Title : ", *getTitle(e))
-		//log.Println(" ad OD : ", getAdID(e))
-		//log.Println("ad URL ", getAdHREF(e))
-		//log.Println("--- ", pageurl)
 		panic(err)
 	}
 	return km
@@ -223,7 +216,6 @@ func getAdHREF(e *colly.HTMLElement) string {
 	if exists {
 		href += hrefStr
 	}
-	log.Println(href)
 	return href
 
 }
