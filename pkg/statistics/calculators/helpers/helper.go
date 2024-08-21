@@ -21,3 +21,12 @@ func Average(numbers []float64) float64 {
 
 	return total / float64(size)
 }
+
+func InStringArray(s string, arr []string) bool {
+	for _, str := range arr {
+		if str == s {
+			return true
+		}
+	}
+	return false
+}

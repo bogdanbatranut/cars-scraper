@@ -53,6 +53,7 @@ func main() {
 	sjh := scrapingservices.NewSessionJobHandler(ctx, cfg,
 		scrapingservices.WithMarketService("autovit", jsonScrapingService),
 		scrapingservices.WithMarketService("mobile.de", collyScrapingService),
+		scrapingservices.WithMarketService("bmw.de", collyScrapingService),
 		scrapingservices.WithMarketService("autoscout", rodScrapingService),
 		scrapingservices.WithMarketService("autotracknl", rodScrapingService),
 		scrapingservices.WithMarketService("olx", jsonScrapingService),

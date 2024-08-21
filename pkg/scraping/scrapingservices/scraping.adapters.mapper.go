@@ -7,6 +7,7 @@ import (
 	"carscraper/pkg/scraping/markets/autoscout"
 	"carscraper/pkg/scraping/markets/autotrack"
 	"carscraper/pkg/scraping/markets/autovit"
+	"carscraper/pkg/scraping/markets/bmw_de"
 	mercedes_benz_de "carscraper/pkg/scraping/markets/mercedes-benz_de"
 	mercedes_benz_ro "carscraper/pkg/scraping/markets/mercedes-benz_ro"
 	"carscraper/pkg/scraping/markets/mobile"
@@ -35,6 +36,8 @@ func NewScrapingAdaptersMapper(loggingService *logging.ScrapeLoggingService) *Sc
 	jsonAdaptersMap := make(map[string]marketadapters.IJSONMarketAdsAdapter)
 
 	collyAdaptersMap["mobile.de"] = mobile.NewMobileDECollyMarketAdapter(loggingService)
+	collyAdaptersMap["bmw.de"] = bmw_de.NewBMWDECollyMarketAdapter(loggingService)
+
 	rodAdaptersMap["autotracknl"] = autotrack.NewAutoTrackNLRodAdapter()
 	rodAdaptersMap["autoscout"] = autoscout.NewAutoscoutRodAdapter()
 	jsonAdaptersMap["autovit"] = autovit.NewAutovitJSONAdapter(loggingService)

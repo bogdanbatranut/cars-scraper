@@ -54,10 +54,10 @@ func main() {
 		//13,2023-11-20 00:06:39.350,2024-03-12 19:57:43.987,,autotracknl,www.autotrack.nl,0
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
-		markets := []uint{9, 11, 12, 13, 14, 15, 16, 17, 18, 19}
+		markets := []uint{20}
 		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
 		//markets := []uint{14}
-		criterias := []uint{7}
+		criterias := []uint{1, 2, 5, 13}
 
 		//markets := []uint{16}
 		//criterias := []uint{2, 4, 5, 6, 12, 13}
@@ -66,6 +66,7 @@ func main() {
 
 		allowedMarketAutoklassCriterias := []uint{8, 9, 24, 6, 13, 4, 1, 5, 27, 25, 28, 3, 10, 11, 19, 14}
 		allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19}
+		allowedBMWDECriterias := []uint{1, 2, 5, 13}
 		//allowedBMWCriterias := []uint{1, 2, 4, 5, 6, 12, 13}
 
 		newSessionUUID := uuid.New()
@@ -86,6 +87,10 @@ func main() {
 
 				// do not scrape other brands for ofertebmw
 				if job.Criteria.Brand != "bmw" && marketID == 15 {
+					continue
+				}
+
+				if marketID == 20 && !DinArrayUINT(criteriaID, allowedBMWDECriterias) {
 					continue
 				}
 
