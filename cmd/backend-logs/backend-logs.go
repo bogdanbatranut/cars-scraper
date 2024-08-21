@@ -31,6 +31,7 @@ func main() {
 
 	//cleanupPrices(adsRepo)
 
+	r.HandleFunc("/session/{id}", opt(logsRepo)).Methods("OPTIONS")
 	r.HandleFunc("/session/{id}", deleteSession(logsRepo)).Methods("DELETE")
 	r.HandleFunc("/sessions", getSessions(logsRepo)).Methods("GET")
 	r.HandleFunc("/session/{id}", getSession(logsRepo)).Methods("GET")
@@ -41,6 +42,15 @@ func main() {
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
 	errorshandler.HandleErr(err)
 
+}
+
+func opt(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		type optRes struct {
+			res string
+		}
+		writeJSONResponse(optRes{res: "done"}, w)
+	}
 }
 
 func deleteSession(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +124,8 @@ func writeJSONResponse(response any, w http.ResponseWriter) {
 
 	w.Header().Set("Access-Control-Allow-Headers:", "*")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 
 	res, err := json.Marshal(response)
 	if err != nil {

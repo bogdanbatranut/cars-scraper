@@ -37,18 +37,18 @@ func (repo LogsRepository) DeleteSession(sessionID uint) error {
 	}
 
 	pageLogs := existingSessionLog.PageLogs
-	tx = repo.db.Delete(&pageLogs)
+	tx = repo.db.Unscoped().Delete(&pageLogs)
 	if tx.Error != nil {
 		return tx.Error
 	}
 
 	criterialLogs := existingSessionLog.CriteriaLogs
-	tx = repo.db.Delete(&criterialLogs)
+	tx = repo.db.Unscoped().Delete(&criterialLogs)
 	if tx.Error != nil {
 		return tx.Error
 	}
 
-	tx = repo.db.Delete(&existingSessionLog, sessionID)
+	tx = repo.db.Unscoped().Delete(&existingSessionLog, sessionID)
 	if tx.Error != nil {
 		return tx.Error
 	}

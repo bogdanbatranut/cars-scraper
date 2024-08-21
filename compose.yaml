@@ -5,7 +5,7 @@ services:
       context: ./
       dockerfile: cmd/backend-logs/Dockerfile
     ports:
-      - "8088:8088"
+      - "8085:8085"
     environment:
       - APP_BASE_URL=dev.auto-mall.ro
       - APP_DB_USER=dev
@@ -15,7 +15,7 @@ services:
       - APP_DB_HOST=dev.auto-mall.ro
       - SMQ_URL=dev.auto-mall.ro
       - BACKEND_HTTP_PORT=8080
-      - APP_BACKENDLOGS_PORT=8088
+      - APP_BACKENDLOGS_PORT=8085
   backend:
     build:
       context: ./

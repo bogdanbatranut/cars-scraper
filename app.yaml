@@ -1,6 +1,6 @@
 app:
   backendlogs:
-    port: "8088"
+    port: "8085"
   prod: "true"
   dev : "false"
   baseurl: "dev.auto-mall.ro"
