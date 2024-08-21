@@ -72,7 +72,7 @@ func (sls ScrapeLoggingService) CreateCriteriaLog(sessionLog adsdb.SessionLog, j
 
 func (sls ScrapeLoggingService) CreatePageLog(criteriaLog *adsdb.CriteriaLog, job jobs.SessionJob, visitURL string, pageNumber int) (*adsdb.PageLog, error) {
 	var existingPageLog adsdb.PageLog
-	tx := sls.repo.db.Debug().Where("session_id = ? ", job.SessionID.String()).
+	tx := sls.repo.db.Where("session_id = ? ", job.SessionID.String()).
 		Where("criteria_log_id = ? ", criteriaLog.ID).
 		Where("page_number = ? ", job.Market.PageNumber).
 		First(&existingPageLog)

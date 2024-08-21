@@ -14,30 +14,28 @@ type SessionLog struct {
 
 type CriteriaLog struct {
 	*gorm.Model
-	SessionID    uuid.UUID
+	SessionID    uuid.UUID `gorm:"index"`
 	SessionLogID uint
 	SessionLog   SessionLog
-	CriteriaID   uint
-	MarketID     uint
-	//Market       Market
-	//Criteria     Criteria
-	Fuel        string
-	Brand       string
-	CarModel    string
-	MarketName  string
-	NumberOfAds int
-	Success     bool
-	Finished    bool
-	PageLogs    []PageLog
+	CriteriaID   uint `gorm:"index"`
+	MarketID     uint `gorm:"index"`
+	Fuel         string
+	Brand        string
+	CarModel     string
+	MarketName   string
+	NumberOfAds  int
+	Success      bool
+	Finished     bool
+	PageLogs     []PageLog
 }
 
 type PageLog struct {
 	*gorm.Model
-	SessionLogID  uint
-	SessionID     uuid.UUID
+	SessionLogID  uint      `gorm:"index"`
+	SessionID     uuid.UUID `gorm:"index"`
 	SessionLog    SessionLog
-	JobID         uuid.UUID
-	CriteriaLogID uint
+	JobID         uuid.UUID `gorm:"index"`
+	CriteriaLogID uint      `gorm:"index"`
 	CriteriaLog   CriteriaLog
 	VisitURL      string
 	Brand         string
@@ -46,7 +44,7 @@ type PageLog struct {
 	MarketID      uint
 	//Market        Market
 	NumberOfAds int
-	PageNumber  int
+	PageNumber  int `gorm:"index"`
 	IsLastPage  bool
 	Error       string
 	Scraped     bool
