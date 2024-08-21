@@ -69,7 +69,7 @@ func getCarModelFromCriteria(criteriaCarModel string) string {
 		return "X4"
 	}
 	if criteriaCarModel == "x5" {
-		return "X4"
+		return "X5"
 	}
 	if criteriaCarModel == "x6" {
 		return "X6"
