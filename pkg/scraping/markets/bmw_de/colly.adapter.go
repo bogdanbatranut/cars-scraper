@@ -67,7 +67,6 @@ func (a BMWDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResul
 			Thumbnail:          getThumbnail(e),
 		}
 		foundAds = append(foundAds, ad)
-		log.Println("COUNTER : ", counter)
 		counter++
 	})
 
@@ -76,7 +75,6 @@ func (a BMWDECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResul
 		panic(err)
 	}
 	collector.Wait()
-	log.Println("COUNTER : ", counter)
 
 	if len(foundAds) == 0 {
 		log.Println("NO MORE RESULTS -> SO RETURN !!!!!")
