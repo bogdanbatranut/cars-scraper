@@ -253,10 +253,12 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		panic(errors.New("could not build url for scraping"))
 	}
 	log.Println("ROD Getting data from URL : ", *url)
+
 	err = rss.loggingService.PageLogSetVisitURL(pageLog, *url)
 	if err != nil {
 		panic(err)
 	}
+
 	var page *rod.Page
 	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	page, err = rss.browser.Page(proto.TargetCreateTarget{
@@ -291,8 +293,18 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		Success:              results.Error == nil,
 		Data:                 results.Ads,
 	}
+
 	if results.Ads == nil {
+		err2 := rss.loggingService.PageLogSetPageScraped(pageLog, 0, adResult.IsLastPage)
+		if err2 != nil {
+			log.Println(err2.Error())
+		}
 		return
+	}
+
+	err2 := rss.loggingService.PageLogSetPageScraped(pageLog, len(*adResult.Data), adResult.IsLastPage)
+	if err2 != nil {
+		log.Println(err2.Error())
 	}
 
 	if adResult.IsLastPage {
@@ -304,11 +316,6 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		if err != nil {
 			return
 		}
-	}
-
-	err2 := rss.loggingService.PageLogSetPageScraped(pageLog, len(*adResult.Data), adResult.IsLastPage)
-	if err2 != nil {
-		log.Println(err2.Error())
 	}
 
 	go func(res jobs.AdsPageJobResult) {

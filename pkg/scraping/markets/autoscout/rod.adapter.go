@@ -168,7 +168,7 @@ func getHREFFromArticle(article *rod.Element) string {
 	if err != nil {
 		panic(err)
 	}
-	return *adHref
+	return "https://www.autoscout24.ro" + *adHref
 }
 func getBrandFromArticle(article *rod.Element) string {
 	brandStr, err := article.Attribute("data-make")
