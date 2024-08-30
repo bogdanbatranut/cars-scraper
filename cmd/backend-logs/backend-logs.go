@@ -32,6 +32,7 @@ func main() {
 	//cleanupPrices(adsRepo)
 
 	r.HandleFunc("/session/{id}", opt(logsRepo)).Methods("OPTIONS")
+	r.HandleFunc("/session/{id}", testPOST(logsRepo)).Methods("POST")
 	r.HandleFunc("/session/{id}", deleteSession(logsRepo)).Methods("DELETE")
 	r.HandleFunc("/sessions", getSessions(logsRepo)).Methods("GET")
 	r.HandleFunc("/session/{id}", getSession(logsRepo)).Methods("GET")
@@ -44,12 +45,21 @@ func main() {
 
 }
 
+func testPOST(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		type optRes struct {
+			Res string `json:"res"`
+		}
+		writeJSONResponse(optRes{Res: "done post"}, w)
+	}
+}
+
 func opt(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		type optRes struct {
-			res string
+			res string `json:"res"`
 		}
-		writeJSONResponse(optRes{res: "done"}, w)
+		writeJSONResponse(nil, w)
 	}
 }
 
@@ -122,17 +132,17 @@ func getPageLogsForCriteriaLog(repository *logging.LogsRepository) func(w http.R
 
 func writeJSONResponse(response any, w http.ResponseWriter) {
 
-	w.Header().Set("Access-Control-Allow-Headers:", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
-
+	w.Header().Add("Access-Control-Allow-Headers:", "*")
+	w.Header().Add("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Add("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS")
+	//w.Header().Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+	w.Header().Add("Content-Type", "application/json")
 	res, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
 	}
 	//w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Content-Type", "application/json")
+
 	_, err = w.Write(res)
 	if err != nil {
 		panic(err)
