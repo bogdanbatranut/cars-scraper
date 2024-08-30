@@ -133,7 +133,7 @@ func getPageLogsForCriteriaLog(repository *logging.LogsRepository) func(w http.R
 func writeJSONResponse(response any, w http.ResponseWriter) {
 
 	w.Header().Add("Access-Control-Allow-Headers:", "*")
-	w.Header().Add("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS")
 	//w.Header().Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 	w.Header().Add("Content-Type", "application/json")
