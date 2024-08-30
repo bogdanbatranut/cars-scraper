@@ -32,7 +32,12 @@ func (a AutovitJSONAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
 	//fileNumberStr := strconv.Itoa(job.Market.PageNumber)
 	autovitResults, getResultsERR := a.getJobResults(job, *pageLog)
 	if getResultsERR != nil {
-		panic(getResultsERR)
+		a.loggingService.PageLogSetError(pageLog, getResultsERR.Error())
+		return icollector.AdsResults{
+			Ads:        nil,
+			IsLastPage: true,
+			Error:      getResultsERR,
+		}
 	}
 	for _, carData := range autovitResults.Data.AdvertSearch.Edges {
 		ad := carData.Node.ToAd()
