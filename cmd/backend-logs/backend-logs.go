@@ -31,9 +31,9 @@ func main() {
 
 	//cleanupPrices(adsRepo)
 
-	r.HandleFunc("/session/{id}", opt(logsRepo)).Methods("OPTIONS")
+	//r.HandleFunc("/session/{id}", opt(logsRepo)).Methods("OPTIONS")
 	r.HandleFunc("/session/{id}", testPOST(logsRepo)).Methods("POST")
-	r.HandleFunc("/session/{id}", deleteSession(logsRepo)).Methods("DELETE")
+	r.HandleFunc("/session/{id}", deleteSession(logsRepo)).Methods("DELETE", "OPTIONS")
 	r.HandleFunc("/sessions", getSessions(logsRepo)).Methods("GET")
 	r.HandleFunc("/session/{id}", getSession(logsRepo)).Methods("GET")
 	r.HandleFunc("/pagelogsforcriterialog/{id}", getPageLogsForCriteriaLog(logsRepo)).Methods("GET")
@@ -56,15 +56,33 @@ func testPOST(repository *logging.LogsRepository) func(w http.ResponseWriter, r 
 
 func opt(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		type optRes struct {
-			res string `json:"res"`
+		w.Header().Add("Access-Control-Allow-Headers:", "Content-Type")
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS, PUT")
+		w.Header().Add("Content-Type", "application/json")
+
+		_, err := w.Write([]byte{})
+		if err != nil {
+			panic(err)
 		}
-		writeJSONResponse(nil, w)
 	}
 }
 
 func deleteSession(repository *logging.LogsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+			//w.Header().Add("Content-Type", "application/json")
+			//w.Header().Add("Access-Control-Request-Headers:", "*")
+
+			_, err := w.Write([]byte{})
+			if err != nil {
+				panic(err)
+			}
+			return
+		}
+
 		sessionID, err := getIDAsNumber(r)
 		if err != nil {
 			writeError(err, w)
@@ -76,11 +94,16 @@ func deleteSession(repository *logging.LogsRepository) func(w http.ResponseWrite
 			writeError(err, w)
 			return
 		}
-		type Res struct {
-			status bool
+
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+		//w.Header().Add("Content-Type", "application/json")
+		//w.Header().Add("Access-Control-Request-Headers:", "*")
+
+		_, err = w.Write(nil)
+		if err != nil {
+			panic(err)
 		}
-		rr := Res{status: true}
-		writeJSONResponse(rr, w)
 	}
 }
 
@@ -132,9 +155,9 @@ func getPageLogsForCriteriaLog(repository *logging.LogsRepository) func(w http.R
 
 func writeJSONResponse(response any, w http.ResponseWriter) {
 
-	w.Header().Add("Access-Control-Allow-Headers:", "*")
+	w.Header().Add("Access-Control-Allow-Headers:", "Content-Type")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS")
+	w.Header().Add("Access-Control-Allow-Methods", "GET, PATCH, POST, DELETE, OPTIONS, PUT")
 	//w.Header().Add("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 	w.Header().Add("Content-Type", "application/json")
 	res, err := json.Marshal(response)
