@@ -1,26 +1,21 @@
 package properties
 
-type Property struct {
-	ID    uint
-	Name  string
-	Value string
-}
-
-type AutoMallProperty struct {
-	*Property
+type AutoMallPropertyKey struct {
+	ID               uint   `gorm:"primaryKey"`
+	Name             string `gorm:"index"`
+	Value            string `gorm:"index"`
 	MarketProperties []MarketProperty
 }
 
 type MarketProperty struct {
-	*Property
-	MarketID           uint
-	Market             Market
-	AutoMallPropertyID uint
-	AutoMallProperty   AutoMallProperty
+	ID                    uint `gorm:"primaryKey"`
+	Value                 string
+	MarketID              uint
+	AutoMallPropertyKeyID uint
+	AutoMallPropertyKey   AutoMallPropertyKey
 }
 
 type Market struct {
-	ID               uint
-	Name             string
-	MarketProperties []MarketProperty
+	ID   uint
+	Name string
 }

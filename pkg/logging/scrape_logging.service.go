@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type ScrapeLoggingService struct {
@@ -28,7 +29,9 @@ func NewLogsRepository(cfg amconfig.IConfig) *LogsRepository {
 	dbPass := cfg.GetString(amconfig.AppDBPass)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, databaseHost, databaseName)
 	log.Println("LOGS DATABASE ", dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic(err)
 	}

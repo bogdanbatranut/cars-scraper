@@ -86,8 +86,8 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 	encodedVariablesStr := url.QueryEscape(variablesStr)
 	encodedExtensionsStr := url.QueryEscape(extensionsStr)
 
-	url := fmt.Sprintf("https://www.autovit.ro/graphql?operationName=listingScreen&variables=%s&extensions=%s", encodedVariablesStr, encodedExtensionsStr)
-	return url
+	pageURL := fmt.Sprintf("https://www.autovit.ro/graphql?operationName=listingScreen&variables=%s&extensions=%s", encodedVariablesStr, encodedExtensionsStr)
+	return pageURL
 }
 
 func (b URLBuilder) createVariablesParam(page int) VariablesParam {

@@ -29,6 +29,8 @@ func initBrandNamesMap() map[string]string {
 func initModelsMap() map[string]string {
 	modelsMap := make(map[string]string)
 
+	modelsMap["x3"] = "x3"
+	modelsMap["x3-m"] = "x3"
 	modelsMap["x4"] = "x4"
 	modelsMap["x4-m"] = "x4-m"
 	modelsMap["x5"] = "x5"
@@ -64,8 +66,8 @@ func initFuelsMap() map[string]string {
 	fuelMap := make(map[string]string)
 	fuelMap["diesel"] = "diesel"
 	fuelMap["petrol"] = "gas"
-	fuelMap["hybrid-petrol"] = "hibrid"
-	fuelMap["hybrid-diesel"] = "hibrid"
+	fuelMap["hybrid-petrol"] = "Hybrid+Plug-In+(Benzina)"
+	fuelMap["hybrid-diesel"] = "Hybrid+Plug-In+(Diesel)"
 	fuelMap["hybrid"] = "hibrid"
 	fuelMap["other"] = "other"
 	return fuelMap

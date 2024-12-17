@@ -109,11 +109,11 @@ func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.S
 	markets := []uint{9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
 	//markets := []uint{9}
-	criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31}
+	criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47}
 
 	allowedMarketAutoklassCriterias := []uint{8, 9, 24, 6, 13, 4, 1, 5, 27, 25, 28, 3, 10, 11, 19, 14}
-	allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19}
-	allowedBMWDECriterias := []uint{1, 2, 5, 6, 13}
+	allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19, 34, 33, 40, 42}
+	allowedBMWDECriterias := []uint{1, 2, 5, 6, 13, 35, 36, 39, 41, 43, 44, 46}
 
 	createSession, err := sss.logger.CreateSession(sessionID)
 	if err != nil {

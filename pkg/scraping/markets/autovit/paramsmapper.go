@@ -41,12 +41,14 @@ func (q QueryParam) toQueryStr() string {
 func initModelsAdapterMap() map[string]string {
 	modelsMap := make(map[string]string)
 
+	modelsMap["x3"] = "x3"
+	modelsMap["x3-m"] = "bmw-x3m"
 	modelsMap["x4"] = "x4"
 	modelsMap["x4-m"] = "x4"
 	modelsMap["x5"] = "x5"
 	modelsMap["x5-m"] = "bmw-x5m"
 	modelsMap["x6"] = "x6"
-	modelsMap["x6-m"] = "x6"
+	modelsMap["x6-m"] = "bmw-x6m"
 	modelsMap["7-series"] = "seria-7"
 	modelsMap["gle-class"] = "gle"
 	modelsMap["e-class"] = "e"
