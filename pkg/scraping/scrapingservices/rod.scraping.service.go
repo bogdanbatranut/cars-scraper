@@ -281,6 +281,7 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 	}
 
 	results := adapter.GetAds(page)
+	log.Println("ROD SERVICE Got ", len(*results.Ads), " ads")
 	err = page.Close()
 	if err != nil {
 		log.Println(err)
