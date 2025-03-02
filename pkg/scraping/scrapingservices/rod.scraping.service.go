@@ -140,7 +140,7 @@ func startLocalBrowserWithMonitor() *rod.Browser {
 	browser := rod.New().
 		ControlURL(url).
 		//MustIncognito().
-		Trace(false).
+		Trace(true).
 		SlowMotion(2 * time.Second).
 		MustConnect()
 

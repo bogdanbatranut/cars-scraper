@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/scraping/icollector"
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -23,9 +24,12 @@ func NewAutoscoutRodAdapter() *AutoscoutRodAdapter {
 func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	//accCookiesElem, err := page.Sleeper(rod.NotFoundSleeper).Element("#as24-cmp-popup > div > div._acceptance-buttons_1fb0r_82 > button._consent-accept_1lphq_114")
 	accCookiesElem, err := page.Sleeper(rod.NotFoundSleeper).Element("#as24-cmp-popup > div > div._acceptance-buttons_1lphq_85 > button._consent-accept_1lphq_114")
+	if err != nil {
+		log.Println(err.Error())
+	}
 	cookieBtnFound := true
 	if errors.Is(err, &rod.ErrElementNotFound{}) {
-		//fmt.Println("cookie button not found")
+		fmt.Println("cookie button not found")
 		cookieBtnFound = false
 	} else if err != nil {
 		panic(err)
@@ -33,8 +37,9 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 
 	if cookieBtnFound {
 		//accCookiesElem.MustClick()
-		err := accCookiesElem.Click(proto.InputMouseButtonLeft, 1)
+		err = accCookiesElem.Click(proto.InputMouseButtonLeft, 1)
 		if err != nil {
+			log.Println(err.Error())
 			return &icollector.AdsResults{
 				Ads:        nil,
 				IsLastPage: true,
@@ -44,6 +49,7 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	}
 
 	//articles := page.MustElements(".list-page-item")
+	log.Println("Waiting for articles")
 	articles, err := page.MustWaitDOMStable().Elements(".list-page-item")
 	if err != nil {
 		println(err)
