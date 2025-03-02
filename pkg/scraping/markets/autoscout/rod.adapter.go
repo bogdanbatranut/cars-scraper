@@ -21,7 +21,8 @@ func NewAutoscoutRodAdapter() *AutoscoutRodAdapter {
 }
 
 func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
-	accCookiesElem, err := page.Sleeper(rod.NotFoundSleeper).Element("#as24-cmp-popup > div > div._acceptance-buttons_1fb0r_82 > button._consent-accept_1fb0r_111")
+	//accCookiesElem, err := page.Sleeper(rod.NotFoundSleeper).Element("#as24-cmp-popup > div > div._acceptance-buttons_1fb0r_82 > button._consent-accept_1lphq_114")
+	accCookiesElem, err := page.Sleeper(rod.NotFoundSleeper).Element("#as24-cmp-popup > div > div._acceptance-buttons_1lphq_85 > button._consent-accept_1lphq_114")
 	cookieBtnFound := true
 	if errors.Is(err, &rod.ErrElementNotFound{}) {
 		//fmt.Println("cookie button not found")
