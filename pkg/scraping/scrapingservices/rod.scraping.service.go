@@ -76,6 +76,7 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	} else {
 		log.Println("Using local browser")
 		br = startLocalBrowserWithMonitor()
+		//br = startBrowser()
 	}
 	//br := startBrowser()
 
@@ -120,15 +121,16 @@ func connectToDockerBrowser(url string) *rod.Browser {
 	}
 	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
 
-	browser := rod.New().Client(l.MustClient()).Trace(false).MustConnect()
+	browser := rod.New().Client(l.MustClient()).Trace(true).MustConnect()
 	return browser
 
 }
 
 func startLocalBrowserWithMonitor() *rod.Browser {
 	l := launcher.New().
-		Headless(true).
-		Devtools(false)
+		Headless(false).
+		//XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16").
+		Devtools(true)
 
 	url := l.MustLaunch()
 
@@ -139,13 +141,13 @@ func startLocalBrowserWithMonitor() *rod.Browser {
 		ControlURL(url).
 		//MustIncognito().
 		Trace(false).
-		//SlowMotion(2 * time.Second).
+		SlowMotion(2 * time.Second).
 		MustConnect()
 
 	// ServeMonitor plays screenshots of each tab. This feature is extremely
 	// useful when debugging with headless mode.
 	// You can also enable it with flag "-rod=monitor"
-
+	launcher.Open(browser.ServeMonitor(""))
 	return browser
 }
 
