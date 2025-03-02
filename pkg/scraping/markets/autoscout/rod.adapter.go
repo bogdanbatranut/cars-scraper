@@ -54,7 +54,8 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	if err != nil {
 		println(err)
 	}
-
+	log.Println("Got articles")
+	log.Println(articles)
 	var ads []jobs.Ad
 	if len(articles) == 0 {
 		log.Println(" No articles found")
