@@ -30,12 +30,33 @@ func main() {
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")
+	r.HandleFunc("/startMarket/{marketID}", scrapeMarket(sessionService)).Methods("POST")
 
 	appPort := cfg.GetString(amconfig.SessionStarterHTTPPort)
 	log.Printf("HTTP listening on port %s\n", appPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", appPort), r)
 	errorshandler.HandleErr(err)
 
+}
+
+func scrapeMarket(s *sessionstarter.SessionStarterService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		marketId := vars["marketID"]
+
+		s.ScrapeMarket(marketId)
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		type Response struct {
+			Data string
+		}
+		res := Response{Data: "started scraping market"}
+		resb, err := json.Marshal(&res)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Write(resb)
+	}
 }
 
 func start(s *sessionstarter.SessionStarterService) http.HandlerFunc {
