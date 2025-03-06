@@ -85,7 +85,7 @@ func (rcs ResultsConsumerService) Start() {
 
 	go func() {
 		for {
-			time.Sleep(30 * time.Second)
+			time.Sleep(3 * time.Second)
 			rcs.getResultsFromMQ()
 		}
 	}()

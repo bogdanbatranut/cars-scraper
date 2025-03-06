@@ -75,7 +75,6 @@ func (a AutovitJSONAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
 func (a AutovitJSONAdapter) getJobResults(job jobs.SessionJob, pageLog adsdb.PageLog) (*AutovitGraphQLResponse, error) {
 	r := NewRequest(job.Criteria)
 	url := r.urlBuilder.GetPageURL(job.Market.PageNumber)
-
 	err := a.loggingService.PageLogSetVisitURL(&pageLog, url)
 	if err != nil {
 		log.Println(err.Error())
