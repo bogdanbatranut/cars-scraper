@@ -74,8 +74,9 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 		log.Println("Using docker browser at ", dockerBrowserURL)
 		br = connectToDockerBrowser(dockerBrowserURL)
 	} else {
-		log.Println("Using local browser")
-		br = startLocalBrowserWithMonitor()
+		log.Println("Using local browser at ", dockerBrowserURL)
+		//br = startLocalBrowserWithMonitor()
+		br = startLocalDOCKERBrowser(dockerBrowserURL)
 		//br = startBrowser()
 	}
 	//br := startBrowser()
@@ -126,6 +127,17 @@ func connectToDockerBrowser(url string) *rod.Browser {
 
 }
 
+func startLocalDOCKERBrowser(url string) *rod.Browser {
+	l, err := launcher.NewManaged(url)
+	if err != nil {
+		panic(err)
+	}
+	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
+	browser := rod.New().Client(l.MustClient()).Trace(false).MustConnect()
+
+	return browser
+}
+
 func startLocalBrowserWithMonitor() *rod.Browser {
 	l := launcher.New().
 		Headless(false).
@@ -140,7 +152,7 @@ func startLocalBrowserWithMonitor() *rod.Browser {
 	browser := rod.New().
 		ControlURL(url).
 		//MustIncognito().
-		Trace(true).
+		Trace(false).
 		SlowMotion(2 * time.Second).
 		MustConnect()
 
@@ -287,7 +299,6 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		log.Println("ROD SERVICE Got ", len(*results.Ads), " ads")
 	} else {
 		log.Println("ROD SERVICE Got NULL ads")
-
 	}
 	err = page.Close()
 	if err != nil {
@@ -307,12 +318,11 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 		if err2 != nil {
 			log.Println(err2.Error())
 		}
-		return
-	}
-
-	err2 := rss.loggingService.PageLogSetPageScraped(pageLog, len(*adResult.Data), adResult.IsLastPage)
-	if err2 != nil {
-		log.Println(err2.Error())
+	} else {
+		err2 := rss.loggingService.PageLogSetPageScraped(pageLog, len(*adResult.Data), adResult.IsLastPage)
+		if err2 != nil {
+			log.Println(err2.Error())
+		}
 	}
 
 	if adResult.IsLastPage {
