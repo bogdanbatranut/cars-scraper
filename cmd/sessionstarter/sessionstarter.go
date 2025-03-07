@@ -31,6 +31,7 @@ func main() {
 
 	r.HandleFunc("/start", start(sessionService)).Methods("POST")
 	r.HandleFunc("/startMarket/{marketID}", scrapeMarket(sessionService)).Methods("POST")
+	r.HandleFunc("/startMarketCriteria/{marketID}/{criteriaID}", scrapeMarketCriteria(sessionService)).Methods("POST")
 
 	appPort := cfg.GetString(amconfig.SessionStarterHTTPPort)
 	log.Printf("HTTP listening on port %s\n", appPort)
@@ -45,6 +46,27 @@ func scrapeMarket(s *sessionstarter.SessionStarterService) http.HandlerFunc {
 		marketId := vars["marketID"]
 
 		s.ScrapeMarket(marketId)
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		type Response struct {
+			Data string
+		}
+		res := Response{Data: "started scraping market"}
+		resb, err := json.Marshal(&res)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Write(resb)
+	}
+}
+
+func scrapeMarketCriteria(s *sessionstarter.SessionStarterService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		marketId := vars["marketID"]
+		criteriaId := vars["criteriaID"]
+
+		s.ScrapeMarketCriteria(marketId, criteriaId)
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		type Response struct {
 			Data string
