@@ -71,7 +71,7 @@ func scrapeMarketCriteria(s *sessionstarter.SessionStarterService) http.HandlerF
 		type Response struct {
 			Data string
 		}
-		res := Response{Data: "started scraping market"}
+		res := Response{Data: "started scraping market and criteria"}
 		resb, err := json.Marshal(&res)
 		if err != nil {
 			panic(err)

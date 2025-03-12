@@ -1,7 +1,7 @@
 package autovit
 
 type VariablesRequestParamValue struct {
-	//After                   interface{}  `json:"after"`
+	After                   interface{}  `json:"after"`
 	Experiments             []Experiment `json:"experiments"`
 	Filters                 []Filters    `json:"filters"`
 	IncludeCepik            bool         `json:"includeCepik"`

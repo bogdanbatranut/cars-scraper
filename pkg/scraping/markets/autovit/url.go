@@ -93,12 +93,15 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 	// https://www.autovit.ro/graphql?operationName=listingScreen&variables=%7B%22after%22%3Anull%2C%22experiments%22%3A%5B%7B%22key%22%3A%22MCTA-1414%22%2C%22variant%22%3A%22a%22%7D%2C%7B%22key%22%3A%22MCTA-1617%22%2C%22variant%22%3A%22b%22%7D%2C%7B%22key%22%3A%22MCTA-1660%22%2C%22variant%22%3A%22a%22%7D%2C%7B%22key%22%3A%22MCTA-1661%22%2C%22variant%22%3A%22a%22%7D%2C%7B%22key%22%3A%22CARS-62302%22%2C%22variant%22%3A%22a%22%7D%2C%7B%22key%22%3A%22MCTA-1736%22%2C%22variant%22%3A%22a%22%7D%2C%7B%22key%22%3A%22MCTA-1715%22%2C%22variant%22%3A%22b%22%7D%2C%7B%22key%22%3A%22MCTA-1721%22%2C%22variant%22%3A%22b%22%7D%2C%7B%22key%22%3A%22CARS-64661%22%2C%22variant%22%3A%22b%22%7D%5D%2C%22filters%22%3A%5B%7B%22name%22%3A%22filter_enum_make%22%2C%22value%22%3A%22volvo        %22%7D%2C%7B%22name%22%3A%22filter_enum_model%22%2C%22value%22%3A%22xc0%22%7D%2C%7B%22name%22%3A%22filter_float_year%3Afrom%22%2C%22value%22%3A%222019%22%7D%2C%7B%22name%22%3A%22filter_float_mileage%3Ato%22%2C%22value%22%3A%22125000%22%7D%2C%7B%22name%22%3A%22category_id%22%2C%22value%22%3A%2229%22%7D%2C%7B%22name%22%3A%22filter_enum_fuel_type%22%2C%22value%22%3A%22hybrid%22%7D%2C%7B%22name%22%3A%22filter_enum_fuel_type%22%2C%22value%22%3A%22plugin-hybrid%22%7D%5D%2C%22includeCepik%22%3Afalse%2C%22includeFiltersCounters%22%3Afalse%2C%22includeNewPromotedAds%22%3Afalse%2C%22includePriceEvaluation%22%3Atrue%2C%22includePromotedAds%22%3Afalse%2C%22includeRatings%22%3Afalse%2C%22includeSortOptions%22%3Afalse%2C%22includeSuggestedFilters%22%3Afalse%2C%22maxAge%22%3A0%2C%22page%22%3A1%2C%22parameters%22%3A%5B%22make%22%2C%22vat%22%2C%22mileage%22%2C%22engine_capacity%22%2C%22engine_code%22%2C%22engine_power%22%2C%22first_registration_year%22%2C%22model%22%2C%22version%22%2C%22year%22%5D%2C%22promotedInput%22%3A%7B%7D%2C%22searchTerms%22%3Anull%2C%22sortBy%22%3A%22%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22ea42916db1b919c901d17722dc529de452fa5071e8695743fb2d5378a9dc0315%22%2C%22version%22%3A1%7D%7D
 }
 
+// https://www.autovit.ro/graphql?operationName=listingScreen&variables={"after":null,"experiments":[{"key":"MCTA-1414","variant":"a"},{"key":"MCTA-1617","variant":"b"},{"key":"MCTA-1715","variant":"a"},{"key":"MCTA-1660","variant":"a"},{"key":"MCTA-1661","variant":"a"},{"key":"CARS-62302","variant":"a"},{"key":"CARS-64661","variant":"a"}],"filters":[{"name":"filter_enum_make","value":"mercedes-benz"},{"name":"filter_enum_model","value":"gle"},{"name":"filter_enum_fuel_type","value":"diesel"},{"name":"category_id","value":"29"},{"name":"filter_float_year:from","value":"2019"},{"name":"filter_float_mileage:to","value":"125000"}],"includeCepik":true,"includeFiltersCounters":false,"includeNewPromotedAds":false,"includePriceEvaluation":true,"includePromotedAds":false,"includeRatings":false,"includeSortOptions":false,"includeSuggestedFilters":false,"maxAge":60,"page":1,"parameters":["make","vat","fuel_type","mileage","engine_capacity","engine_code","engine_power","first_registration_year","model","version","year"],"promotedInput":{},"searchTerms":null,"sortBy":"filter_float_price:asc"}&extensions={"persistedQuery":{"sha256Hash":"1a840f0ab7fbe2543d0d6921f6c963de8341e04a4548fd1733b4a771392f900a","version":1}}
+// https://www.autovit.ro/graphql?operationName=listingScreen&variables={"after":null,"experiments":[{"key":"MCTA-1414","variant":"a"},{"key":"MCTA-1617","variant":"b"},{"key":"MCTA-1715","variant":"a"},{"key":"MCTA-1660","variant":"a"},{"key":"MCTA-1661","variant":"a"},{"key":"CARS-62302","variant":"a"},{"key":"CARS-64661","variant":"a"}],"filters":[{"name":"filter_enum_make","value":"mercedes-benz"},{"name":"filter_enum_model","value":"gle"},{"name":"filter_enum_fuel_type","value":"diesel"},{"name":"filter_float_year:from","value":"2019"},{"name":"filter_float_mileage:to","value":"125000"},{"name":"category_id","value":"29"}],"includeCepik":true,"includeFiltersCounters":false,"includeNewPromotedAds":false,"includePriceEvaluation":true,"includePromotedAds":false,"includeRatings":false,"includeSortOptions":true,"includeSuggestedFilters":false,"maxAge":60,"page":1,"parameters":["make","vat","fuel_type","mileage","engine_capacity","engine_code","engine_power","first_registration_year","model","version","year"],"promotedInput":{},"searchTerms":null,"sortBy":"filter_float_price:asc"}&extensions={"persistedQuery":{"sha256Hash":"1a840f0ab7fbe2543d0d6921f6c963de8341e04a4548fd1733b4a771392f900a","version":1}}
+
 func (b URLBuilder) createNewVariablesParam(page int) VariablesRequestParamValue {
 	experiments := createExperiments()
 	parameters := []string{"make", "vat", "fuel_type", "mileage", "engine_capacity", "engine_code", "engine_power", "first_registration_year", "model", "version", "year"}
 
 	return VariablesRequestParamValue{
-		//After:                   nil,
+		After:                   nil,
 		Experiments:             experiments,
 		Filters:                 b.createFiltersFromCriteria(),
 		IncludeCepik:            true,
@@ -113,8 +116,9 @@ func (b URLBuilder) createNewVariablesParam(page int) VariablesRequestParamValue
 		Page:                    page,
 		Parameters:              parameters,
 		PromotedInput:           struct{}{},
-		SearchTerms:             b.createSearchTerms(),
-		SortBy:                  "filter_float_price:asc",
+		//SearchTerms:             b.createSearchTerms(),
+		SearchTerms: nil,
+		SortBy:      "filter_float_price:asc",
 	}
 }
 
@@ -122,12 +126,13 @@ func createExperiments() []Experiment {
 	return []Experiment{
 		{Key: "MCTA-1414", Variant: "a"},
 		{Key: "MCTA-1617", Variant: "b"},
+		{Key: "MCTA-1715", Variant: "a"},
 		{Key: "MCTA-1660", Variant: "a"},
 		{Key: "MCTA-1661", Variant: "a"},
 		{Key: "CARS-62302", Variant: "a"},
-		{Key: "MCTA-1736", Variant: "a"},
-		{Key: "MCTA-1715", Variant: "a"},
-		{Key: "MCTA-1721", Variant: "a"},
+		//{Key: "MCTA-1736", Variant: "a"},
+
+		//{Key: "MCTA-1721", Variant: "a"},
 		{Key: "CARS-64661", Variant: "a"},
 	}
 }
@@ -197,30 +202,30 @@ func (b URLBuilder) createFuelFilters() []Filters {
 
 func (b URLBuilder) createFiltersFromCriteria() []Filters {
 	f := []Filters{
-		//{
-		//	Name:  "filter_enum_make",
-		//	Value: b.criteria.Brand,
-		//},
-		//{
-		//	Name:  "filter_enum_model",
-		//	Value: b.paramsMapper.GetModelParamValue(b.criteria.CarModel),
-		//},
+		{
+			Name:  "filter_enum_make",
+			Value: b.criteria.Brand,
+		},
+		{
+			Name:  "filter_enum_model",
+			Value: b.paramsMapper.GetModelParamValue(b.criteria.CarModel),
+		},
 		{
 			Name:  "filter_enum_fuel_type",
 			Value: b.criteria.Fuel,
 		},
-		//{
-		//	Name:  "filter_float_year:from",
-		//	Value: strconv.Itoa(*b.criteria.YearFrom),
-		//},
+		{
+			Name:  "filter_float_year:from",
+			Value: strconv.Itoa(*b.criteria.YearFrom),
+		},
 		{
 			Name:  "filter_float_mileage:to",
 			Value: strconv.Itoa(*b.criteria.KmTo),
 		},
-		//{
-		//	Name:  "category_id",
-		//	Value: "29",
-		//},
+		{
+			Name:  "category_id",
+			Value: "29",
+		},
 	}
 
 	//f = append(f, b.createFuelFilters()...)
