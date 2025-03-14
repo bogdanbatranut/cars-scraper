@@ -29,7 +29,8 @@ const (
 	SMQURL                        = "smq.url"
 	AppBackendLogsPort            = "app.backendlogs.port"
 	MockHTTPPort                  = "mock.http.port"
-	PageScraperUseDockerRod       = "pagescraper.use.docker.rod"
+	BrowserUseTracing             = "browser.tracing"
+	BrowserWithMonitoring         = "browser.monitor"
 	PageScraperDockerContainerURL = "pagescraper.docker.container.url"
 	//- PAGESCRAPER_USE_DOCKER_ROD = true
 	//- PAGESCRAPER_DOCKER_CONTAINER_URL = "http://dev.auto-mall.ro:7317
@@ -122,7 +123,8 @@ func createViperConfig() (IConfig, error) {
 
 	_ = viper.BindEnv(TestVar, "TEST_VAR")
 
-	_ = viper.BindEnv(PageScraperUseDockerRod, "PAGESCRAPER_USE_DOCKER_ROD")
+	_ = viper.BindEnv(BrowserUseTracing, "BROWSER_TRACING")
+	_ = viper.BindEnv(BrowserWithMonitoring, "BROWSER_MONITORING")
 	_ = viper.BindEnv(PageScraperDockerContainerURL, "PAGESCRAPER_DOCKER_CONTAINER_URL")
 
 	viper.AutomaticEnv()
