@@ -36,3 +36,6 @@ smq:
 mock:
   http:
     port: "4114"
+browser:
+  tracing: "false"
+  monitor: "false"
