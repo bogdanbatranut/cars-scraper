@@ -68,17 +68,14 @@ func NewRodScrapingService(ctx context.Context, scrapingMapper IScrapingMapper, 
 	var br *rod.Browser
 
 	//isProd := cfg.GetBool(amconfig.AppIsProd)
-	useDockerBrowser := cfg.GetBool(amconfig.PageScraperUseDockerRod)
+	tracing := cfg.GetBool(amconfig.BrowserUseTracing)
+	monitor := cfg.GetBool(amconfig.BrowserWithMonitoring)
 	dockerBrowserURL := cfg.GetString(amconfig.PageScraperDockerContainerURL)
-	if useDockerBrowser {
-		log.Println("Using docker browser at ", dockerBrowserURL)
-		br = connectToDockerBrowser(dockerBrowserURL)
-	} else {
-		log.Println("Using local browser at ", dockerBrowserURL)
-		//br = startLocalBrowserWithMonitor()
-		br = startLocalDOCKERBrowser(dockerBrowserURL)
-		//br = startBrowser()
-	}
+	log.Println("Using docker browser at ", dockerBrowserURL)
+	br = connectToDockerBrowser(dockerBrowserURL, monitor, tracing)
+
+	//br = startLocalBrowserWithMonitor()
+	//br = startLocalDOCKERBrowser(dockerBrowserURL)
 	//br := startBrowser()
 
 	return &RodScrapingService{
@@ -98,31 +95,21 @@ func (rss RodScrapingService) GetCurrentJobExecutionAvailabilityChannel() chan b
 	return rss.currentJobAvailabilityChannel
 }
 
-func connectToDockerBrowser(url string) *rod.Browser {
-	//l, err := launcher.NewManaged("pensive_mendel")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
-	//log.Println("connecting to docker")
-	//u, err := launcher.ResolveURL("")
-	//if err != nil {
-	//	log.Println(" -------- ")
-	//	panic(err)
-	//}
-	//
-	//browser := rod.New().ControlURL(u).MustConnect()
-	//return browser
+func connectToDockerBrowser(url string, withMonitor bool, withTracing bool) *rod.Browser {
 
-	//l, err := launcher.NewManaged("http://rod-chromium:7317")
-	//l, err := launcher.NewManaged("http://dev.auto-mall.ro:7317")
+	// Connect to the remote Chrome instance
 	l, err := launcher.NewManaged(url)
+	//l, err := launcher.NewManaged("")
 	if err != nil {
 		panic(err)
 	}
-	l.Headless(false).XVFB("--server-num=5", "--server-args=-screen 0 1600x900x16")
 
-	browser := rod.New().Client(l.MustClient()).Trace(true).MustConnect()
+	// Create a new browser instance
+	browser := rod.New().Client(l.MustClient()).Trace(withTracing).MustConnect()
+	if withMonitor {
+		launcher.Open(browser.ServeMonitor(""))
+	}
+
 	return browser
 
 }

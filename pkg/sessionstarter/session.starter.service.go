@@ -61,7 +61,7 @@ func WithSimpleMessageQueueRepository(cfg amconfig.IConfig) CrawlinglInitiatorSe
 	smqBaseURL := cfg.GetString(amconfig.SMQURL)
 	smqPort := cfg.GetString(amconfig.SMQHTTPPort)
 	smqURL := fmt.Sprintf("http://%s:%s", smqBaseURL, smqPort)
-
+	log.Println("SMQ URL : ", smqURL)
 	smqr := repos.NewSimpleMessageQueueRepository(smqURL)
 
 	//smqr := repos.NewSimpleMessageQueueRepository(

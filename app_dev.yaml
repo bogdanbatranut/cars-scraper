@@ -36,3 +36,10 @@ smq:
 mock:
   http:
     port: "4114"
+pagescraper:
+  use:
+    docker:
+      rod: "false"
+  docker:
+    container:
+      url: "http://dev.auto-mall.ro:7317"

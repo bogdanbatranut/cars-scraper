@@ -49,14 +49,16 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	}
 
 	//articles := page.MustElements(".list-page-item")
-	log.Println("Waiting for articles")
+	//log.Println("Waiting for DOMStable articles")
 	articles, err := page.MustWaitDOMStable().Elements(".list-page-item")
 	if err != nil {
 		println(err)
 	}
 	log.Println("Got articles")
 	log.Println(articles)
+
 	var ads []jobs.Ad
+
 	if len(articles) == 0 {
 		log.Println(" No articles found")
 		return &icollector.AdsResults{
@@ -67,20 +69,33 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	} else {
 		isLastPage := isLastPage(page)
 		for _, article := range articles {
+			log.Println("Trying to scroll")
 			page.Mouse.MustScroll(0, 700)
-			wait := page.Timeout(time.Second / 2).MustWaitRequestIdle()
+			log.Println("Scrolled")
+			//log.Println("Waiting for load")
+
+			//wait := page.Timeout(time.Second / 2).MustWaitRequestIdle()
+			wait := page.Timeout(time.Second*4).WaitRequestIdle(300*time.Millisecond, nil, nil, nil)
+			log.Println("Waiting for requests idle")
 			wait()
+			log.Println("Done waiting for requests idle")
+
 			carModel := article.MustAttribute("data-model")
+			log.Println("got car model")
 			adThumb := getThumbNailFromArticle(article)
+			log.Println("got thumbnail")
 			sellerName := getSellerNameFromArticle(article)
+			log.Println("got seller name")
 			articleTitle, err := getAdTitle(article)
 			if err != nil {
+				log.Println(err)
 				return &icollector.AdsResults{
 					Ads:        nil,
 					IsLastPage: true,
 					Error:      err,
 				}
 			}
+			log.Println("got article title")
 			ad := jobs.Ad{
 				Title:              articleTitle,
 				Brand:              getBrandFromArticle(article),
