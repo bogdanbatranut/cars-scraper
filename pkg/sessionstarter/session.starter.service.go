@@ -93,6 +93,12 @@ func (sss SessionStarterService) ScrapeMarketCriteria(marketID string, criteriaI
 	sss.pushSessionJobs(session.Jobs)
 }
 
+func (sss SessionStarterService) ScrapeMarketsCriterias(markets []uint, criterias []uint) {
+	sessionID := uuid.New()
+	session := sss.newSessionForMarketsCriterias(markets, criterias, sessionID)
+	sss.pushSessionJobs(session.Jobs)
+}
+
 func (sss SessionStarterService) newSession() jobs.Session {
 	log.Println("creating session")
 	sessionID := uuid.New()
@@ -132,6 +138,19 @@ func (sss SessionStarterService) newSessionForMarketCriteria(marketID string, cr
 	return session
 }
 
+func (sss SessionStarterService) newSessionForMarketsCriterias(markets []uint, criterias []uint, sessionID uuid.UUID) jobs.Session {
+	log.Println(fmt.Sprintf("creating session for market %v and criteria %v ", markets, criterias))
+	sessionJobs, err := sss.createSessionJobsForMarketsCriterias(sessionID, markets, criterias)
+	if err != nil {
+		panic(err)
+	}
+	session := jobs.Session{
+		SessionID: sessionID,
+		Jobs:      sessionJobs,
+	}
+	return session
+}
+
 func inArrayUINT(str uint, list []uint) bool {
 	for _, v := range list {
 		if v == str {
@@ -139,6 +158,64 @@ func inArrayUINT(str uint, list []uint) bool {
 		}
 	}
 	return false
+}
+
+func (sss SessionStarterService) createSessionJobsForMarketsCriterias(sessionID uuid.UUID, markets []uint, criterias []uint) ([]jobs.SessionJob, error) {
+	allowedMarketAutoklassCriterias := []uint{8, 9, 24, 6, 13, 4, 1, 5, 27, 25, 28, 3, 10, 11, 19, 14}
+	allowedMercedesBenzCriterias := []uint{3, 10, 11, 14, 19, 34, 33, 40, 42}
+	allowedBMWDECriterias := []uint{1, 2, 5, 6, 13, 35, 36, 39, 41, 43, 44, 46}
+
+	sessionJobs := []jobs.SessionJob{}
+
+	createSession, err := sss.logger.CreateSession(sessionID)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Println(" Created Session !!! ", createSession.ID)
+
+	for _, marketID := range markets {
+		if marketID == 10 {
+			marketID++
+			continue
+		}
+		for _, criteriaID := range criterias {
+			// criteria 7 volvo s90
+			// criteria 6 bmw 7 series
+			job := sss.createJob(sessionID, criteriaID, marketID)
+			// do not scrape other brands for ofertebmw
+			if job.Criteria.Brand != "bmw" && marketID == 15 {
+				continue
+			}
+
+			if marketID == 20 && !inArrayUINT(criteriaID, allowedBMWDECriterias) {
+				continue
+			}
+
+			if marketID == 18 && !inArrayUINT(criteriaID, allowedMarketAutoklassCriterias) {
+				continue
+			}
+
+			if marketID == 17 || marketID == 19 {
+				if !inArrayUINT(criteriaID, allowedMercedesBenzCriterias) {
+					continue
+				}
+			}
+
+			if job.Criteria.Brand != "mercedes-benz" && marketID == 17 {
+				continue
+			}
+			log.Println(" APPENDING JOB : ", job.ToString())
+			sessionJobs = append(sessionJobs, job)
+			clog, err := sss.logger.CreateCriteriaLog(*createSession, job)
+			log.Println("CREATED Criteria log ", clog.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return sessionJobs, nil
+
 }
 
 func (sss SessionStarterService) createSessionJobsForMarketCriteria(sessionID uuid.UUID, marketIDStr string, criteriaIDStr string) ([]jobs.SessionJob, error) {
@@ -281,7 +358,7 @@ func (sss SessionStarterService) createSessionJobsForMarket(sessionID uuid.UUID,
 func (sss SessionStarterService) createSessionJobs(sessionID uuid.UUID) []jobs.SessionJob {
 	sessionJobs := []jobs.SessionJob{}
 
-	markets := []uint{9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	markets := []uint{9, 11, 12, 14, 15, 16, 17, 18, 19, 20}
 	//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
 	//markets := []uint{9}
 	criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47}
