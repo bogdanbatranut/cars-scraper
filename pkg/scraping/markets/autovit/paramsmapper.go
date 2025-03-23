@@ -70,6 +70,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["q5"] = "q5"
 	modelsMap["q3"] = "q3"
 	modelsMap["cx-60"] = "cx-60"
+	modelsMap["kodiaq"] = "kodiaq"
 
 	return modelsMap
 }

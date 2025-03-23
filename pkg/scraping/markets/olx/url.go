@@ -184,7 +184,13 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 		BrandID: skoda,
 		ModelID: "octavia",
 	}
+	kodiaq := BrandModelIds{
+		BrandID: skoda,
+		ModelID: "kodiaq",
+	}
 	modelMap["octavia"] = &octavia
+	modelMap["kodiaq"] = &kodiaq
+
 	brandModelsMap["skoda"] = modelMap
 
 	superb := BrandModelIds{

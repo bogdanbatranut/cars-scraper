@@ -29,7 +29,7 @@ func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	}
 	pr := bm.asQueryParams()
 	url := fmt.Sprintf(
-		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&beschikbaarheidsStatus=beschikbaar&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=30&sortering=PRIJS_OPLOPEND",
+		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&beschikbaarheidsStatus=beschikbaar&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=90&sortering=PRIJS_OPLOPEND",
 		*job.Criteria.YearFrom,
 		*job.Criteria.KmTo,
 		fuels[job.Criteria.Fuel],

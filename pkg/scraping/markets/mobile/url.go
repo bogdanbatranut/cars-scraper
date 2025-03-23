@@ -101,6 +101,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["q5"] = "q5"
 	modelsMap["q3"] = "q3"
 	modelsMap["cx-60"] = "cx-60"
+	modelsMap["kodiaq"] = "kodiaq"
 	return modelsMap
 }
 
@@ -126,6 +127,12 @@ func initParamNames() map[string]map[string]BrandModelValues {
 		Model: "12",
 	}
 	skModelsMap["superb"] = sks
+
+	sKodiaq := BrandModelValues{
+		Brand: "22900",
+		Model: "19",
+	}
+	skModelsMap["kodiaq"] = sKodiaq
 
 	mbModelsMap := map[string]BrandModelValues{}
 

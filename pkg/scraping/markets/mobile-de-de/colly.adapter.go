@@ -29,8 +29,70 @@ func NewMobileDE_DECollyMarketAdapter(logingService *logging.ScrapeLoggingServic
 		builder:        NewURLBuilder(cfg),
 	}
 }
-
 func (a MobileDE_DECollyMarketAdapter) GetAds(job jobs.SessionJob) icollector.AdsResults {
+
+	//criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//pageLog, err := a.loggingService.CreatePageLog(criteriaLog, job, "", job.Market.PageNumber)
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	url := a.builder.GetPageURL(job.Criteria, job.Market.PageNumber)
+	log.Println(url)
+
+	//err = a.loggingService.PageLogSetVisitURL(pageLog, url)
+	//if err != nil {
+	//	log.Println(err.Error())
+	//}
+
+	//mobileCollector := mobiledecollycollector.NewMobileDECollyCollector().GetCollyCollector(job)
+	//mobileCollector := colly.NewCollector(
+	//	colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
+	//)
+	mobileCollector := colly.NewCollector()
+
+	foundAds := []jobs.Ad{}
+
+	//var executionErr error
+	//body > script:nth-child(10)
+	mobileCollector.OnHTML("body", func(e *colly.HTMLElement) {
+		log.Println(e.Text)
+		if strings.HasPrefix(e.Text, "window.__I") {
+			log.Println(e.Text)
+		}
+
+	})
+
+	mobileCollector.OnHTML("", func(e *colly.HTMLElement) {
+		log.Println(e.Text)
+		if strings.HasPrefix(e.Text, "window.__I") {
+			log.Println(e.Text)
+		}
+
+	})
+
+	mobileCollector.OnResponse(func(response *colly.Response) {
+		log.Println(string(response.Body))
+
+	})
+
+	err := mobileCollector.Visit(url)
+	if err != nil {
+		return icollector.AdsResults{}
+	}
+
+	mobileCollector.Wait()
+	return icollector.AdsResults{
+		Ads:        &foundAds,
+		IsLastPage: false,
+		Error:      nil,
+	}
+}
+
+func (a MobileDE_DECollyMarketAdapter) GetAdsOLD(job jobs.SessionJob) icollector.AdsResults {
 	criteriaLog, err := a.loggingService.GetCriteriaLog(job.SessionID, job.CriteriaID, job.MarketID)
 	if err != nil {
 		panic(err)

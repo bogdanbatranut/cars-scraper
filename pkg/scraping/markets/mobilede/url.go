@@ -148,6 +148,12 @@ func initParamNames() map[string]map[string]BrandModelValues {
 	}
 	skModelsMap["superb"] = sks
 
+	skodaKodiaq := BrandModelValues{
+		Brand: "22900",
+		Model: "19",
+	}
+	skModelsMap["kodiaq"] = skodaKodiaq
+
 	mbModelsMap := map[string]BrandModelValues{}
 
 	coupe := "coupe"

@@ -5,6 +5,7 @@ import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/repos"
 	"fmt"
+	url2 "net/url"
 )
 
 type BrandModelValues struct {
@@ -47,7 +48,7 @@ func NewURLBuilder(cfg amconfig.IConfig) *URLBuilder {
 	}
 }
 
-func (b URLBuilder) GetPageURL(criteria jobs.Criteria, pageNumber int) string {
+func (b URLBuilder) GetPageURLOLD(criteria jobs.Criteria, pageNumber int) string {
 	brand := criteria.Brand
 	model := b.modelsMap[criteria.CarModel]
 	brandParamValue := b.brandModelParamsValues[brand][model].Brand
@@ -79,7 +80,43 @@ type MobileDEURLMap struct {
 	QueryParamFuel     string
 }
 
-func (b URLBuilder) GetURL(criteria jobs.Criteria, pageNumber int) string {
+func (b URLBuilder) GetPageURL(criteria jobs.Criteria, pageNumber int) string {
+
+	baseURL := fmt.Sprintf("https://suchen.mobile.de/fahrzeuge/search.html")
+
+	damParam := "dam=false"
+
+	yearParam := fmt.Sprintf("fr=%s", url2.QueryEscape(fmt.Sprintf("%d:", *criteria.YearFrom)))
+
+	fuelParam := fmt.Sprintf("ft=%s", b.fuelParam[criteria.Fuel])
+
+	isSearchRequestParam := fmt.Sprintf("isSearchRequest=true")
+
+	mileageToParam := fmt.Sprintf(":%d", *criteria.KmTo)
+	mileageToParam = fmt.Sprintf("ml=%s", url2.QueryEscape(mileageToParam))
+
+	brand := criteria.Brand
+	model := b.modelsMap[criteria.CarModel]
+	brandParamValue := b.brandModelParamsValues[brand][model].Brand
+	modelParamValue := b.brandModelParamsValues[brand][model].Model
+
+	brandModelParam := url2.QueryEscape(fmt.Sprintf("%s;;%s;", brandParamValue, modelParamValue))
+	brandModelParam = fmt.Sprintf("ms=%s", brandModelParam)
+
+	orderParam := fmt.Sprintf("od=up")
+	refParam := fmt.Sprintf("ref=srp")
+	sParam := fmt.Sprintf("s=Car")
+
+	sbParam := fmt.Sprintf("sb=p")
+	vcParam := fmt.Sprintf("vc=Car")
+
+	pageParam := fmt.Sprintf("pageNumber=%d", pageNumber)
+	url := fmt.Sprintf("%s?%s&%s&%s&%s&%s&%s&%s&%s&%s&%s&%s&%s", baseURL, damParam, yearParam, fuelParam, isSearchRequestParam, mileageToParam, brandModelParam, orderParam, refParam, sParam, sbParam, vcParam, pageParam)
+
+	return url
+}
+
+func (b URLBuilder) GetURLOld(criteria jobs.Criteria, pageNumber int) string {
 	brand := b.propertiesRepo.GetPropertyMarketValuesForTypeAndValue(repos.Brand, criteria.Brand, b.marketID).Value
 	model := b.propertiesRepo.GetPropertyMarketValuesForTypeAndValue(repos.Model, criteria.CarModel, b.marketID).Value
 	queryParamBrand := b.propertiesRepo.GetPropertyMarketValuesForTypeAndValue(repos.QueryParamBrandParam, criteria.Brand, b.marketID).Value
@@ -106,11 +143,11 @@ func (b URLBuilder) GetURL(criteria jobs.Criteria, pageNumber int) string {
 
 func initFuelParams() map[string]string {
 	fuelMap := make(map[string]string)
-	fuelMap["diesel"] = "diesel"
-	fuelMap["petrol"] = "petrol"
-	fuelMap["hybrid-petrol"] = "hybrid_petrol"
-	fuelMap["hybrid-diesel"] = "hybrid_diesel"
-	fuelMap["hybrid"] = "hybrid"
+	fuelMap["diesel"] = "DIESEL"
+	fuelMap["petrol"] = "PETROL"
+	fuelMap["hybrid-petrol"] = "HYBRID_PETROL"
+	fuelMap["hybrid-diesel"] = "HYBRID_DIESEL"
+	fuelMap["hybrid"] = "HYBRID_PLUGIN"
 	return fuelMap
 }
 
