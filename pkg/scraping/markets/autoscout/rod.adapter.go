@@ -290,16 +290,20 @@ func getFuelFromArticle(article *rod.Element) string {
 	return "not found"
 }
 func isLastPage(page *rod.Page) bool {
+	log.Println("checking if last page")
 	elem, err := page.Element("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li:last-child > button")
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Got element")
 	disabledAttr := elem.MustAttribute("disabled")
+	log.Println("got attribute")
 	if disabledAttr != nil {
 		return true
 	}
 	return false
 }
+
 func getSellerURLInMarket(article *rod.Element) string {
 	return ""
 }
