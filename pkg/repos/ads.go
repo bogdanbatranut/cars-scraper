@@ -37,6 +37,19 @@ type AdsRepository struct {
 	db *gorm.DB
 }
 
+func NewAdsDB(cfg amconfig.IConfig) *gorm.DB {
+	databaseName := cfg.GetString(amconfig.AppDBName)
+	databaseHost := cfg.GetString(amconfig.AppDBHost)
+	dbUser := cfg.GetString(amconfig.AppDBUser)
+	dbPass := cfg.GetString(amconfig.AppDBPass)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, databaseHost, databaseName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
 func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
 	databaseName := cfg.GetString(amconfig.AppDBName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
