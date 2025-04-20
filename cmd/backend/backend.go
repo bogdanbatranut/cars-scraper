@@ -19,7 +19,21 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
+
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	log.Println("starting BACKEND service...")
@@ -28,11 +42,12 @@ func main() {
 	errorshandler.HandleErr(err)
 
 	r := mux.NewRouter().StrictSlash(true)
-	//r.Use(CORS)
+	//r.Use(enableCORS)
 
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
 	adsRepo := repos.NewAdsRepository(cfg)
+	adsDB := repos.NewAdsDB(cfg)
 
 	//chartsRepo := repos.NewChartsRepository(cfg)
 	//chartsRepo.GetAdsPricesByStep(5000)
@@ -47,14 +62,41 @@ func main() {
 	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET")
 
 	r.HandleFunc("/test", test()).Methods("POST")
+	r.HandleFunc("/ad/{id}", getAd(adsDB)).Methods("GET", "OPTIONS")
 
 	r.HandleFunc("/marketsAndCriterias", marketsAndCriterias(criteriaRepo)).Methods("POST")
 
 	httpPort := cfg.GetString(amconfig.BackendServiceHTTPPort)
 	log.Printf("HTTP listening on port %s\n", httpPort)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), enableCORS(r))
 	errorshandler.HandleErr(err)
 
+}
+
+func getAd(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		idStr, ok := vars["id"]
+		if !ok {
+			fmt.Println("id is missing in parameters")
+		}
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			w.Write([]byte("Invalid ID"))
+			return
+		}
+		var ad adsdb.Ad
+		tx := db.Preload("Prices").First(&ad, id)
+		if tx.Error != nil {
+			panic(err)
+		}
+
+		response, err := json.Marshal(&ad)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(response)
+	}
 }
 
 func setCurrentPrice(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
