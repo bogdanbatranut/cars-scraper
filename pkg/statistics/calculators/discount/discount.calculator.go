@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func GetCalculatedAverageDealerDiscountPercent(repo repos.IAdsRepository, sellerID uint, market uint) float64 {
+func GetCalculatedAverageDealerDiscountPercent(repo *repos.AdsRepository, sellerID uint, market uint) float64 {
 	restrictedMarkets := []string{"10", "11", "12", "14"}
 	if utils.InArrayStr(strconv.Itoa(int(market)), restrictedMarkets) {
 		return 0

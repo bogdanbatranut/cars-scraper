@@ -15,6 +15,9 @@ import (
 
 func main() {
 
+	// to change the flags on the default logger
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	log.Println("starting page scraping service...")
 
 	cfg, err := amconfig.NewViperConfig()

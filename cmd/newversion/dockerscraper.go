@@ -47,6 +47,8 @@ func main() {
 	loggingService := logging.NewScrapeLoggingService(cfg)
 
 	go func() {
+		//https://suchen.mobile.de/fahrzeuge/search.html?dam=false&fr=2019%3A&ft=HYBRID_PETROL&isSearchRequest=true&ml=%3A125000&ms=3500%3B%3B49%3B&od=up&ref=srp&s=Car&sb=p&vc=Car&pageNumber=1
+		//https://suchen.mobile.de/fahrzeuge/search.html?dam=false&ft=DIESELfr=2019%3A&isSearchRequest=true&ml=%3A125000&ms=3500%3B49%3B%3B&ref=dsp&s=Car&sb=rel&vc=Car
 		//9,2023-11-20 00:06:39.350,2024-03-12 19:57:43.954,,autovit,www.autovit.ro,1
 		//10,2023-11-20 00:06:39.350,2024-03-12 19:57:43.963,,webcar,www.webcar.ro,0
 		//11,2023-11-20 00:06:39.350,2024-03-12 19:57:43.972,,mobile.de,www.mobile.de,1
@@ -54,10 +56,11 @@ func main() {
 		//13,2023-11-20 00:06:39.350,2024-03-12 19:57:43.987,,autotracknl,www.autotrack.nl,0
 		//14,2023-11-20 00:06:39.350,2024-03-12 19:57:43.996,,olx,www.olx.ro,1
 
-		markets := []uint{11}
+		markets := []uint{12}
 		//criterias := []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31}
 		//markets := []uint{14}
-		criterias := []uint{47, 46, 44, 43, 42, 41, 40, 39}
+		//criterias := []uint{47, 46, 44, 43, 42, 41, 40, 39}
+		criterias := []uint{47}
 
 		//markets := []uint{16}
 		//criterias := []uint{2, 4, 5, 6, 12, 13}

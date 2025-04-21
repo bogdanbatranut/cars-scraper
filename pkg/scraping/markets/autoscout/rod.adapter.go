@@ -34,7 +34,7 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 	} else if err != nil {
 		panic(err)
 	}
-
+	log.Println("Cookie button found: ", cookieBtnFound)
 	if cookieBtnFound {
 		//accCookiesElem.MustClick()
 		err = accCookiesElem.Click(proto.InputMouseButtonLeft, 1)
@@ -50,6 +50,7 @@ func (a AutoscoutRodAdapter) GetAds(page *rod.Page) *icollector.AdsResults {
 
 	//articles := page.MustElements(".list-page-item")
 	//log.Println("Waiting for DOMStable articles")
+	log.Println("Waiting for DOMStable articles")
 	articles, err := page.MustWaitDOMStable().Elements(".list-page-item")
 	if err != nil {
 		println(err)
@@ -291,14 +292,37 @@ func getFuelFromArticle(article *rod.Element) string {
 }
 func isLastPage(page *rod.Page) bool {
 	log.Println("checking if last page")
-	elem, err := page.Element("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li:last-child > button")
+
+	elem, err := page.Sleeper(rod.NotFoundSleeper).Element("#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > div.ListPage_pagination__4Vw9q > nav > ul > li:last-child > button")
 	if err != nil {
-		panic(err)
+		if errors.Is(err, &rod.ErrElementNotFound{}) {
+			if are0Results(page) {
+				return true
+			}
+		} else if err != nil {
+			panic(err)
+		}
 	}
 	log.Println("Got element")
 	disabledAttr := elem.MustAttribute("disabled")
 	log.Println("got attribute")
 	if disabledAttr != nil {
+		return true
+	}
+	return false
+}
+
+func are0Results(page *rod.Page) bool {
+	selector := "#__next > div > div > div.ListPage_wrapper__vFmTi > div.ListPage_container__Optya > main > header > div.NoResultsBanner_top___WPk8 > h2"
+	elem, err := page.Sleeper(rod.NotFoundSleeper).Element(selector)
+	if err != nil {
+		panic(err)
+	}
+	elemText, err := elem.Text()
+	if err != nil {
+		panic(err)
+	}
+	if strings.Contains(elemText, "0") {
 		return true
 	}
 	return false

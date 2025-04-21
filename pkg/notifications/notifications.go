@@ -11,7 +11,7 @@ type httpService struct {
 	client *http.Client
 }
 
-func NewNotificationsService(cfg *amconfig.IConfig) *NotificationsService {
+func NewNotificationsService(cfg amconfig.IConfig) *NotificationsService {
 	urlStr := "http://dev.auto-mall.ro:88/automall"
 
 	return &NotificationsService{

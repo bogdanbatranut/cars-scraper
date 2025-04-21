@@ -4,6 +4,7 @@ import (
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	"carscraper/pkg/notifications"
 	"carscraper/pkg/repos"
 	"context"
 	"encoding/json"
@@ -16,12 +17,14 @@ import (
 )
 
 type ResultsConsumerService struct {
-	messageQueue     repos.IMessageQueue
-	resultsTopicName string
-	scrapeResults    SessionCriteriaMarketResultsHandler
-	pageAdsChannel   chan jobs.AdsPageJobResult
-	resultsWriter    ResultsWriter
-	logger           *logging.ScrapeLoggingService
+	messageQueue        repos.IMessageQueue
+	resultsTopicName    string
+	scrapeResults       SessionCriteriaMarketResultsHandler
+	pageAdsChannel      chan jobs.AdsPageJobResult
+	resultsWriter       ResultsWriter
+	logger              *logging.ScrapeLoggingService
+	repo                *repos.AdsRepository
+	notificationService *notifications.NotificationsService
 }
 
 type ResultsReaderServiceConfiguration func(rcs *ResultsConsumerService)
@@ -36,6 +39,12 @@ func NewResultsReaderService(cfgs ...ResultsReaderServiceConfiguration) *Results
 		cfg(service)
 	}
 	return service
+}
+
+func WithNotificationService(notificationService *notifications.NotificationsService) ResultsReaderServiceConfiguration {
+	return func(cis *ResultsConsumerService) {
+		cis.notificationService = notificationService
+	}
 }
 
 func WithLogger(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
@@ -70,6 +79,12 @@ func WithTopicName(cfg amconfig.IConfig) ResultsReaderServiceConfiguration {
 	topicName := cfg.GetString(amconfig.SMQResultsTopicName)
 	return func(rcs *ResultsConsumerService) {
 		rcs.resultsTopicName = topicName
+	}
+}
+
+func WithRepo(repo *repos.AdsRepository) ResultsReaderServiceConfiguration {
+	return func(rcs *ResultsConsumerService) {
+		rcs.repo = repo
 	}
 }
 
@@ -213,6 +228,42 @@ func (rcs ResultsConsumerService) processResults() {
 			}
 			rcs.logger.CriteriaLogSetAsFinished(*criteriaLog)
 			rcs.logger.CriteriaLogSetSuccessful(*criteriaLog)
+
+			//send notification
+			rcs.sendLowestPriceNotification(criteriaID)
+			rcs.sendNewEntryLowestPriceNotification(criteriaID)
 		}
+	}
+}
+
+func (rcs ResultsConsumerService) sendLowestPriceNotification(criteriaID uint) {
+	ad, err := rcs.repo.GetNewEntryLowestPrice(criteriaID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if ad == nil {
+		return
+	}
+	err = rcs.notificationService.SendOpenAdNotification(ad.ID, *ad.Title)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (rcs ResultsConsumerService) sendNewEntryLowestPriceNotification(criteriaID uint) {
+	ad, err := rcs.repo.GetNewEntryLowestPrice(criteriaID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if ad == nil {
+		return
+	}
+	err = rcs.notificationService.SendOpenAdNotification(ad.ID, *ad.Title)
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }

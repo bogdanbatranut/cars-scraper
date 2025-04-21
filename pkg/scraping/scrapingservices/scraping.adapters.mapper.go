@@ -42,6 +42,7 @@ func NewScrapingAdaptersMapper(loggingService *logging.ScrapeLoggingService) *Sc
 
 	collyAdaptersMap["mobile.de"] = mobile.NewMobileDECollyMarketAdapter(loggingService)
 	//collyAdaptersMap["mobile.de"] = mobile_props.NewMobilePropDECollyMarketAdapter(loggingService, cfg)
+	//collyAdaptersMap["mobile.de"] = mobilede_de.NewMobileDE_DECollyMarketAdapter(loggingService, cfg)
 	collyAdaptersMap["bmw.de"] = bmw_de.NewBMWDECollyMarketAdapter(loggingService)
 	collyAdaptersMap["tiriacauto"] = tiriacauto.NewTiriacAutoCollyMarketAdapter(loggingService)
 

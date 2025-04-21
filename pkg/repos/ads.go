@@ -20,19 +20,6 @@ type Pagination struct {
 	//Rows       interface{} `json:"rows"`
 }
 
-type IAdsRepository interface {
-	GetAll() (*[]adsdb.Ad, error)
-	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
-	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad
-	GetAdsForCriteriaPaginated(pagination *Pagination, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) (*[]adsdb.Ad, *Pagination)
-	Upsert(ads []adsdb.Ad) (*[]uint, error)
-	DeleteAd(adID uint)
-	DeletePrice(priceID uint)
-	GetAdPrices(adID uint) []adsdb.Price
-	UpdateCurrentPrice(adID uint)
-	GetSellerAds(dealerID uint) *[]adsdb.Ad
-}
-
 type AdsRepository struct {
 	db *gorm.DB
 }
@@ -308,4 +295,50 @@ func paginate(value interface{}, pagination *Pagination, db *gorm.DB) func(db *g
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
 	}
+}
+
+func (r AdsRepository) GetTodaysLowestPriceInCriteria(criteriaID uint) (*adsdb.Ad, error) {
+	var ad adsdb.Ad
+
+	// Query to find the ad with the lowest price updated today for the given criteriaID
+	tx := r.db.Model(&adsdb.Ad{}).
+		Joins("JOIN prices ON prices.ad_id = ads.id").
+		Where("ads.criteria_id = ?", criteriaID).
+		Where("DATE(prices.created_at) = CURDATE()").
+		Order("prices.price ASC").
+		Preload("Prices"). // Preload prices for the ad
+		First(&ad)
+
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return nil, nil // No ad found with a price updated today
+		}
+		return nil, tx.Error // Return other errors
+	}
+
+	return &ad, nil
+}
+
+func (r AdsRepository) GetNewEntryLowestPrice(criteriaID uint) (*adsdb.Ad, error) {
+	var ad adsdb.Ad
+
+	// Query to find the ad with only one price and the price created today
+	tx := r.db.Model(&adsdb.Ad{}).
+		Joins("JOIN prices ON prices.ad_id = ads.id").
+		Where("ads.criteria_id = ?", criteriaID).
+		Where("DATE(prices.created_at) = CURDATE()").
+		Group("ads.id").
+		Having("COUNT(prices.id) = 1").
+		Order("MIN(prices.price) ASC").
+		Preload("Prices"). // Preload prices for the ad
+		First(&ad)
+
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return nil, nil // No ad found matching the criteria
+		}
+		return nil, tx.Error // Return other errors
+	}
+
+	return &ad, nil
 }

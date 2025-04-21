@@ -9,9 +9,9 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/ysmood/gson v0.7.3
+	golang.org/x/text v0.13.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.4
-	gorm.io/plugin/dbresolver v1.5.1
 )
 
 require (
@@ -50,7 +50,6 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

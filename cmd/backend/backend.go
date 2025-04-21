@@ -99,7 +99,7 @@ func getAd(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func setCurrentPrice(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func setCurrentPrice(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ads *[]adsdb.Ad
 		ads, err := repo.GetAll()
@@ -216,7 +216,7 @@ func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.Response
 //
 //}
 
-func cleanupPrices(repo repos.IAdsRepository) {
+func cleanupPrices(repo repos.AdsRepository) {
 	// get all ads
 	allAds, err := repo.GetAll()
 	if err != nil {
@@ -304,7 +304,7 @@ func getCriterias(repo repos.ICriteriaRepository) func(w http.ResponseWriter, r 
 	}
 }
 
-func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func getAdsForCriteria(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
@@ -442,7 +442,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 	}
 }
 
-func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func getAdsForCriteriaPaginated(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)

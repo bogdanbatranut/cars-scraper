@@ -262,11 +262,15 @@ func (rss RodScrapingService) processJob(job jobs.SessionJob) {
 
 	//page = rss.browser.SlowMotion(1 * time.Second).MustPage(*url).MustWaitDOMStable()
 	adapter := rss.scrapingMapper.GetRodMarketAdsAdapter(job.Market.Name)
-	if err != nil {
-		panic(err)
-	}
 
-	page := rss.browser.MustPage(*url).MustWaitStable()
+	//page := rss.browser.MustPage(*url).MustWaitStable()
+	page := rss.browser.MustPage(*url)
+	//err = page.WaitStable(1 * time.Second)
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	log.Println("GOT PAGE")
 
 	results := adapter.GetAds(page)
 	if results.Ads != nil {
