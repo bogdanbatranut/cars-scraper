@@ -194,7 +194,7 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
 	//r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
-	tx := r.db.Preload("Prices").Preload("Market").Preload("Seller").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+	tx := r.db.Debug().Preload("Prices").Preload("Market").Preload("Seller").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
 	if years != nil {
 		//tx = tx.Where("Year IN (?)", years)
 		tx = tx.Where("year", *years)

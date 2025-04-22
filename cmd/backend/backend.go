@@ -42,7 +42,7 @@ func main() {
 	errorshandler.HandleErr(err)
 
 	r := mux.NewRouter().StrictSlash(true)
-	//r.Use(enableCORS)
+	r.Use(enableCORS)
 
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
@@ -56,10 +56,10 @@ func main() {
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
-	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
-	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
-	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
-	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET")
+	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET", "OPTIONS")
 
 	r.HandleFunc("/test", test()).Methods("POST")
 	r.HandleFunc("/ad/{id}", getAd(adsDB)).Methods("GET", "OPTIONS")
@@ -71,32 +71,6 @@ func main() {
 	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), enableCORS(r))
 	errorshandler.HandleErr(err)
 
-}
-
-func getAd(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		idStr, ok := vars["id"]
-		if !ok {
-			fmt.Println("id is missing in parameters")
-		}
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			w.Write([]byte("Invalid ID"))
-			return
-		}
-		var ad adsdb.Ad
-		tx := db.Preload("Prices").First(&ad, id)
-		if tx.Error != nil {
-			panic(err)
-		}
-
-		response, err := json.Marshal(&ad)
-		if err != nil {
-			panic(err)
-		}
-		w.Write(response)
-	}
 }
 
 func setCurrentPrice(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
@@ -272,11 +246,47 @@ func removeDuplicates(prices []adsdb.Price, adID uint) []uint {
 	return duplicates
 }
 
+func getAd(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		idStr, ok := vars["id"]
+		if !ok {
+			fmt.Println("id is missing in parameters")
+		}
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			w.Write([]byte("Invalid ID"))
+			return
+		}
+		var ad adsdb.Ad
+		tx := db.Preload("Prices").First(&ad, id)
+		if tx.Error != nil {
+			panic(err)
+		}
+
+		response, err := json.Marshal(&ad)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(response)
+	}
+}
+
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Methods", "POST")
-		r.Header.Set("Access-Control-Allow-Methods", "POST")
-		r.Header.Set("Access-Control-Allow-Origin", "*")
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
 		markets := repo.GetAll()
 		type MarketsResponse struct {
 			Data []adsdb.Market
@@ -286,26 +296,50 @@ func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *ht
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Set("Access-Control-Allow-Methods", "POST")
-		w.Header().Add("Access-Control-Allow-Origin", "*")
+		//w.Header().Set("Access-Control-Allow-Methods", "POST")
+		//w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
 func getCriterias(repo repos.ICriteriaRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
 		criterias := repo.GetAll()
 		response, err := json.Marshal(&criterias)
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
 func getAdsForCriteria(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 
 		vars := mux.Vars(r)
 		idStr, ok := vars["id"]
@@ -437,13 +471,25 @@ func getAdsForCriteria(repo *repos.AdsRepository) func(w http.ResponseWriter, r 
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
 func getAdsForCriteriaPaginated(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 
 		vars := mux.Vars(r)
 		idStr, ok := vars["id"]
@@ -632,7 +678,7 @@ func getAdsForCriteriaPaginated(repo *repos.AdsRepository) func(w http.ResponseW
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
+
 		w.Write(response)
 	}
 }
