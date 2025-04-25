@@ -77,7 +77,6 @@ func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
 
 func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 	adsIds := []uint{}
-
 	for _, foundAd := range ads {
 		foundAdPrice := foundAd.Prices[0].Price
 		foundAdKm := foundAd.Km
@@ -128,6 +127,7 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				}
 			}
 			r.db.First(&dbAd, dbAd.ID)
+
 			if foundAd.Title != nil {
 				r.db.Model(&dbAd).Update("title", *foundAd.Title)
 			}
@@ -135,13 +135,11 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			if foundAd.Km != 0 && foundAd.Km != dbAd.Km {
 				r.db.Model(&dbAd).Update("km", foundAdKm)
 			}
-
 			if foundAd.Title != nil {
 				r.db.Model(&dbAd).Update("title", *foundAd.Title)
 			}
 
 			if foundAd.Ad_url != "" && foundAd.Ad_url != dbAd.Ad_url {
-
 				adURL := foundAd.Ad_url
 				if foundAd.MarketID == 11 {
 					if !strings.Contains(foundAd.Ad_url, "www.mobile.de") {
