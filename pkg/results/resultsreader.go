@@ -2,6 +2,7 @@ package results
 
 import (
 	"carscraper/pkg/amconfig"
+	"carscraper/pkg/events"
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
 	"carscraper/pkg/notifications"
@@ -25,6 +26,7 @@ type ResultsConsumerService struct {
 	logger              *logging.ScrapeLoggingService
 	repo                *repos.AdsRepository
 	notificationService *notifications.NotificationsService
+	eventsListener      *events.EventsListener
 }
 
 type ResultsReaderServiceConfiguration func(rcs *ResultsConsumerService)
@@ -39,6 +41,12 @@ func NewResultsReaderService(cfgs ...ResultsReaderServiceConfiguration) *Results
 		cfg(service)
 	}
 	return service
+}
+
+func WithEventsListener(eventsListener *events.EventsListener) ResultsReaderServiceConfiguration {
+	return func(cis *ResultsConsumerService) {
+		cis.eventsListener = eventsListener
+	}
 }
 
 func WithNotificationService(notificationService *notifications.NotificationsService) ResultsReaderServiceConfiguration {
@@ -229,41 +237,23 @@ func (rcs ResultsConsumerService) processResults() {
 			rcs.logger.CriteriaLogSetAsFinished(*criteriaLog)
 			rcs.logger.CriteriaLogSetSuccessful(*criteriaLog)
 
-			//send notification
-			rcs.sendLowestPriceNotification(criteriaID)
-			rcs.sendNewEntryLowestPriceNotification(criteriaID)
+			//TODO min price updated needs more complex logic
+			//// get all ads in criteria
+			//
+			//var adsInCriteria []adsdb.Ad
+			//tx := rcs.repo.GetDB().Model(&adsdb.Ad{}).Preload("Prices").Find(&adsInCriteria, *exsitingAdsIDs)
+			//if tx.Error != nil {
+			//	log.Println("Error getting ads in criteria")
+			//}
+			//minDbPrice := 10000000
+			//var minPriceAd adsdb.Ad
+			//for _, ad := range adsInCriteria {
+			//	lastPrice := ad.Prices[len(ad.Prices)-1].Price
+			//	if minDbPrice < lastPrice {
+			//		minPriceAd = ad
+			//	}
+			//}
+			//rcs.eventsListener.Fire(events.MinPriceUpdatedEvent{Ad: minPriceAd})
 		}
-	}
-}
-
-func (rcs ResultsConsumerService) sendLowestPriceNotification(criteriaID uint) {
-	ad, err := rcs.repo.GetNewEntryLowestPrice(criteriaID)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if ad == nil {
-		return
-	}
-	err = rcs.notificationService.SendOpenAdNotification(ad.ID, *ad.Title)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
-
-func (rcs ResultsConsumerService) sendNewEntryLowestPriceNotification(criteriaID uint) {
-	ad, err := rcs.repo.GetNewEntryLowestPrice(criteriaID)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if ad == nil {
-		return
-	}
-	err = rcs.notificationService.SendOpenAdNotification(ad.ID, *ad.Title)
-	if err != nil {
-		log.Println(err)
-		return
 	}
 }

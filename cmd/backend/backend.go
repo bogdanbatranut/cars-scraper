@@ -4,6 +4,8 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
+	"carscraper/pkg/events"
+	"carscraper/pkg/notifications"
 	"carscraper/pkg/repos"
 	"carscraper/pkg/statistics/calculators/age"
 	"carscraper/pkg/statistics/calculators/discount"
@@ -44,9 +46,12 @@ func main() {
 	r := mux.NewRouter().StrictSlash(true)
 	r.Use(enableCORS)
 
+	notificationsService := notifications.NewNotificationsService(cfg)
+	eventsListener := events.NewEventsListener(notificationsService)
+
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
-	adsRepo := repos.NewAdsRepository(cfg)
+	adsRepo := repos.NewAdsRepository(cfg, eventsListener)
 	adsDB := repos.NewAdsDB(cfg)
 
 	//chartsRepo := repos.NewChartsRepository(cfg)
@@ -60,6 +65,8 @@ func main() {
 	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET", "OPTIONS")
 	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET", "OPTIONS")
 	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET", "OPTIONS")
+
+	r.HandleFunc("/follow", follow(adsDB)).Methods("POST")
 
 	r.HandleFunc("/test", test()).Methods("POST")
 	r.HandleFunc("/ad/{id}", getAd(adsDB)).Methods("GET", "OPTIONS")
@@ -108,6 +115,50 @@ func CORS(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		return
 	})
+}
+
+func follow(repo *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
+		type FollowRequest struct {
+			AdID   uint `json:"adID"`
+			Follow bool `json:"follow"`
+		}
+
+		var followRequest FollowRequest
+		err := json.NewDecoder(r.Body).Decode(&followRequest)
+		if err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		setFollow(followRequest.AdID, followRequest.Follow, repo)
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func setFollow(adID uint, follow bool, db *gorm.DB) {
+	var ad adsdb.Ad
+	result := db.Model(&ad).Where("id = ?", adID).First(&ad)
+	ad.Followed = follow
+	db.Debug().Save(&ad)
+	//ad.Update("follow", follow)
+	if result.Error != nil {
+		log.Println("error updating follow status:", result.Error)
+	}
+	log.Printf("Rows affected: %d", result.RowsAffected)
 }
 
 func test() func(w http.ResponseWriter, r *http.Request) {

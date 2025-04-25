@@ -21,5 +21,6 @@ type Ad struct {
 	Market       Market
 	Seller       Seller
 	Prices       []Price
+	Followed     bool `gorm:"not null"`
 	//DealerMarketPrices []DealerMarketPrice `gorm:"many2many:dealer_market_prices;"`
 }

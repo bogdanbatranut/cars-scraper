@@ -3,6 +3,7 @@ package repos
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
+	"carscraper/pkg/events"
 	"fmt"
 	"log"
 	"math"
@@ -21,7 +22,8 @@ type Pagination struct {
 }
 
 type AdsRepository struct {
-	db *gorm.DB
+	db             *gorm.DB
+	eventsListener *events.EventsListener
 }
 
 func NewAdsDB(cfg amconfig.IConfig) *gorm.DB {
@@ -37,7 +39,7 @@ func NewAdsDB(cfg amconfig.IConfig) *gorm.DB {
 	return db
 }
 
-func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
+func NewAdsRepository(cfg amconfig.IConfig, eventsListener *events.EventsListener) *AdsRepository {
 	databaseName := cfg.GetString(amconfig.AppDBName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
 	dbUser := cfg.GetString(amconfig.AppDBUser)
@@ -48,8 +50,13 @@ func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
 		panic(err)
 	}
 	return &AdsRepository{
-		db: db,
+		db:             db,
+		eventsListener: eventsListener,
 	}
+}
+
+func (r AdsRepository) GetDB() *gorm.DB {
+	return r.db
 }
 
 func (r AdsRepository) GetSellerAds(dealerID uint) *[]adsdb.Ad {
@@ -90,6 +97,26 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				return nil, tx.Error
 			}
 			dbAd = foundAd
+
+			// get all ads in criteria
+
+			var adsInCriteria []adsdb.Ad
+			tx = r.db.Model(&adsdb.Ad{}).Preload("Prices").Where("criteria_id = ?", dbAd.CriteriaID).Find(&adsInCriteria)
+			if tx.Error != nil {
+				log.Println("Error getting ads in criteria")
+			}
+			minDbPrice := 10000000
+			for _, ad := range adsInCriteria {
+				lastPrice := ad.Prices[len(ad.Prices)-1].Price
+				if minDbPrice < lastPrice {
+					minDbPrice = lastPrice
+				}
+			}
+
+			if *foundAd.CurrentPrice < minDbPrice {
+				r.eventsListener.Fire(events.MinPriceCreatedEvent{Ad: dbAd})
+			}
+
 		} else {
 			// we have the ad in the db
 			// if the ad is inactive we must activate
@@ -158,6 +185,17 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			if tx.Error != nil {
 				log.Println(tx.Error)
 				return nil, tx.Error
+			}
+			var prices []adsdb.Price
+			tx = r.db.Model(&adsdb.Price{}).Where("ad_id = ?", dbAd.ID).Find(&prices)
+			if tx.Error != nil {
+				// no need to return ... just will not fire the event
+				log.Println(tx.Error)
+				log.Println("notification will no be fired")
+			}
+			dbAd.Prices = prices
+			if dbAd.Followed {
+				r.eventsListener.Fire(events.UpdatePriceEvent{Ad: dbAd})
 			}
 		}
 
