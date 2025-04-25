@@ -25,6 +25,10 @@ func (el *EventsListener) Fire(event interface{}) {
 		el.handleUpdatePrice(e)
 	case DeleteEvent:
 		el.handleDelete(e)
+	case MinPriceUpdatedEvent:
+		el.handleMinPriceWhenUpdated(e)
+	case MinPriceCreatedEvent:
+		el.handleMinPriceCreated(e)
 	default:
 		panic("unknown event type")
 	}
@@ -62,7 +66,7 @@ func (el *EventsListener) handleMinPriceCreated(event MinPriceCreatedEvent) {
 	}
 }
 
-func (el *EventsListener) handleMinPriceWhenUpdated(event MinPriceCreatedEvent) {
+func (el *EventsListener) handleMinPriceWhenUpdated(event MinPriceUpdatedEvent) {
 	err := el.notificationService.SendNewMinPrice(event.Ad)
 	if err != nil {
 		log.Println(err)
