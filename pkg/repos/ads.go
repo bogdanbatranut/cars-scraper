@@ -3,6 +3,7 @@ package repos
 import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
+	"carscraper/pkg/events"
 	"fmt"
 	"log"
 	"math"
@@ -20,23 +21,25 @@ type Pagination struct {
 	//Rows       interface{} `json:"rows"`
 }
 
-type IAdsRepository interface {
-	GetAll() (*[]adsdb.Ad, error)
-	GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint
-	GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad
-	GetAdsForCriteriaPaginated(pagination *Pagination, criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) (*[]adsdb.Ad, *Pagination)
-	Upsert(ads []adsdb.Ad) (*[]uint, error)
-	DeleteAd(adID uint)
-	DeletePrice(priceID uint)
-	GetAdPrices(adID uint) []adsdb.Price
-	UpdateCurrentPrice(adID uint)
-}
-
 type AdsRepository struct {
-	db *gorm.DB
+	db             *gorm.DB
+	eventsListener *events.EventsListener
 }
 
-func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
+func NewAdsDB(cfg amconfig.IConfig) *gorm.DB {
+	databaseName := cfg.GetString(amconfig.AppDBName)
+	databaseHost := cfg.GetString(amconfig.AppDBHost)
+	dbUser := cfg.GetString(amconfig.AppDBUser)
+	dbPass := cfg.GetString(amconfig.AppDBPass)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, databaseHost, databaseName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+func NewAdsRepository(cfg amconfig.IConfig, eventsListener *events.EventsListener) *AdsRepository {
 	databaseName := cfg.GetString(amconfig.AppDBName)
 	databaseHost := cfg.GetString(amconfig.AppDBHost)
 	dbUser := cfg.GetString(amconfig.AppDBUser)
@@ -47,8 +50,20 @@ func NewAdsRepository(cfg amconfig.IConfig) *AdsRepository {
 		panic(err)
 	}
 	return &AdsRepository{
-		db: db,
+		db:             db,
+		eventsListener: eventsListener,
 	}
+}
+
+func (r AdsRepository) GetDB() *gorm.DB {
+	return r.db
+}
+
+func (r AdsRepository) GetSellerAds(dealerID uint) *[]adsdb.Ad {
+	var ads []adsdb.Ad
+	tx := r.db.Unscoped().Preload("Seller").Preload("Prices").Where("seller_id = ?", dealerID).Find(&ads)
+	tx.Find(&ads)
+	return &ads
 }
 
 func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
@@ -62,7 +77,6 @@ func (r AdsRepository) GetAll() (*[]adsdb.Ad, error) {
 
 func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 	adsIds := []uint{}
-
 	for _, foundAd := range ads {
 		foundAdPrice := foundAd.Prices[0].Price
 		foundAdKm := foundAd.Km
@@ -82,6 +96,26 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				return nil, tx.Error
 			}
 			dbAd = foundAd
+
+			// get all ads in criteria
+
+			var adsInCriteria []adsdb.Ad
+			tx = r.db.Model(&adsdb.Ad{}).Preload("Prices").Where("criteria_id = ?", dbAd.CriteriaID).Find(&adsInCriteria)
+			if tx.Error != nil {
+				log.Println("Error getting ads in criteria")
+			}
+			minDbPrice := 10000000
+			for _, ad := range adsInCriteria {
+				lastPrice := ad.Prices[len(ad.Prices)-1].Price
+				if minDbPrice < lastPrice {
+					minDbPrice = lastPrice
+				}
+			}
+
+			if *foundAd.CurrentPrice < minDbPrice {
+				r.eventsListener.Fire(events.MinPriceCreatedEvent{Ad: dbAd})
+			}
+
 		} else {
 			// we have the ad in the db
 			// if the ad is inactive we must activate
@@ -93,12 +127,19 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				}
 			}
 			r.db.First(&dbAd, dbAd.ID)
+
+			if foundAd.Title != nil {
+				r.db.Model(&dbAd).Update("title", *foundAd.Title)
+			}
 			// set new values if they exist
 			if foundAd.Km != 0 && foundAd.Km != dbAd.Km {
 				r.db.Model(&dbAd).Update("km", foundAdKm)
 			}
-			if foundAd.Ad_url != "" && foundAd.Ad_url != dbAd.Ad_url {
+			if foundAd.Title != nil {
+				r.db.Model(&dbAd).Update("title", *foundAd.Title)
+			}
 
+			if foundAd.Ad_url != "" && foundAd.Ad_url != dbAd.Ad_url {
 				adURL := foundAd.Ad_url
 				if foundAd.MarketID == 11 {
 					if !strings.Contains(foundAd.Ad_url, "www.mobile.de") {
@@ -143,6 +184,17 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 				log.Println(tx.Error)
 				return nil, tx.Error
 			}
+			var prices []adsdb.Price
+			tx = r.db.Model(&adsdb.Price{}).Where("ad_id = ?", dbAd.ID).Find(&prices)
+			if tx.Error != nil {
+				// no need to return ... just will not fire the event
+				log.Println(tx.Error)
+				log.Println("notification will no be fired")
+			}
+			dbAd.Prices = prices
+			if dbAd.Followed {
+				r.eventsListener.Fire(events.UpdatePriceEvent{Ad: dbAd})
+			}
 		}
 
 		adsIds = append(adsIds, dbAd.ID)
@@ -175,9 +227,15 @@ func (r AdsRepository) GetAllAdsIDs(marketID uint, criteriaID uint) *[]uint {
 	return &adsIDs
 }
 
-func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int) *[]adsdb.Ad {
+func (r AdsRepository) GetAdsForCriteria(criteriaID uint, markets []string, minKm *int, maxKm *int, minPrice *int, maxPrice *int, years *[]string) *[]adsdb.Ad {
 	var ads []adsdb.Ad
-	r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	//r.db.Preload("Prices").Preload("Market").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice).Find(&ads)
+	tx := r.db.Debug().Preload("Prices").Preload("Market").Preload("Seller").Where("criteria_id = ?", criteriaID).Where("market_id", markets).Where("current_price <= ?", maxPrice).Where("current_price >= ? ", minPrice)
+	if years != nil {
+		//tx = tx.Where("Year IN (?)", years)
+		tx = tx.Where("year", *years)
+	}
+	tx.Find(&ads)
 	return &ads
 }
 
@@ -273,4 +331,50 @@ func paginate(value interface{}, pagination *Pagination, db *gorm.DB) func(db *g
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
 	}
+}
+
+func (r AdsRepository) GetTodaysLowestPriceInCriteria(criteriaID uint) (*adsdb.Ad, error) {
+	var ad adsdb.Ad
+
+	// Query to find the ad with the lowest price updated today for the given criteriaID
+	tx := r.db.Model(&adsdb.Ad{}).
+		Joins("JOIN prices ON prices.ad_id = ads.id").
+		Where("ads.criteria_id = ?", criteriaID).
+		Where("DATE(prices.created_at) = CURDATE()").
+		Order("prices.price ASC").
+		Preload("Prices"). // Preload prices for the ad
+		First(&ad)
+
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return nil, nil // No ad found with a price updated today
+		}
+		return nil, tx.Error // Return other errors
+	}
+
+	return &ad, nil
+}
+
+func (r AdsRepository) GetNewEntryLowestPrice(criteriaID uint) (*adsdb.Ad, error) {
+	var ad adsdb.Ad
+
+	// Query to find the ad with only one price and the price created today
+	tx := r.db.Model(&adsdb.Ad{}).
+		Joins("JOIN prices ON prices.ad_id = ads.id").
+		Where("ads.criteria_id = ?", criteriaID).
+		Where("DATE(prices.created_at) = CURDATE()").
+		Group("ads.id").
+		Having("COUNT(prices.id) = 1").
+		Order("MIN(prices.price) ASC").
+		Preload("Prices"). // Preload prices for the ad
+		First(&ad)
+
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return nil, nil // No ad found matching the criteria
+		}
+		return nil, tx.Error // Return other errors
+	}
+
+	return &ad, nil
 }

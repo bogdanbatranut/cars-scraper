@@ -249,6 +249,9 @@ func (oAd OlxAd) getSellerType() string {
 }
 
 func (oAd OlxAd) getThumbnailURL() *string {
+	if len(oAd.Photos) == 0 {
+		return nil
+	}
 	w := oAd.Photos[0].Width
 	h := oAd.Photos[0].Height
 	fileName := oAd.Photos[0].Filename

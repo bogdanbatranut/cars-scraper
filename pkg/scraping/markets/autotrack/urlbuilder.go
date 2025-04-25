@@ -3,39 +3,40 @@ package autotrack
 import (
 	"carscraper/pkg/jobs"
 	"fmt"
+	"log"
 )
 
 type URLBuilder struct {
-	criteria    jobs.Criteria
 	brandModels map[string]map[string]*BrandModelIds
 }
 
-func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
+func NewURLBuilder() *URLBuilder {
 	builder := &URLBuilder{
-		criteria:    criteria,
 		brandModels: buildBrandModelIDsParams(),
 	}
 	return builder
 }
 
-func (b URLBuilder) GetPageURL(pageNumber int) *string {
+func (b URLBuilder) GetURL(job jobs.SessionJob) *string {
 	fuels := make(map[string]string)
 	fuels["diesel"] = "DIESEL"
 	fuels["petrol"] = "BENZINE"
+	fuels["hybrid-petrol"] = "HYBRIDE_BENZINE"
 
-	bm := b.brandModels[b.criteria.Brand][b.criteria.CarModel]
+	bm := b.brandModels[job.Criteria.Brand][job.Criteria.CarModel]
 	if bm == nil {
 		return nil
 	}
 	pr := bm.asQueryParams()
 	url := fmt.Sprintf(
-		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=30&sortering=PRIJS_OPLOPEND",
-		*b.criteria.YearFrom,
-		*b.criteria.KmTo,
-		fuels[b.criteria.Fuel],
+		"https://www.autotrack.nl/aanbod?minimumbouwjaar=%d&maximumkilometerstand=%d&beschikbaarheidsStatus=beschikbaar&brandstofsoorten=%s&%s&paginanummer=%d&paginagrootte=90&sortering=PRIJS_OPLOPEND",
+		*job.Criteria.YearFrom,
+		*job.Criteria.KmTo,
+		fuels[job.Criteria.Fuel],
 		pr,
-		pageNumber,
+		job.Market.PageNumber,
 	)
+	log.Println("AUTOTRACK Fuel : ", fuels[job.Criteria.Fuel], "Fuel in criteria : ", job.Criteria.Fuel)
 	return &url
 }
 
@@ -57,6 +58,13 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	}
 	modelMap := make(map[string]*BrandModelIds)
 	modelMap["x5"] = &bmwx5
+	brandModelsMap["bmw"] = modelMap
+
+	bmwx5m := BrandModelIds{
+		BrandID: bmw,
+		ModelID: "9cd35d47-1efe-4048-83f2-fa34df60c370",
+	}
+	modelMap["x5-m"] = &bmwx5m
 	brandModelsMap["bmw"] = modelMap
 
 	bmwx4 := BrandModelIds{
@@ -178,6 +186,75 @@ func buildBrandModelIDsParams() map[string]map[string]*BrandModelIds {
 	}
 	modelMap["s90"] = &s90
 	brandModelsMap["volvo"] = modelMap
+
+	xc40 := BrandModelIds{
+		BrandID: volvo,
+		ModelID: "8c4dc7aa-755b-4377-ab2f-0d984b5db139",
+	}
+	modelMap["xc40"] = &xc40
+	brandModelsMap["volvo"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+
+	yarisCross := BrandModelIds{
+		BrandID: "adc46765-6df3-4825-bdd2-0c6d427eaa41",
+		ModelID: "bf2fdb16-bf85-4d19-9739-92ba48102aa0",
+	}
+
+	modelMap["yaris-cross"] = &yarisCross
+	brandModelsMap["toyota"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	vwTouareg := BrandModelIds{
+		BrandID: "008d8fc3-b882-4657-9229-4239d5f7e469",
+		ModelID: "f74be334-7f97-496e-9bc6-2c2111237461",
+	}
+	modelMap["touareg"] = &vwTouareg
+	brandModelsMap["volkswagen"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	audiQ7 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "392e2478-d2bb-499c-8fb2-5a5d5cbb1581",
+	}
+	modelMap["q7"] = &audiQ7
+	brandModelsMap["audi"] = modelMap
+
+	audiQ5 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "59ca586c-75ca-4554-94a3-e66be9c6f475",
+	}
+	modelMap["q5"] = &audiQ5
+	brandModelsMap["audi"] = modelMap
+
+	audiA6 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "871154e5-19a7-4190-90ee-89a7a8e00fca",
+	}
+	modelMap["a6"] = &audiA6
+	brandModelsMap["audi"] = modelMap
+
+	audiQ3 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "43aea38c-b114-4469-9b5b-0de166864247",
+	}
+	modelMap["q3"] = &audiQ3
+	brandModelsMap["audi"] = modelMap
+
+	audiQ8 := BrandModelIds{
+		BrandID: "9fdc7e2d-b40c-4ee6-896d-9f0453cb39c6",
+		ModelID: "c3df76bd-8e5b-40e6-a187-15074ff92524",
+	}
+	modelMap["q8"] = &audiQ8
+	brandModelsMap["audi"] = modelMap
+
+	modelMap = make(map[string]*BrandModelIds)
+	mazdacx60 := BrandModelIds{
+		BrandID: "112c997b-b9b4-4369-ad2f-c1238d709134",
+		ModelID: "8c5d3470-7895-41cd-bed8-bd08e62506d6",
+	}
+	modelMap["cx-60"] = &mazdacx60
+	brandModelsMap["mazda"] = modelMap
 
 	return brandModelsMap
 }

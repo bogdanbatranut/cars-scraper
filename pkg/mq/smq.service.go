@@ -2,26 +2,38 @@ package mq
 
 import (
 	"carscraper/pkg/amconfig"
+	"carscraper/pkg/jobs"
 	"carscraper/pkg/repos"
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
 type MessageQueueService struct {
-	messagesQueue       repos.IMessageQueue
-	criteriasRepository repos.ICriteriaRepository
+	messagesQueue    repos.IMessageQueue
+	resultsTopicName string
+	jobsTopicName    string
+	adsChannel       chan jobs.AdsPageJobResult
+	cfg              amconfig.IConfig
 }
 
-func NewMessageQueueService(cfgs ...MessageQueueServiceConfiguration) *MessageQueueService {
+type MessageQueueServiceConfiguration func(mqs *MessageQueueService)
 
-	mqs := &MessageQueueService{}
+func NewMessageQueueService(cfg amconfig.IConfig, cfgs ...MessageQueueServiceConfiguration) *MessageQueueService {
+
+	mqs := &MessageQueueService{
+		cfg:        cfg,
+		adsChannel: make(chan jobs.AdsPageJobResult),
+	}
 	for _, cfg := range cfgs {
 		cfg(mqs)
 	}
 	return mqs
 }
 
-type MessageQueueServiceConfiguration func(mqs *MessageQueueService)
+func (service MessageQueueService) PublishResults(adsResults jobs.AdsPageJobResult) {
+	service.adsChannel <- adsResults
+}
 
 func WithMessageQueueRepository(mqr repos.IMessageQueue) MessageQueueServiceConfiguration {
 	return func(mqs *MessageQueueService) {
@@ -29,34 +41,44 @@ func WithMessageQueueRepository(mqr repos.IMessageQueue) MessageQueueServiceConf
 	}
 }
 
-func WithSimpleMessageQueueRepository() MessageQueueServiceConfiguration {
+func WithLocalMessageQueue() MessageQueueServiceConfiguration {
 	smqr := repos.NewSimpleMessageQueueRepository(
 		"http://127.0.0.1:3333")
 	return WithMessageQueueRepository(smqr)
 }
 
-func WithCriteriaSQLRepository(cfg amconfig.IConfig) MessageQueueServiceConfiguration {
-	return func(mqs *MessageQueueService) {
-		mqs.criteriasRepository = repos.NewSQLCriteriaRepository(cfg)
+func WithProdMessageQueue() MessageQueueServiceConfiguration {
+	return func(service *MessageQueueService) {
+		smqHost := service.cfg.GetString(amconfig.SMQURL)
+		smqPort := service.cfg.GetString(amconfig.SMQHTTPPort)
+		resultsTopicName := service.cfg.GetString(amconfig.SMQResultsTopicName)
+		jobsTopicName := service.cfg.GetString(amconfig.SMQJobsTopicName)
+		service.jobsTopicName = jobsTopicName
+		service.resultsTopicName = resultsTopicName
+		//smqr := repos.NewSimpleMessageQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
+		//return WithMessageQueueRepository(smqr)
+
+		service.messagesQueue = repos.NewQueueRepository(fmt.Sprintf("http://%s:%s", smqHost, smqPort))
 	}
 }
 
-func (mqs MessageQueueService) Start() {
-	criterias := mqs.criteriasRepository.GetAll()
-	for _, criteria := range *criterias {
-		bytes, err := json.Marshal(&criteria)
-		if err != nil {
-			panic(err)
+func (service MessageQueueService) Start() {
+	go func() {
+		for {
+			service.handleResults()
 		}
-		mqs.messagesQueue.PutMessage("test", bytes)
-	}
+	}()
+}
 
-	for {
-
-		resp := mqs.messagesQueue.GetMessage("test")
-		log.Printf(string(*resp))
-		if len(*resp) == 0 {
-			break
-		}
+func (service MessageQueueService) handleResults() {
+	res := <-service.adsChannel
+	resBytes, err := json.Marshal(&res)
+	if err != nil {
+		panic(err)
 	}
+	if service.messagesQueue == nil {
+		log.Println("No Message queue")
+		return
+	}
+	service.messagesQueue.PutMessage(service.resultsTopicName, resBytes)
 }

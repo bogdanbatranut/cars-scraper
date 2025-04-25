@@ -4,7 +4,11 @@ import (
 	"carscraper/pkg/adsdb"
 	"carscraper/pkg/amconfig"
 	"carscraper/pkg/errorshandler"
+	"carscraper/pkg/events"
+	"carscraper/pkg/notifications"
 	"carscraper/pkg/repos"
+	"carscraper/pkg/statistics/calculators/age"
+	"carscraper/pkg/statistics/calculators/discount"
 	"carscraper/pkg/valueobjects"
 	"encoding/json"
 	"fmt"
@@ -15,12 +19,23 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	log.Println("starting BACKEND service...")
@@ -29,36 +44,40 @@ func main() {
 	errorshandler.HandleErr(err)
 
 	r := mux.NewRouter().StrictSlash(true)
-	//r.Use(CORS)
+	r.Use(enableCORS)
+
+	notificationsService := notifications.NewNotificationsService(cfg)
+	eventsListener := events.NewEventsListener(notificationsService)
 
 	criteriaRepo := repos.NewSQLCriteriaRepository(cfg)
 	marketsRepo := repos.NewSQLMarketsRepository(cfg)
-	adsRepo := repos.NewAdsRepository(cfg)
+	adsRepo := repos.NewAdsRepository(cfg, eventsListener)
+	adsDB := repos.NewAdsDB(cfg)
 
-	chartsRepo := repos.NewChartsRepository(cfg)
-	chartsRepo.GetAdsPricesByStep(5000)
-
-	cleanupPrices(adsRepo)
-	cleanupAds(cfg)
+	//chartsRepo := repos.NewChartsRepository(cfg)
+	//chartsRepo.GetAdsPricesByStep(5000)
 
 	r.HandleFunc("/updatePrices", setCurrentPrice(adsRepo)).Methods("GET")
 
-	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET")
-	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET")
-	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET")
-	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET")
+	r.HandleFunc("/markets", getMarkets(marketsRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/criterias", getCriterias(criteriaRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/adsforcriteria/{id}", getAdsForCriteria(adsRepo)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/adsforcriteriaPaginated/{id}", getAdsForCriteriaPaginated(adsRepo)).Methods("GET", "OPTIONS")
+
+	r.HandleFunc("/follow", follow(adsDB)).Methods("POST")
 
 	r.HandleFunc("/test", test()).Methods("POST")
+	r.HandleFunc("/ad/{id}", getAd(adsDB)).Methods("GET", "OPTIONS")
 
 	r.HandleFunc("/marketsAndCriterias", marketsAndCriterias(criteriaRepo)).Methods("POST")
 
 	httpPort := cfg.GetString(amconfig.BackendServiceHTTPPort)
 	log.Printf("HTTP listening on port %s\n", httpPort)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), r)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", httpPort), enableCORS(r))
 	errorshandler.HandleErr(err)
 }
 
-func setCurrentPrice(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func setCurrentPrice(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ads *[]adsdb.Ad
 		ads, err := repo.GetAll()
@@ -93,6 +112,50 @@ func CORS(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		return
 	})
+}
+
+func follow(repo *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
+		type FollowRequest struct {
+			AdID   uint `json:"adID"`
+			Follow bool `json:"follow"`
+		}
+
+		var followRequest FollowRequest
+		err := json.NewDecoder(r.Body).Decode(&followRequest)
+		if err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		setFollow(followRequest.AdID, followRequest.Follow, repo)
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func setFollow(adID uint, follow bool, db *gorm.DB) {
+	var ad adsdb.Ad
+	result := db.Model(&ad).Where("id = ?", adID).First(&ad)
+	ad.Followed = follow
+	db.Debug().Save(&ad)
+	//ad.Update("follow", follow)
+	if result.Error != nil {
+		log.Println("error updating follow status:", result.Error)
+	}
+	log.Printf("Rows affected: %d", result.RowsAffected)
 }
 
 func test() func(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +238,7 @@ func marketsAndCriterias(repo *repos.SQLCriteriaRepository) func(w http.Response
 //
 //}
 
-func cleanupPrices(repo repos.IAdsRepository) {
+func cleanupPrices(repo repos.AdsRepository) {
 	// get all ads
 	allAds, err := repo.GetAll()
 	if err != nil {
@@ -352,11 +415,47 @@ func removeDuplicates(prices []adsdb.Price, adID uint) []uint {
 	return duplicates
 }
 
+func getAd(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		idStr, ok := vars["id"]
+		if !ok {
+			fmt.Println("id is missing in parameters")
+		}
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			w.Write([]byte("Invalid ID"))
+			return
+		}
+		var ad adsdb.Ad
+		tx := db.Preload("Prices").First(&ad, id)
+		if tx.Error != nil {
+			panic(err)
+		}
+
+		response, err := json.Marshal(&ad)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(response)
+	}
+}
+
 func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Methods", "POST")
-		r.Header.Set("Access-Control-Allow-Methods", "POST")
-		r.Header.Set("Access-Control-Allow-Origin", "*")
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
 		markets := repo.GetAll()
 		type MarketsResponse struct {
 			Data []adsdb.Market
@@ -366,26 +465,50 @@ func getMarkets(repo repos.IMarketsRepository) func(w http.ResponseWriter, r *ht
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Set("Access-Control-Allow-Methods", "POST")
-		w.Header().Add("Access-Control-Allow-Origin", "*")
+		//w.Header().Set("Access-Control-Allow-Methods", "POST")
+		//w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
 func getCriterias(repo repos.ICriteriaRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+
 		criterias := repo.GetAll()
 		response, err := json.Marshal(&criterias)
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
-func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func getAdsForCriteria(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 
 		vars := mux.Vars(r)
 		idStr, ok := vars["id"]
@@ -404,6 +527,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		limitLowStr := r.URL.Query().Get("limitLow")
 		limitHighStr := r.URL.Query().Get("limitHigh")
 		groupingOption := r.URL.Query().Get("groupingOption")
+		yearsStr := r.URL.Query().Get("years")
 
 		//var lowLimit *int
 
@@ -421,8 +545,22 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 
 		markets := strings.Split(marketsStr, ",")
 
+		var years []string
+		if yearsStr != "" {
+			yearsArr := strings.Split(yearsStr, ",")
+			for _, yearStr := range yearsArr {
+				//year, err := strconv.Atoi(yearStr)
+				//if err != nil {
+				//	panic(err)
+				//}
+				years = append(years, yearStr)
+			}
+		}
+
+		years = strings.Split(yearsStr, ",")
+
 		var ads []Ad
-		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit, &years)
 		//var ads []Ad
 		type GroupedAds struct {
 			Discounted []Ad
@@ -440,19 +578,19 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 			}
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent := computeDiscount(dbAd)
+					discountVal, discountPercent := discount.CalculateAdDiscount(dbAd)
 
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
 							Ad:              dbAd,
-							Age:             computeAge(dbAd),
+							Age:             age.CalculateAdAge(dbAd),
 							DiscountValue:   discountVal,
 							DiscountPercent: discountPercent,
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
 							Ad:              dbAd,
-							Age:             computeAge(dbAd),
+							Age:             age.CalculateAdAge(dbAd),
 							DiscountValue:   discountVal,
 							DiscountPercent: discountPercent,
 						})
@@ -461,7 +599,7 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 				} else {
 					groupedAds.Rest = append(groupedAds.Rest, Ad{
 						Ad:              dbAd,
-						Age:             computeAge(dbAd),
+						Age:             age.CalculateAdAge(dbAd),
 						DiscountValue:   0,
 						DiscountPercent: 0,
 					})
@@ -474,11 +612,11 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 				discountVal := 0
 				discountPercent := float64(0)
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent = computeDiscount(dbAd)
+					discountVal, discountPercent = discount.CalculateAdDiscount(dbAd)
 				}
 				ads = append(ads, Ad{
 					Ad:              dbAd,
-					Age:             computeAge(dbAd),
+					Age:             age.CalculateAdAge(dbAd),
 					DiscountValue:   discountVal,
 					DiscountPercent: discountPercent,
 				})
@@ -502,13 +640,25 @@ func getAdsForCriteria(repo repos.IAdsRepository) func(w http.ResponseWriter, r 
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Write(response)
 	}
 }
 
-func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseWriter, r *http.Request) {
+func getAdsForCriteriaPaginated(repo *repos.AdsRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Set CORS headers for the actual request
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 
 		vars := mux.Vars(r)
 		idStr, ok := vars["id"]
@@ -529,6 +679,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 		groupingOption := r.URL.Query().Get("groupingOption")
 		limitStr := r.URL.Query().Get("limit")
 		pageStr := r.URL.Query().Get("page")
+		yearsStr := r.URL.Query().Get("years")
 
 		limit, err := strconv.Atoi(limitStr)
 		if err != nil {
@@ -565,8 +716,22 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 
 		var ads []Ad
 
+		var years []string
+		if yearsStr != "" {
+			yearsArr := strings.Split(yearsStr, ",")
+			for _, yearStr := range yearsArr {
+				//year, err := strconv.Atoi(yearStr)
+				//if err != nil {
+				//	panic(err)
+				//}
+				years = append(years, yearStr)
+			}
+		}
+		years = strings.Split(yearsStr, ",")
+
 		//dbAds, pagination := repo.GetAdsForCriteriaPaginated(&requestPagination, uint(id), markets, nil, nil, lowLimit, highLimit)
-		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit)
+		dbAds := repo.GetAdsForCriteria(uint(id), markets, nil, nil, lowLimit, highLimit, &years)
+
 		//var ads []Ad
 		type GroupedAds struct {
 			Discounted []Ad
@@ -587,14 +752,8 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 			Pagination: requestPagination,
 			Ads:        nil,
 		}}
+
 		for _, dbAd := range *dbAds {
-			//if index < (page-1)*limit {
-			//	continue
-			//}
-			//
-			//if index > page*limit {
-			//	break
-			//}
 
 			if !inPriceRange(lowLimit, highLimit, dbAd) {
 				continue
@@ -602,30 +761,34 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 
 			if groupingOption == "discounted" {
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent := computeDiscount(dbAd)
-
+					discountVal, discountPercent := discount.CalculateAdDiscount(dbAd)
+					discountDailyAmount := discount.CalculateDailyDiscount(dbAd)
 					if discountVal > 0 {
 						groupedAds.Discounted = append(groupedAds.Discounted, Ad{
-							Ad:              dbAd,
-							Age:             computeAge(dbAd),
-							DiscountValue:   discountVal,
-							DiscountPercent: discountPercent,
+							Ad:                    dbAd,
+							Age:                   age.CalculateAdAge(dbAd),
+							DiscountValue:         discountVal,
+							DiscountPercent:       discountPercent,
+							DailyDiscountAmmount:  discountDailyAmount,
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 						})
 					} else {
 						groupedAds.Increased = append(groupedAds.Increased, Ad{
-							Ad:              dbAd,
-							Age:             computeAge(dbAd),
-							DiscountValue:   discountVal,
-							DiscountPercent: discountPercent,
+							Ad:                    dbAd,
+							Age:                   age.CalculateAdAge(dbAd),
+							DiscountValue:         discountVal,
+							DiscountPercent:       discountPercent,
+							DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 						})
 					}
 
 				} else {
 					groupedAds.Rest = append(groupedAds.Rest, Ad{
-						Ad:              dbAd,
-						Age:             computeAge(dbAd),
-						DiscountValue:   0,
-						DiscountPercent: 0,
+						Ad:                    dbAd,
+						Age:                   age.CalculateAdAge(dbAd),
+						DiscountValue:         0,
+						DiscountPercent:       0,
+						DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 					})
 				}
 
@@ -636,13 +799,14 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 				discountVal := 0
 				discountPercent := float64(0)
 				if len(dbAd.Prices) > 1 {
-					discountVal, discountPercent = computeDiscount(dbAd)
+					discountVal, discountPercent = discount.CalculateAdDiscount(dbAd)
 				}
 				ads = append(ads, Ad{
-					Ad:              dbAd,
-					Age:             computeAge(dbAd),
-					DiscountValue:   discountVal,
-					DiscountPercent: discountPercent,
+					Ad:                    dbAd,
+					Age:                   age.CalculateAdAge(dbAd),
+					DiscountValue:         discountVal,
+					DiscountPercent:       discountPercent,
+					DealerAverageDiscount: discount.GetCalculatedAverageDealerDiscountPercent(repo, dbAd.SellerID, dbAd.MarketID),
 				})
 
 			}
@@ -683,7 +847,7 @@ func getAdsForCriteriaPaginated(repo repos.IAdsRepository) func(w http.ResponseW
 		if err != nil {
 			panic(err)
 		}
-		w.Header().Add("Access-Control-Allow-Origin", "*")
+
 		w.Write(response)
 	}
 }
@@ -724,37 +888,23 @@ func sortAds(ads []Ad, sortOption string, sortOptionDirection string) {
 			sort.Sort(ByDiscountPercent(ads))
 		}
 	}
+	if sortOption == "byDailyDiscountAmount" {
+		if sortOptionDirection == "desc" {
+			sort.Sort(ByDailyDiscountAmountDesc(ads))
+		} else {
+			sort.Sort(ByDiscountPercent(ads))
+		}
+	}
 
-}
-
-func computeAge(ad adsdb.Ad) int {
-	currentTime := time.Now()
-	adFirstSeenTime := ad.CreatedAt
-	diff := currentTime.Sub(adFirstSeenTime)
-	return int(diff.Hours() / 24)
-}
-
-func computeDiscount(ad adsdb.Ad) (int, float64) {
-	discVal := ad.Prices[0].Price - ad.Prices[len(ad.Prices)-1].Price
-	discPercent := float64(discVal) / float64(ad.Prices[0].Price) * 100
-	ro := toFixed(discPercent, 2)
-	return discVal, ro
-}
-
-func round(num float64) int {
-	return int(num + math.Copysign(0.5, num))
-}
-
-func toFixed(num float64, precision int) float64 {
-	output := math.Pow(10, float64(precision))
-	return float64(round(num*output)) / output
 }
 
 type Ad struct {
 	adsdb.Ad
-	Age             int
-	DiscountValue   int
-	DiscountPercent float64
+	Age                   int
+	DiscountValue         int
+	DiscountPercent       float64
+	DailyDiscountAmmount  float64
+	DealerAverageDiscount float64
 }
 
 type ByPrice []Ad
@@ -767,9 +917,23 @@ type ByDiscount []Ad
 type ByDiscountDesc []Ad
 type ByDiscountPercent []Ad
 type ByDiscountPercentDesc []Ad
+type ByDailyDiscountAmountDesc []Ad
+type ByDailyDiscountAmount []Ad
 
 func sortAdsByPrice(ads *[]Ad) {
 	sort.Sort(ByPrice(*ads))
+}
+
+func (a ByDailyDiscountAmountDesc) Len() int      { return len(a) }
+func (a ByDailyDiscountAmountDesc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDailyDiscountAmountDesc) Less(i, j int) bool {
+	return a[i].DailyDiscountAmmount > a[j].DailyDiscountAmmount
+}
+
+func (a ByDailyDiscountAmount) Len() int      { return len(a) }
+func (a ByDailyDiscountAmount) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDailyDiscountAmount) Less(i, j int) bool {
+	return a[i].DailyDiscountAmmount < a[j].DailyDiscountAmmount
 }
 
 func (a ByDiscountPercent) Len() int      { return len(a) }

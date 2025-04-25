@@ -41,15 +41,18 @@ func (q QueryParam) toQueryStr() string {
 func initModelsAdapterMap() map[string]string {
 	modelsMap := make(map[string]string)
 
+	modelsMap["x3"] = "x3"
+	modelsMap["x3-m"] = "bmw-x3m"
 	modelsMap["x4"] = "x4"
 	modelsMap["x4-m"] = "x4"
 	modelsMap["x5"] = "x5"
 	modelsMap["x5-m"] = "bmw-x5m"
 	modelsMap["x6"] = "x6"
-	modelsMap["x6-m"] = "x6"
+	modelsMap["x6-m"] = "bmw-x6m"
 	modelsMap["7-series"] = "seria-7"
 	modelsMap["gle-class"] = "gle"
 	modelsMap["e-class"] = "e"
+	modelsMap["xc40"] = "xc-40"
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc-90"
 	modelsMap["xc60"] = "xc-60"
@@ -59,6 +62,15 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["octavia"] = "octavia"
 	modelsMap["superb"] = "superb"
 	modelsMap["mokka"] = "mokka"
+	modelsMap["yaris-cross"] = "mokka"
+	modelsMap["touareg"] = "touareg"
+	modelsMap["a6"] = "a6"
+	modelsMap["q8"] = "q8"
+	modelsMap["q7"] = "q7"
+	modelsMap["q5"] = "q5"
+	modelsMap["q3"] = "q3"
+	modelsMap["cx-60"] = "cx-60"
+	modelsMap["kodiaq"] = "kodiaq"
 
 	return modelsMap
 }

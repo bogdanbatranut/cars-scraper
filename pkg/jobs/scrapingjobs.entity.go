@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"carscraper/pkg/scraping/urlbuilder"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -27,12 +27,18 @@ type Session struct {
 }
 
 type SessionJob struct {
-	SessionID  uuid.UUID
-	JobID      uuid.UUID
-	CriteriaID uint
-	MarketID   uint
-	Criteria   Criteria
-	Market     Market
+	SessionID          uuid.UUID
+	JobID              uuid.UUID
+	CriteriaID         uint
+	MarketID           uint
+	Criteria           Criteria
+	Market             Market
+	AllowIncrementPage bool
+}
+
+func (job SessionJob) ToString() string {
+	return fmt.Sprintf("JOB | Market: %s | Brand: %s | Model: %s | Fuel: %s | Page : %d",
+		job.Market.Name, job.Criteria.Brand, job.Criteria.CarModel, job.Criteria.Fuel, job.Market.PageNumber)
 }
 
 type ScrapeResult struct {
@@ -45,6 +51,6 @@ type PageToScrapeJob struct {
 	SessionID  uuid.UUID
 	MarketID   uint
 	CriteriaID uint
-	PageURL    urlbuilder.PageURL
+	PageURL    PageURL
 	Visited    bool
 }

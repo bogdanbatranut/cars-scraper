@@ -28,6 +28,7 @@ type URLBuilder struct {
 	criteria               jobs.Criteria
 	modelsMap              map[string]string
 	brandModelParamsValues map[string]map[string]BrandModelValues
+	fuelParam              map[string]string
 }
 
 func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
@@ -35,6 +36,7 @@ func NewURLBuilder(criteria jobs.Criteria) *URLBuilder {
 		criteria:               criteria,
 		modelsMap:              initModelsAdapterMap(),
 		brandModelParamsValues: initParamNames(),
+		fuelParam:              initFuelParams(),
 	}
 }
 
@@ -47,9 +49,25 @@ func (b URLBuilder) GetPageURL(pageNumber int) string {
 	if b.brandModelParamsValues[brand][model].SubModel != nil {
 		subModelParamValue = *b.brandModelParamsValues[brand][model].SubModel
 	}
-	fuel := b.criteria.Fuel
-	url := fmt.Sprintf("https://www.mobile.de/ro/automobil/%s-%s/vhc:car,pgn:%d,pgs:50,srt:price,sro:asc,ms1:%s_%s_%s,frn:2019,ful:%s,mlx:125000,dmg:false", brand, model, pageNumber, brandParamValue, modelParamValue, subModelParamValue, fuel)
+
+	fuelParam := ""
+	fuel := b.fuelParam[b.criteria.Fuel]
+	if fuel != "" {
+		fuelParam = fmt.Sprintf(",ful:%s", fuel)
+	}
+
+	url := fmt.Sprintf("https://www.mobile.de/ro/automobil/%s-%s/vhc:car,pgn:%d,pgs:50,srt:price,sro:asc,ms1:%s_%s_%s,frn:%d%s,mlx:125000,dmg:false", brand, model, pageNumber, brandParamValue, modelParamValue, subModelParamValue, *b.criteria.YearFrom, fuelParam)
 	return url
+}
+
+func initFuelParams() map[string]string {
+	fuelMap := make(map[string]string)
+	fuelMap["diesel"] = "diesel"
+	fuelMap["petrol"] = "petrol"
+	fuelMap["hybrid-petrol"] = "hybrid_petrol"
+	fuelMap["hybrid-diesel"] = "hybrid_diesel"
+	fuelMap["hybrid"] = "hybrid"
+	return fuelMap
 }
 
 func initModelsAdapterMap() map[string]string {
@@ -67,6 +85,7 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["s90"] = "s90"
 	modelsMap["xc90"] = "xc90"
 	modelsMap["xc60"] = "xc60"
+	modelsMap["xc40"] = "xc40"
 	modelsMap["glb-class"] = "clasa-glb"
 	modelsMap["x3"] = "x3"
 	modelsMap["glc-class"] = "clasa-glc"
@@ -74,7 +93,15 @@ func initModelsAdapterMap() map[string]string {
 	modelsMap["octavia"] = "octavia"
 	modelsMap["superb"] = "superb"
 	modelsMap["mokka"] = "mokka"
-
+	modelsMap["yaris-cross"] = "yaris-cross"
+	modelsMap["touareg"] = "touareg"
+	modelsMap["a6"] = "a6"
+	modelsMap["q8"] = "q8"
+	modelsMap["q7"] = "q7"
+	modelsMap["q5"] = "q5"
+	modelsMap["q3"] = "q3"
+	modelsMap["cx-60"] = "cx-60"
+	modelsMap["kodiaq"] = "kodiaq"
 	return modelsMap
 }
 
@@ -100,6 +127,12 @@ func initParamNames() map[string]map[string]BrandModelValues {
 		Model: "12",
 	}
 	skModelsMap["superb"] = sks
+
+	sKodiaq := BrandModelValues{
+		Brand: "22900",
+		Model: "19",
+	}
+	skModelsMap["kodiaq"] = sKodiaq
 
 	mbModelsMap := map[string]BrandModelValues{}
 
@@ -158,6 +191,12 @@ func initParamNames() map[string]map[string]BrandModelValues {
 	}
 	volvoModelsMap["xc90"] = vxc90
 
+	vxc40 := BrandModelValues{
+		Brand: "25100",
+		Model: "45",
+	}
+	volvoModelsMap["xc40"] = vxc40
+
 	bmwModelsMap := map[string]BrandModelValues{}
 	params["volvo"] = volvoModelsMap
 
@@ -209,6 +248,63 @@ func initParamNames() map[string]map[string]BrandModelValues {
 	}
 	bmwModelsMap["seria-7"] = bmw7
 	params["bmw"] = bmwModelsMap
+
+	toyotaModelsMap := map[string]BrandModelValues{}
+	toyotaYarisCross := BrandModelValues{
+		Brand: "24100",
+		Model: "78",
+	}
+	toyotaModelsMap["yaris-cross"] = toyotaYarisCross
+	params["toyota"] = toyotaModelsMap
+
+	vwModelsMap := map[string]BrandModelValues{}
+	vwTouareg := BrandModelValues{
+		Brand: "25200",
+		Model: "36",
+	}
+	vwModelsMap["touareg"] = vwTouareg
+	params["volkswagen"] = vwModelsMap
+
+	audiModelsMap := map[string]BrandModelValues{}
+	a6 := BrandModelValues{
+		Brand: "1900",
+		Model: "10",
+	}
+	audiModelsMap["a6"] = a6
+
+	q8 := BrandModelValues{
+		Brand: "1900",
+		Model: "46",
+	}
+	audiModelsMap["q8"] = q8
+
+	q7 := BrandModelValues{
+		Brand: "1900",
+		Model: "15",
+	}
+	audiModelsMap["q7"] = q7
+
+	q5 := BrandModelValues{
+		Brand: "1900",
+		Model: "32",
+	}
+	audiModelsMap["q5"] = q5
+
+	q3 := BrandModelValues{
+		Brand: "1900",
+		Model: "37",
+	}
+	audiModelsMap["q3"] = q3
+
+	params["audi"] = audiModelsMap
+
+	mazdaModelsMap := map[string]BrandModelValues{}
+	cx60 := BrandModelValues{
+		Brand: "16800",
+		Model: "63",
+	}
+	mazdaModelsMap["cx-60"] = cx60
+	params["mazda"] = mazdaModelsMap
 
 	return params
 }
