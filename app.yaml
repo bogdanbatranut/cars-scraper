@@ -1,4 +1,8 @@
 app:
+  backendlogs:
+    port: "8085"
+  prod: "true"
+  dev : "false"
   baseurl: "dev.auto-mall.ro"
   test:
     db:
@@ -8,6 +12,10 @@ app:
     pass: "siana1316"
     name: "automall"
     host: "dev.auto-mall.ro"
+    vehicles: "vehicles"
+    logs: "logs"
+    mapper : "mapper"
+#    host: "65.108.215.227"
 service:
   sessionstarter:
     http:
@@ -28,3 +36,6 @@ smq:
 mock:
   http:
     port: "4114"
+browser:
+  tracing: "false"
+  monitor: "false"

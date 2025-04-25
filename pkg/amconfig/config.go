@@ -2,6 +2,7 @@ package amconfig
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,18 +14,31 @@ const (
 	SessionStarterHTTPPort = "service.sessionstarter.http.port"
 	BackendServiceHTTPPort = "service.backend.http.port"
 
-	AppBaseURL    = "app.baseurl"
-	AppDBUser     = "app.db.user"
-	AppDBPass     = "app.db.pass"
-	AppDBName     = "app.db.name"
-	AppTestDBName = "app.test.db.name"
-	AppDBHost     = "app.db.host"
-	SMQHTTPPort   = "smq.http.port"
-	SMQURL        = "smq.url"
-	MockHTTPPort  = "mock.http.port"
+	AppIsProd                     = "app.prod"
+	AppIsDev                      = "app.dev"
+	AppBaseURL                    = "app.baseurl"
+	AppDBUser                     = "app.db.user"
+	AppDBPass                     = "app.db.pass"
+	AppDBName                     = "app.db.name"
+	AppDBVehiclesName             = "app.db.vehicles"
+	AppDBLogsName                 = "app.db.logs"
+	AppDBMapperName               = "app.db.mapper"
+	AppTestDBName                 = "app.test.db.name"
+	AppDBHost                     = "app.db.host"
+	SMQHTTPPort                   = "smq.http.port"
+	SMQURL                        = "smq.url"
+	AppBackendLogsPort            = "app.backendlogs.port"
+	MockHTTPPort                  = "mock.http.port"
+	BrowserUseTracing             = "browser.tracing"
+	BrowserWithMonitoring         = "browser.monitor"
+	PageScraperDockerContainerURL = "pagescraper.docker.container.url"
+	//- PAGESCRAPER_USE_DOCKER_ROD = true
+	//- PAGESCRAPER_DOCKER_CONTAINER_URL = "http://dev.auto-mall.ro:7317
 
 	SMQJobsTopicName    = "smq.jobs.topic.name"
 	SMQResultsTopicName = "smq.results.topic.name"
+
+	TestVar = "test.var"
 )
 
 type IConfig interface {
@@ -69,12 +83,21 @@ func createViperConfig() (IConfig, error) {
 	if err != nil {
 		log.Println("No configuration folder found")
 	}
+	log.Println(*path)
 
-	viper.SetConfigName("app")
+	if hasDevelopmentConfigFile(path) {
+		viper.SetConfigName("app_dev")
+	} else {
+		viper.SetConfigName("app")
+	}
+	viper.SetConfigName("app_dev")
 	viper.AddConfigPath(*path)
 	viper.AddConfigPath(".")
 
 	// ----- Env bindings -----
+	_ = viper.BindEnv(AppIsDev, "APP_DEV")
+	_ = viper.BindEnv(AppIsProd, "APP_PROD")
+
 	_ = viper.BindEnv(SessionStarterHTTPPort, "SESSIONSTARTER_HTTP_PORT")
 	_ = viper.BindEnv(BackendServiceHTTPPort, "BACKEND_HTTP_PORT")
 
@@ -83,6 +106,11 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(AppDBUser, "APP_DB_USER")
 	_ = viper.BindEnv(AppDBPass, "APP_DB_PASS")
 	_ = viper.BindEnv(AppDBName, "APP_DB_NAME")
+
+	_ = viper.BindEnv(AppDBVehiclesName, "APP_DB_VEHICLES")
+	_ = viper.BindEnv(AppDBLogsName, "APP_DB_LOGS")
+
+	_ = viper.BindEnv(AppDBMapperName, "APP_DB_MAPPER")
 	_ = viper.BindEnv(AppDBHost, "APP_DB_HOST")
 
 	_ = viper.BindEnv(SMQHTTPPort, "SMQ_HTTP_PORT")
@@ -91,6 +119,13 @@ func createViperConfig() (IConfig, error) {
 	_ = viper.BindEnv(SMQResultsTopicName, "SMQ_RESULTS_TOPIC_NAME")
 
 	_ = viper.BindEnv(MockHTTPPort, "MOCK_HTTP_PORT")
+	_ = viper.BindEnv(AppBackendLogsPort, "APP_BACKENDLOGS_PORT")
+
+	_ = viper.BindEnv(TestVar, "TEST_VAR")
+
+	_ = viper.BindEnv(BrowserUseTracing, "BROWSER_TRACING")
+	_ = viper.BindEnv(BrowserWithMonitoring, "BROWSER_MONITORING")
+	_ = viper.BindEnv(PageScraperDockerContainerURL, "PAGESCRAPER_DOCKER_CONTAINER_URL")
 
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()
@@ -104,6 +139,18 @@ func createViperConfig() (IConfig, error) {
 	return viper.GetViper(), nil
 }
 
+func hasDevelopmentConfigFile(path *string) bool {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return false
+	}
+	_, err = os.Stat(fmt.Sprintf("%s/app_dev.yaml", currentDir))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func getConfigFileDir() (*string, error) {
 	ex, err := os.Executable()
 	if err != nil {
@@ -114,5 +161,6 @@ func getConfigFileDir() (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &dir, err
 }

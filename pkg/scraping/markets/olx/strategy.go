@@ -3,6 +3,7 @@ package olx
 import (
 	"carscraper/pkg/jobs"
 	"carscraper/pkg/logging"
+	"carscraper/pkg/scraping/icollector"
 	"encoding/json"
 	"strconv"
 )
@@ -15,35 +16,65 @@ func NewOlxStrategy(logginService *logging.ScrapeLoggingService) OlxStrategy {
 	return OlxStrategy{loggingService: logginService}
 }
 
-func (s OlxStrategy) Execute(job jobs.SessionJob) ([]jobs.Ad, bool, error) {
-	var ads []jobs.Ad
+func (s OlxStrategy) Execute(job jobs.SessionJob) icollector.AdsResults {
+	var ads *[]jobs.Ad
 
 	request := NewRequest()
 	urlBuilder := NewURLBuilder(job.Criteria)
 	url := urlBuilder.GetPageURL(job.Market.PageNumber)
 
 	if url == nil {
-		return ads, true, nil
+		//return ads, true, nil
+		return icollector.AdsResults{
+			Ads:        ads,
+			IsLastPage: true,
+			Error:      nil,
+		}
 	} else {
 		data, err := request.GetPage(*url)
 		if err != nil {
-			return nil, true, err
+			//return nil, true, err
+			return icollector.AdsResults{
+				Ads:        nil,
+				IsLastPage: true,
+				Error:      err,
+			}
 		}
 		response, err := s.toStruct(data)
 		if err != nil {
-			return ads, true, err
+			//return ads, true, err
+			return icollector.AdsResults{
+				Ads:        ads,
+				IsLastPage: true,
+				Error:      err,
+			}
 		}
 		ads = s.getAds(*response, job.Criteria)
 		if response.Links.Next == nil {
-			return ads, true, nil
+			//return ads, true, nil
+			return icollector.AdsResults{
+				Ads:        ads,
+				IsLastPage: true,
+				Error:      nil,
+			}
 		} else {
-			return ads, false, nil
+			//return ads, false, nil
+			return icollector.AdsResults{
+				Ads:        ads,
+				IsLastPage: false,
+				Error:      nil,
+			}
 		}
 	}
-	return ads, true, nil
+	//return ads, true, nil
+	return icollector.AdsResults{
+		Ads:        ads,
+		IsLastPage: true,
+		Error:      nil,
+	}
 }
 
-func (s OlxStrategy) getAds(response OlxResponse, criteria jobs.Criteria) []jobs.Ad {
+func (s OlxStrategy) getAds(response OlxResponse, criteria jobs.Criteria) *[]jobs.Ad {
 	olxAds := response.Data
 	ads := []jobs.Ad{}
 	for _, olxAd := range olxAds {
@@ -68,7 +99,7 @@ func (s OlxStrategy) getAds(response OlxResponse, criteria jobs.Criteria) []jobs
 		}
 		ads = append(ads, ad)
 	}
-	return ads
+	return &ads
 }
 
 func (s OlxStrategy) toStruct(bytes []byte) (*OlxResponse, error) {

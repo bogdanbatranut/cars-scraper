@@ -14,6 +14,7 @@ type ICriteriaRepository interface {
 	GetAll() *[]adsdb.Criteria
 	UpdateSelectedCriterias(criterias []valueobjects.Selectable) error
 	UpdateSelectedMarkets(markets []valueobjects.Selectable) error
+	GetCriteriaByID(id uint) *adsdb.Criteria
 }
 
 type SQLCriteriaRepository struct {
@@ -86,4 +87,10 @@ func (repo SQLCriteriaRepository) UpdateSelectedMarkets(markets []valueobjects.S
 		return transactionErr
 	}
 	return nil
+}
+
+func (repo SQLCriteriaRepository) GetCriteriaByID(id uint) *adsdb.Criteria {
+	var criteria adsdb.Criteria
+	repo.db.First(&criteria, id)
+	return &criteria
 }

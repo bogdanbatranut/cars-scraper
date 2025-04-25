@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type Ad struct {
 	*gorm.Model
+	Title        *string `gorm:"column:title"`
 	Brand        string  `gorm:"not null"`
 	CarModel     string  `gorm:"not null"`
 	Year         int     `gorm:"not null"`
@@ -20,5 +21,6 @@ type Ad struct {
 	Market       Market
 	Seller       Seller
 	Prices       []Price
+	Followed     bool `gorm:"not null"`
 	//DealerMarketPrices []DealerMarketPrice `gorm:"many2many:dealer_market_prices;"`
 }

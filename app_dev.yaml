@@ -1,0 +1,45 @@
+app:
+  backendlogs:
+    port: "8085"
+  prod: "false"
+  dev : "true"
+  baseurl: "dev.auto-mall.ro"
+  test:
+    db:
+      name: "test"
+  db:
+    user: "dev"
+    pass: "siana1316"
+    name: "automall"
+    host: "dev.auto-mall.ro"
+    vehicles: "vehicles"
+    logs: "logs"
+    mapper : "mapper"
+#    host: "65.108.215.227"
+service:
+  sessionstarter:
+    http:
+      port: "3223"
+  backend:
+    http:
+      port: "8080"
+smq:
+  http:
+    port: "3113"
+  url: "127.0.0.1"
+  jobs:
+    topic:
+      name: "jobs"
+  results:
+    topic:
+      name: "results"
+mock:
+  http:
+    port: "4114"
+pagescraper:
+  use:
+    docker:
+      rod: "false"
+  docker:
+    container:
+      url: "http://dev.auto-mall.ro:7317"
