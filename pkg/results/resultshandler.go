@@ -11,6 +11,11 @@ type SessionCriteriaMarketResultsHandler struct {
 	results map[string]map[uint]map[uint]*MarketScrapingResults
 }
 
+type MarketScrapingResults struct {
+	pageResults    []PageResult
+	lastPageNumber *int
+}
+
 func NewSessionCriteriaMarketResults() *SessionCriteriaMarketResultsHandler {
 	m := make(map[string]map[uint]map[uint]*MarketScrapingResults)
 	return &SessionCriteriaMarketResultsHandler{
@@ -65,11 +70,11 @@ func (scmr SessionCriteriaMarketResultsHandler) Print() {
 				log.Printf("Session: %+v", sessionID)
 				log.Printf("Criteria: %d", criteriaID)
 				log.Printf("Market: %d", marketID)
-				if results.adsInPage == nil {
+				if results.pageResults == nil {
 					log.Printf("No results !!!")
 					break
 				}
-				for _, resultsPages := range results.adsInPage {
+				for _, resultsPages := range results.pageResults {
 					for _, res := range *resultsPages.results {
 						log.Printf(" Make: %s Model: %s", res.Brand, res.Model)
 					}
@@ -80,29 +85,14 @@ func (scmr SessionCriteriaMarketResultsHandler) Print() {
 	log.Println("________________________________________________________________________________________________")
 }
 
-type MarketResults struct {
-	MarketID     uint
-	ResultsPages MarketScrapingResults
-}
-
-type MarketScrapingResults struct {
-	adsInPage      []AdsInPage
-	lastPageNumber *int
-}
-
-func (rp MarketScrapingResults) getNumOfExistingAds() int {
-	exAds := rp.adsInPage
-	return len(exAds)
-}
-
 func (rp MarketScrapingResults) getAds() []jobs.Ad {
 	ads := []jobs.Ad{}
-	if rp.adsInPage[0].results == nil {
+	if rp.pageResults[0].results == nil {
 		return nil
 	}
-	for _, adsInPage := range rp.adsInPage {
+	for _, adsInPage := range rp.pageResults {
 		if *adsInPage.results == nil {
-			log.Println("We have null adsInPage.results")
+			log.Println("We have null pageResults.results")
 			continue
 		}
 		ads = append(ads, *adsInPage.results...)
@@ -111,19 +101,27 @@ func (rp MarketScrapingResults) getAds() []jobs.Ad {
 }
 
 func NewResultsPages() *MarketScrapingResults {
-	var adsArray = []AdsInPage{}
+	var adsArray = []PageResult{}
 	lastPage := 0
 	return &MarketScrapingResults{
-		adsInPage:      adsArray,
+		pageResults:    adsArray,
 		lastPageNumber: &lastPage,
 	}
 
 }
 
-type AdsInPage struct {
+type PageResult struct {
 	pageNumber int
 	isLastPage bool
 	results    *[]jobs.Ad
+}
+
+func NewPageResult(pageNumber int, isLastPage bool, ads *[]jobs.Ad) *PageResult {
+	return &PageResult{
+		pageNumber: pageNumber,
+		isLastPage: isLastPage,
+		results:    ads,
+	}
 }
 
 func AddPageResults(pageNumber int, isLastPage bool, ads *jobs.AdsPageJobResult, rep *MarketScrapingResults) {
@@ -133,11 +131,11 @@ func AddPageResults(pageNumber int, isLastPage bool, ads *jobs.AdsPageJobResult,
 			log.Println("Got last page for a criteria...")
 		}
 	}
-	aip := AdsInPage{
+	aip := PageResult{
 		pageNumber: pageNumber,
 		results:    ads.Data,
 	}
-	rep.adsInPage = append(rep.adsInPage, aip)
+	rep.pageResults = append(rep.pageResults, aip)
 }
 
 func (rep MarketScrapingResults) IsComplete() bool {
@@ -156,7 +154,7 @@ func (rep MarketScrapingResults) IsComplete() bool {
 }
 
 func (rp MarketScrapingResults) findResultsPage(page int) bool {
-	for _, adsInPage := range rp.adsInPage {
+	for _, adsInPage := range rp.pageResults {
 		if adsInPage.pageNumber == page {
 			return true
 		}

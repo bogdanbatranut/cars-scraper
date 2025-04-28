@@ -97,25 +97,6 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 			}
 			dbAd = foundAd
 
-			// get all ads in criteria
-
-			var adsInCriteria []adsdb.Ad
-			tx = r.db.Model(&adsdb.Ad{}).Preload("Prices").Where("criteria_id = ?", dbAd.CriteriaID).Find(&adsInCriteria)
-			if tx.Error != nil {
-				log.Println("Error getting ads in criteria")
-			}
-			minDbPrice := 10000000
-			for _, ad := range adsInCriteria {
-				lastPrice := ad.Prices[len(ad.Prices)-1].Price
-				if minDbPrice < lastPrice {
-					minDbPrice = lastPrice
-				}
-			}
-
-			if *foundAd.CurrentPrice < minDbPrice {
-				r.eventsListener.Fire(events.MinPriceCreatedEvent{Ad: dbAd})
-			}
-
 		} else {
 			// we have the ad in the db
 			// if the ad is inactive we must activate
@@ -377,4 +358,53 @@ func (r AdsRepository) GetNewEntryLowestPrice(criteriaID uint) (*adsdb.Ad, error
 	}
 
 	return &ad, nil
+}
+
+func (r AdsRepository) GetMinPriceForCriteria(criteriaID uint) ([]adsdb.Ad, error) {
+	//SELECT
+	//a.criteria_id,
+	//	a.id AS ad_id,
+	//	a.title,
+	//	a.brand,
+	//	a.car_model,
+	//	a.current_price AS lowest_price
+	//FROM
+	//automall.ads a
+	//JOIN (
+	//	SELECT
+	//criteria_id,
+	//	MIN(current_price) AS lowest_price
+	//FROM
+	//automall.ads
+	//WHERE
+	//deleted_at IS NULL
+	//GROUP BY
+	//criteria_id
+	//) subquery ON a.criteria_id = subquery.criteria_id AND a.current_price = subquery.lowest_price
+	//WHERE
+	//a.deleted_at IS NULL
+	//ORDER BY
+	//a.criteria_id ASC;
+
+	var ads []adsdb.Ad
+
+	// Subquery to find the minimum current_price for each criteria_id
+	subquery := r.db.Model(&adsdb.Ad{}).
+		Select("criteria_id, MIN(current_price) AS lowest_price").
+		Where("deleted_at IS NULL").
+		Group("criteria_id")
+
+	// Main query to join the subquery and fetch the required fields
+	tx := r.db.Model(&adsdb.Ad{}).
+		Select("ads.criteria_id, ads.id AS id, ads.title, ads.brand, ads.car_model, ads.current_price AS lowest_price").
+		Joins("JOIN (?) AS subquery ON ads.criteria_id = subquery.criteria_id AND ads.current_price = subquery.lowest_price", subquery).
+		Where("ads.deleted_at IS NULL").
+		Where("ads.criteria_id = ?", criteriaID). // Pass criteria_id as a parameter
+		Order("ads.criteria_id ASC").
+		Find(&ads)
+
+	if tx.Error != nil {
+		panic(tx.Error)
+	}
+	return ads, nil
 }
