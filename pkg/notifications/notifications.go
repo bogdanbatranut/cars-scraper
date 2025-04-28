@@ -87,6 +87,34 @@ func (s *NotificationsService) SendNewMinPrice(ad adsdb.Ad) error {
 	return nil
 }
 
+func (s *NotificationsService) SendDeleteAdNotification(ad adsdb.Ad) error {
+	req, err := http.NewRequest("POST", s.baseURL, bytes.NewBuffer([]byte(*ad.Title)))
+
+	if err != nil {
+		return err
+	}
+	headerValue := fmt.Sprintf("view, Open ad, http://dev.auto-mall.ro/ad/%d, clear=true", ad.ID)
+
+	req.Header.Set("Priority", "urgent")
+	req.Header.Set("Tags", "warning")
+	req.Header.Set("Title", "DELETED AD")
+	req.Header.Set("Actions", headerValue)
+
+	req.Header.Set("Content-Type", "text/plain")
+
+	resp, err := s.httpService.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to send notification, status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 func (s *NotificationsService) SendMinPriceCreatedNotification(ad adsdb.Ad) error {
 	req, err := http.NewRequest("POST", s.baseURL, bytes.NewBuffer([]byte(*ad.Title)))
 

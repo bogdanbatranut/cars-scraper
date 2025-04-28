@@ -15,7 +15,7 @@ type UpdatePriceEvent struct {
 }
 
 type DeleteEvent struct {
-	AdID uint
+	Ad adsdb.Ad
 }
 
 type MinPriceCreatedEvent struct {

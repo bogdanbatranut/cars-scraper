@@ -185,6 +185,14 @@ func (r AdsRepository) Upsert(ads []adsdb.Ad) (*[]uint, error) {
 
 func (r AdsRepository) DeleteAd(adID uint) {
 	var ad adsdb.Ad
+	tx := r.db.Find(&ad, adID)
+	if tx.Error != nil {
+		log.Println(tx.Error)
+		return
+	}
+	if ad.Followed {
+		r.eventsListener.Fire(events.DeleteEvent{Ad: ad})
+	}
 	r.db.Model(adsdb.Ad{}).Delete(&ad, adID)
 }
 
