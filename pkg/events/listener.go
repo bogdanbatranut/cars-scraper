@@ -55,7 +55,11 @@ func (el *EventsListener) handleUpdatePrice(event UpdatePriceEvent) {
 
 }
 func (el *EventsListener) handleDelete(event DeleteEvent) {
-	// Handle delete event
+	err := el.notificationService.SendDeleteAdNotification(event.Ad)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (el *EventsListener) handleMinPriceCreated(event MinPriceCreatedEvent) {
