@@ -27,6 +27,7 @@ type ResultsConsumerService struct {
 	repo                *repos.AdsRepository
 	notificationService *notifications.NotificationsService
 	eventsListener      *events.EventsListener
+	resultsManager      *ResultsManager
 }
 
 type ResultsReaderServiceConfiguration func(rcs *ResultsConsumerService)
@@ -36,6 +37,7 @@ func NewResultsReaderService(cfgs ...ResultsReaderServiceConfiguration) *Results
 	service := &ResultsConsumerService{
 		scrapeResults:  *res,
 		pageAdsChannel: make(chan jobs.AdsPageJobResult),
+		resultsManager: NewResultsManager(),
 	}
 	for _, cfg := range cfgs {
 		cfg(service)
@@ -165,7 +167,6 @@ func (rcs ResultsConsumerService) processResults() {
 
 		if result.Data != nil {
 			log.Printf("Got %d ads for market: %s ==> %s %s", len(*result.Data), result.RequestedScrapingJob.Market.Name, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
-
 		} else {
 			log.Println("The found ads are nil")
 		}
@@ -192,23 +193,24 @@ func (rcs ResultsConsumerService) processResults() {
 			result.IsLastPage = true
 			//continue
 		}
-
-		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
+		// add results to the scrapeResults
+		sessionIDStr := result.RequestedScrapingJob.SessionID.String()
+		rcs.resultsManager.AddPageResults(sessionIDStr, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
 		err = rcs.logger.PageLogSetConsumed(pageLog)
 		if err != nil {
 			log.Println(err.Error())
 		}
 		rcs.logger.CriteriaLogAddNumberOfAds(*criteriaLog, len(*result.Data))
-		complete := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
-		if complete {
+		completeCriteriaInMarket := rcs.resultsManager.isCompleteMarket(sessionIDStr, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID)
+		isCompleteCriteria := rcs.resultsManager.isCompleteCriteria(sessionIDStr, result.RequestedScrapingJob.CriteriaID)
+		if completeCriteriaInMarket {
 			brand := result.RequestedScrapingJob.Criteria.Brand
 			model := result.RequestedScrapingJob.Criteria.CarModel
 			market := result.RequestedScrapingJob.Market.Name
 			marketID := result.RequestedScrapingJob.MarketID
 			criteriaID := result.RequestedScrapingJob.CriteriaID
 
-			marketSrapintResults := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID]
-			ads := marketSrapintResults.getAds()
+			ads := rcs.resultsManager.GetAds(sessionIDStr, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID)
 			totalAds := len(ads)
 			if ads == nil {
 				continue
@@ -255,5 +257,159 @@ func (rcs ResultsConsumerService) processResults() {
 			//}
 			//rcs.eventsListener.Fire(events.MinPriceUpdatedEvent{Ad: minPriceAd})
 		}
+		if isCompleteCriteria {
+			//// get min price for ad in criteria
+			//todayCheapestAd, err := rcs.repo.GetTodaysLowestPriceInCriteria(result.RequestedScrapingJob.CriteriaID)
+			//if err != nil {
+			//	log.Println("Error getting today's lowest price in criteria")
+			//}
+			//if todayCheapestAd != nil {
+			//	err = rcs.notificationService.SendNewMinPrice(*todayCheapestAd)
+			//	if err != nil {
+			//		log.Println("Error sending new min) price notification")
+			//	}
+			//}
+			//
+			//todaysNewCheapestAd, err := rcs.repo.GetNewEntryLowestPrice(result.RequestedScrapingJob.CriteriaID)
+			//if err != nil {
+			//	log.Println("Error getting today's lowest price in criteria")
+			//}
+			//if todaysNewCheapestAd != nil {
+			//	err = rcs.notificationService.SendNewMinPrice(*todaysNewCheapestAd)
+			//	if err != nil {
+			//		log.Println("Error sending new min price notification")
+			//	}
+			//
+			//}
+
+			//cheapestInCriteria, err := rcs.repo.GetMinPriceForCriteria(result.RequestedScrapingJob.CriteriaID)
+			//if err != nil {
+			//	log.Println("Error getting today's lowest price in criteria")
+			//}
+			//for _, ad := range cheapestInCriteria {
+			//	err = rcs.notificationService.SendMinPriceInCriteria(ad)
+			//	if err != nil {
+			//		log.Println("Error sending new min price notification")
+			//	}
+			//}
+
+		}
 	}
 }
+
+//func (rcs ResultsConsumerService) processResultsOld() {
+//	for {
+//		result := <-rcs.pageAdsChannel
+//
+//		criteriaLog, err := rcs.logger.GetCriteriaLog(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID)
+//		if err != nil {
+//			log.Println(err)
+//		}
+//
+//		pageLog := rcs.logger.GetPageLog(result.RequestedScrapingJob.SessionID,
+//			result.RequestedScrapingJob.JobID,
+//			criteriaLog.ID,
+//			result.RequestedScrapingJob.MarketID,
+//			result.RequestedScrapingJob.Market.PageNumber,
+//		)
+//
+//		if !result.Success {
+//			// TODO implement error in result...
+//			rcs.logger.PageLogSetError(pageLog, "NOT SUCCESSFUL")
+//			continue
+//		}
+//
+//		if result.Data != nil {
+//			log.Printf("Got %d ads for market: %s ==> %s %s", len(*result.Data), result.RequestedScrapingJob.Market.Name, result.RequestedScrapingJob.Criteria.Brand, result.RequestedScrapingJob.Criteria.CarModel)
+//
+//		} else {
+//			log.Println("The found ads are nil")
+//		}
+//
+//		// TODO results.Data might be null... this happens on mobile when traversing pages... at some point you just get an empty page..
+//
+//		if result.Data == nil || len(*result.Data) == 0 {
+//			//log.Printf("results %+v", result)
+//			result.Data = &[]jobs.Ad{jobs.Ad{
+//				Brand:              "",
+//				Model:              "",
+//				Year:               0,
+//				Km:                 0,
+//				Fuel:               "",
+//				Price:              0,
+//				AdID:               "",
+//				Ad_url:             "",
+//				SellerType:         "",
+//				SellerName:         nil,
+//				SellerNameInMarket: nil,
+//				SellerOwnURL:       nil,
+//				SellerMarketURL:    nil,
+//			}}
+//			result.IsLastPage = true
+//			//continue
+//		}
+//
+//		rcs.scrapeResults.Add(result.RequestedScrapingJob.SessionID, result.RequestedScrapingJob.CriteriaID, result.RequestedScrapingJob.MarketID, result)
+//		err = rcs.logger.PageLogSetConsumed(pageLog)
+//		if err != nil {
+//			log.Println(err.Error())
+//		}
+//		rcs.logger.CriteriaLogAddNumberOfAds(*criteriaLog, len(*result.Data))
+//		completeCriteriaInMarket := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID].IsComplete()
+//		if completeCriteriaInMarket {
+//			brand := result.RequestedScrapingJob.Criteria.Brand
+//			model := result.RequestedScrapingJob.Criteria.CarModel
+//			market := result.RequestedScrapingJob.Market.Name
+//			marketID := result.RequestedScrapingJob.MarketID
+//			criteriaID := result.RequestedScrapingJob.CriteriaID
+//
+//			marketSrapintResults := rcs.scrapeResults.results[result.RequestedScrapingJob.SessionID.String()][result.RequestedScrapingJob.CriteriaID][result.RequestedScrapingJob.MarketID]
+//			ads := marketSrapintResults.getAds()
+//			totalAds := len(ads)
+//			if ads == nil {
+//				continue
+//			}
+//			log.Printf("WE HAVE A COMPLETE CRITERIA IN THE MARKET -> Brand: %s Model: %s Market: %s Total Ads: %d", brand, model, market, totalAds)
+//			// transform them to db writeable results
+//			upsertedAdsIDs, err := rcs.resultsWriter.WriteAds(ads, result.RequestedScrapingJob.MarketID, result.RequestedScrapingJob.CriteriaID)
+//			if err != nil {
+//				panic(err)
+//			}
+//			exsitingAdsIDs := rcs.resultsWriter.GetAllAdsIDs(marketID, criteriaID)
+//
+//			for _, exsitingAdID := range *exsitingAdsIDs {
+//				found := false
+//				for _, upsertedAdID := range *upsertedAdsIDs {
+//					if exsitingAdID == upsertedAdID {
+//						found = true
+//						break
+//					}
+//				}
+//				if !found {
+//					rcs.resultsWriter.DeleteAd(exsitingAdID)
+//					//log.Printf("Deleted record with ID: %d", exsitingAdID)
+//				}
+//			}
+//			rcs.logger.CriteriaLogSetAsFinished(*criteriaLog)
+//			rcs.logger.CriteriaLogSetSuccessful(*criteriaLog)
+//
+//			//TODO min price updated needs more complex logic
+//			//// get all ads in criteria
+//			//
+//			//var adsInCriteria []adsdb.Ad
+//			//tx := rcs.repo.GetDB().Model(&adsdb.Ad{}).Preload("Prices").Find(&adsInCriteria, *exsitingAdsIDs)
+//			//if tx.Error != nil {
+//			//	log.Println("Error getting ads in criteria")
+//			//}
+//			//minDbPrice := 10000000
+//			//var minPriceAd adsdb.Ad
+//			//for _, ad := range adsInCriteria {
+//			//	lastPrice := ad.Prices[len(ad.Prices)-1].Price
+//			//	if minDbPrice < lastPrice {
+//			//		minPriceAd = ad
+//			//	}
+//			//}
+//			//rcs.eventsListener.Fire(events.MinPriceUpdatedEvent{Ad: minPriceAd})
+//		}
+//	}
+//}
